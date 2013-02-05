@@ -65,7 +65,7 @@ The API is shared by both [Bitcoin-Central.net](https://bitcoin-central.net) and
        - [States](#states)
           - [Transfer (Bitcoin transfer, Wire transfers) statuses](#transfer-bitcoin-transfer-wire-transfer-statuses)
           - [Coupon statuses](#coupon-statuses)
-          - [E-mail transfer statuses](#email-transfer-statuses)
+          - [E-mail transfer statuses](#e-mail-transfer-statuses)
           - [Invoice statuses](#invoice-statuses)
           - [Trade order statuses](#trade-order-statuses)
 
