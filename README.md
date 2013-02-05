@@ -7,6 +7,7 @@ The API is shared by both [Bitcoin-Central.net](https://bitcoin-central.net) and
 ## Table of contents
 
 - [**General API description**](#general-api-description)
+<p></p> 
   - [Authentication](#authentication)
   - [Base URL](#base-url)
   - [Formats and required HTTP request headers](#formats-and-required-http-request-headers)
