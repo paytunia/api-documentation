@@ -63,11 +63,11 @@ The API is shared by both [Bitcoin-Central.net](https://bitcoin-central.net) and
        - [Operation types](#operation-types)
        
        - [States](#states)
-          - Transfers (Bitcoin transfer, Wire transfers)
-          - Coupons
-          - E-mail transfers
-          - Invoices
-          - Trade orders
+          - [Transfer (Bitcoin transfer, Wire transfers) statuses](#transfer-bitcoin-transfer-wire-transfer-statuses)
+          - [Coupon statuses](#coupon-statuses)
+          - [E-mail transfer statuses](#email-transfer-statuses)
+          - [Invoice statuses](#invoice-statuses)
+          - [Trade order statuses](#trade-order-statuses)
 
 
 # General API description
@@ -1197,7 +1197,7 @@ The following currencies are available :
 
 ### States
 
-#### Transfers (Bitcoin transfer, Wire transfer)
+#### Transfer (Bitcoin transfer, Wire transfer) statuses
 
 The state of a transfer lets you check whether it has been sent out to the underlying network (banking network or Bitcoin network).
 
@@ -1206,7 +1206,7 @@ The state of a transfer lets you check whether it has been sent out to the under
 | pending   | The transfer hasn't been sent out yet |
 | processed | The transfer has been sent out        |
 
-#### Coupons
+#### Coupon statuses
 
 | State    | Description                             |
 |----------|-----------------------------------------|
@@ -1214,7 +1214,7 @@ The state of a transfer lets you check whether it has been sent out to the under
 | redeemed | The coupon has already been redeemed    |
 | canceled | The coupon was redeemed to the issuer   |
 
-#### E-mail transfers
+#### E-mail transfer statuses
 
 | State                | Description                                                              |
 |----------------------|--------------------------------------------------------------------------|
@@ -1224,7 +1224,7 @@ The state of a transfer lets you check whether it has been sent out to the under
 | unreachable_receiver | An error occurred while sending the e-mail notification to its recipient |
 | processed            | The recipient has collected the sent amount                              |
 
-#### Invoices
+#### Invoice statuses
 
 | State          | Description                                     |
 |----------------|-------------------------------------------------|
@@ -1235,7 +1235,7 @@ The state of a transfer lets you check whether it has been sent out to the under
 | overpaid       | The invoice has a confirmed over-payment        |
 | error          | The payment could not be converted as requested |
 
-#### Trade orders
+#### Trade order statuses
 
 | State              | Description                                                                    |
 |--------------------|--------------------------------------------------------------------------------|
