@@ -43,6 +43,7 @@ The API is shared by both [Bitcoin-Central.net](https://bitcoin-central.net) and
      - [View an invoice (Public)](#view-an-invoice-public)
      - [List invoices (A,P)](#list-invoices-ap)
      - [Create an invoice (A)](#create-an-invoice-a)
+     - [Payment callbacks](#payment-callbacks)
 <p></p>
   - [Trading](#trading)
      - [Place an order (A)](#place-an-order-a)
@@ -619,25 +620,28 @@ This call will return a JSON object representing an invoice
 
 A JSON object with the following parameters is returned.
 
-| Name                  | Type     | Description                                                     |
-|-----------------------|----------|-----------------------------------------------------------------|
-| uuid                  | UUID     | Invoice identifier                                              |
-| state                 | String   | Invoice state _(see appendix)_                                  | 
-| payment\_address      | String   | Bitcoin payment address                                         | 
-| payment\_bitcoin_\uri | String   | Payment URI, should be used to generate QR codes                |
-| amount                | Decimal  | Requested amount to be credited upon payment                    | 
-| btc_amount            | Decimal  | Payable amount expressed in BTC                                 |
-| currency              | String   | Currency in which the amount is expressed                       |
-| merchant\_reference   | String   | Merchant reference                                              |
-| merchant\_memo        | String   | Merchant memo                                                   |
-| callback\_url         | String   | URL to which a callback should be made when the invoice is paid |
-| item\_url             | String   | Order-related URL                                               |
-| paid\_at              | Datetime | Payment timestamp                                               |
-| created\_at           | Datetime | Creation timestamp                                              |
-| updated\_at           | Datetime | Update timestamp                                                |
-| expires\_at           | Datetime | Expiration timestamp                                            |
-| settled               | Boolean  | Has this invoice already been credited ?                        |
-| callback\_fired       | Boolean  | Has the HTTP callback been successfully fired ?                 |
+| Name                      | Type     | Description                                                     |
+|---------------------------|----------|-----------------------------------------------------------------|
+| uuid                      | UUID     | Invoice identifier                                              |
+| state                     | String   | Invoice state _(see appendix)_                                  | 
+| payment\_address          | String   | Bitcoin payment address                                         | 
+| payment\_bitcoin_\uri     | String   | Payment URI, should be used to generate QR codes                |
+| amount                    | Decimal  | Requested amount to be credited upon payment                    | 
+| btc_amount                | Decimal  | Payable amount expressed in BTC                                 |
+| amount\_to\_pay           | Decimal  | Amount left to pay                                              |
+| btc\_amount\_to\_pay      | Decimal  | Bitcoin amount amount left to pay                               |
+| currency                  | String   | Currency in which the amount is expressed                       |
+| merchant\_reference       | String   | Merchant reference                                              |
+| merchant\_memo            | String   | Merchant memo                                                   |
+| callback\_url             | String   | URL to which a callback should be made when the invoice is paid |
+| item\_url                 | String   | Order-related URL                                               |
+| paid\_at                  | Datetime | Payment timestamp                                               |
+| created\_at               | Datetime | Creation timestamp                                              |
+| updated\_at               | Datetime | Update timestamp                                                |
+| expires\_at               | Datetime | Expiration timestamp                                            |
+| settled                   | Boolean  | Has this invoice already been credited ?                        |
+| notification\_email\_sent | Boolean  | Has the notification e-mail already been sent ?                 |
+| public\_url               | String   | The URL at which this invoice is publicly visible and payable   |
 
 
 **Example request :** `GET /api/v1/invoices/70c7936b-f8ce-443a-8338-3762de0a1e92`
@@ -647,8 +651,10 @@ A JSON object with the following parameters is returned.
     {
       "uuid": "70c7936b-f8ce-443a-8338-3762de0a1e92",    
       "amount": 10.0, 
-      "btc_amount": 1.021732, 
-      "callback_fired": false, 
+      "amount_to_pay": 10.0,
+      "btc_amount": 1.021732,
+      "btc_amount_to_pay": 1.021732, 
+      "notification_email_sent": false, 
       "callback_url": null, 
       "created_at": "2013-01-21T10:20:07Z", 
       "currency": "EUR", 
@@ -661,7 +667,8 @@ A JSON object with the following parameters is returned.
       "payment_bitcoin_uri" : "bitcoin:1JnjJNhdKSgvMKr6xMbqVEudB3eACsGJSz?amount=100.0&label=&x-pay-curamt=100.0&x-pay-cur=BTC&x-pay-id=7653453d-6372-4ffa-bc56-1e3182ef7f35",       
       "settled": false, 
       "state": "pending", 
-      "updated_at": "2013-01-21T10:20:07Z"
+      "updated_at": "2013-01-21T10:20:07Z",
+      "public_url": "https://paytunia.com/invoices/70c7936b-f8ce-443a-8338-3762de0a1e92"
     }
 
 ### View an invoice (Public)
@@ -723,6 +730,23 @@ A JSON object with the following parameters is returned.
       "state": "pending", 
       "updated_at": "2013-01-21T10:20:07Z"
     }
+
+:uuid, 
+:state, 
+:btc_amount, 
+:payment_address, 
+:payment_bitcoin_uri, 
+:paid_at, 
+:created_at,
+:updated_at, 
+:merchant_reference, 
+:merchant_memo, 
+:item_url, 
+:currency, 
+:amount, 
+:expires_at, 
+:amount_to_pay, 
+:btc_amount_to_pay
 
 ### List invoices (A,P)
 
@@ -833,6 +857,38 @@ An invoice JSON object is returned.
       "state": "pending", 
       "updated_at": "2013-01-21T10:20:07Z"
     }
+
+### Payment callbacks
+
+When a payment is received for an invoice the backend will perform an HTTP POST to the URL given as `callback_url`. The content-type for the request will be `application/x-www-form-urlencoded`.
+
+The parameters sent are the exact same as the ones returned by a [view invoice](#view-an-invoice-a).
+
+The callback is not guaranteed to be fired and may be fired multiple times, the receiver must take it into account when designing a proper handling logic.
+
+#### Signature headers
+
+A `X-Paytunia-Signature` header is added to all callback requests. Its purpose is to authenticate the call from the backend to the callback URL, this signature **must** be properly checked by the receiving server in order to ensure that the request is legitimate and hasn't been tampered with.
+
+The signature is computed by concatenating the raw request body with the client's shared secret and applying a SHA256 hash function to it.
+
+**Example signed callback request :**
+
+In this example the client secret is `792fae4f81c12764c4e4f570920fbe89`.
+
+    POST / HTTP/1.1
+    Accept: */*
+    User-Agent: Ruby
+    Content-Type: application/x-www-form-urlencoded
+    X-Paytunia-Signature: ab9c3b33631e40d2880b2c4cf5bdf894bf42d6ea115dd2de71277e4382aaaeab
+    Connection: close
+    Host: lvh.me:3000
+    Content-Length: 642
+
+    uuid=cbfb237f-dd9e-47bd-b18b-73b2f4ccdb51&state=paid&btc_amount=100.0&payment_address=1FXWhKPChEcUnSEoFQ3DGzxKe44MDbat0.42903373550437307&payment_bitcoin_uri=bitcoin%3A1FXWhKPChEcUnSEoFQ3DGzxKe44MDbatz%3Famount%3D0.0%26label%3D%26x-pay-cur%3DBTC%26x-pay-id%3Dcbfb237f-dd9e-47bd-b18b-73b2f4ccdb51&callback_url=http%3A%2F%2Flvh.me%3A3000%2F&paid_at=2013-02-08+12%3A22%3A39+UTC&created_at=2013-02-08+12%3A22%3A39+UTC&updated_at=2013-02-08+12%3A22%3A39+UTC&merchant_reference&merchant_memo&item_url&notification_email_sent=true&currency=BTC&amount=100.0&settled=false&expires_at=2013-02-08+12%3A42%3A39+UTC&amount_to_pay=0.0&btc_amount_to_pay=0.0
+    
+In Ruby this signature can be easily checked by doing `Digest::SHA2.hexdigest(data + secret)` where `data` is the raw request body and `secret` is the client's shared secret.
+
 
 ## Trading
 
