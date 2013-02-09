@@ -731,23 +731,6 @@ A JSON object with the following parameters is returned.
       "updated_at": "2013-01-21T10:20:07Z"
     }
 
-:uuid, 
-:state, 
-:btc_amount, 
-:payment_address, 
-:payment_bitcoin_uri, 
-:paid_at, 
-:created_at,
-:updated_at, 
-:merchant_reference, 
-:merchant_memo, 
-:item_url, 
-:currency, 
-:amount, 
-:expires_at, 
-:amount_to_pay, 
-:btc_amount_to_pay
-
 ### List invoices (A,P)
 
 This call will return a paginated list of invoices for the client account.
