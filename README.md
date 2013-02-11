@@ -855,6 +855,8 @@ The URL includes :
  - A unique token used to make these invoice creations non-replayable,
  - A signature string created by hashing a shared secret along with the invoice data
  
+The current value of the shared secret for each account is available on the account details page.
+ 
 All parameters are passed in the query-string.
 
 **Request path :** `/api/v1/invoices/create_unauthenticated`
