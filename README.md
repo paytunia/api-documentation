@@ -51,7 +51,9 @@ The API is shared by both [Bitcoin-Central.net](https://bitcoin-central.net) and
      - [Cancel an order (A)](#cancel-an-order-a)
      - [View trades for an order (A)](#view-trades-for-an-order-a)
      - [View an order (A)](#view-an-order-a)
-     - [List orders (A,P)](#list-orders-ap)
+     - [List active orders (A,P)](#list-active-orders-ap)
+     - [List all orders (A,P)](#list-all-orders-ap)
+     - [Read the ticker](#read-the-ticker)     
 <p></p>
   - [Coupons](#coupons)
      - [Create a coupon (A)](#create-a-coupon-a)
@@ -77,9 +79,24 @@ The API is shared by both [Bitcoin-Central.net](https://bitcoin-central.net) and
 
 ## Authentication
 
-Authentication is currently done as previously with `HTTP Basic`. The regular username and password should be used. This is deprecated and will soon be replaced with OAuth2.
-
 Calls that require authentication are marked with "A" in the call description title.
+
+Authentication and authorization may be done with :
+
+ - HTTP Basic
+ - [OAuth2](http://oauth.net/2/)
+
+OAuth2 is useful when it is not desirable for client apps to handle the user's credentials directly or when it is necessary to have access to an account with limited privileges.
+
+The available OAuth2 scopes are : 
+
+| Scope    | Description                                                                        |
+|----------|------------------------------------------------------------------------------------|
+| read     | Read transaction history, balances and profile information                         |
+| withdraw | Perform API calls that result in money being sent or withdrawn from the account    |
+| trade    | Manage trade orders (create, read, cancel)                                         |
+| merchant | Manage invoices, read merchant dashboard and data                                  |
+| devices  | Manage devices                                                                     |
 
 ## Base URL
 
@@ -1111,7 +1128,36 @@ A JSON object with the following parameters is returned.
       "uuid": "8b32ddf1-1675-4ed3-b1bb-b4efc4ecd98c"
     }
 
-### List orders (A,P)
+### List active orders (A,P)
+
+This call will return a paginated list of the client's executable trade orders (`pending_execution`, `active` or `insufficient_funds` states).
+
+**Request path :** `/api/v1/trade_orders/active`
+
+**Request method :** `GET`
+
+**Request parameters**
+
+N/A
+
+**Example request :** `GET /api/v1/trade_orders/active`
+
+**Example response :**
+
+    [  
+      {
+        "amount": 10.0, 
+        "type": "buy", 
+        "created_at": "2013-01-21T22:15:38Z", 
+        "instructed_amount": 10.0, 
+        "price": null, 
+        "state": "pending_execution", 
+        "updated_at": "2013-01-21T22:15:38Z", 
+        "uuid": "52823408-972f-4551-acc5-e7d3f032c6d5"
+      }
+    ]
+
+### List all orders (A,P)
 
 This call will return a paginated list of the client's trade orders.
 
@@ -1144,11 +1190,40 @@ N/A
         "created_at": "2013-01-21T22:15:40Z", 
         "instructed_amount": 10.0, 
         "price": null, 
-        "state": "pending_execution", 
+        "state": "canceled", 
         "updated_at": "2013-01-21T22:15:40Z", 
         "uuid": "6e3ea778-9ef7-4e4f-9910-85e735f7b42a"
       }
     ]
+
+### Read the ticker
+
+This call will return the ticker.
+
+**Request path :** `/api/v1/ticker`
+
+**Request method :** `GET`
+
+**Request parameters**
+
+N/A
+
+**Example request :** `GET /api/v1/ticker`
+
+**Example response :**
+
+    {
+      "ask": 20.4, 
+      "at": 1361056527, 
+      "bid": 20.1, 
+      "currency": "eur", 
+      "high": 20.74, 
+      "low": 20.2, 
+      "midpoint": 20.25, 
+      "price": 20.2, 
+      "variation": -1.4634, 
+      "volume": 148.80193218
+    }
 
 
 ## Coupons
