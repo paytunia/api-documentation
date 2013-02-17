@@ -88,6 +88,8 @@ Authentication and authorization may be done with :
 
 OAuth2 is useful when it is not desirable for client apps to handle the user's credentials directly or when it is necessary to have access to an account with limited privileges.
 
+Each API call description mentions the OAuth2 scope required to use it.
+
 The available OAuth2 scopes are : 
 
 | Scope    | Description                                                                        |
@@ -189,6 +191,8 @@ If the API call was successful, the platform will answer with :
 
 An account operation is any ledger operation that changes the account's balance.
 
+These calls require the `read` OAuth2 scope.
+
 ### Get the details of an account operation (A)
    
 This call will return the details of a single account operation, the response contains : the UUID identifying the operation, the amount of this particular operation, its currency, its creation timestamp, its state (if relevant), a string indicating the type of the operation and the account balance that this operation led to (the sum of all transactions in the same currency including this one but not the ones that came after it).
@@ -278,6 +282,8 @@ A JSON array of account operations is returned. The structure collection element
 
 ## Send money
 
+These calls require the `withdraw` OAuth2 scope.
+
 ### Send Bitcoins (A)
 
 This call will perform a Bitcoin transaction.
@@ -358,6 +364,8 @@ The canonical use of a quote is to pay in currency to a Bitcoin invoice, materia
  6. After user confirmation the client app instructs the API to pay the quote to a specific Bitcoin address
  7. The merchant receives the payment in Bitcoin and the user is debited in his native currency
  
+These calls require the `trade` OAuth2 scope, the [Pay a quote](#pay-a-quote-a) action requires the `withdraw` scope.
+
 ### Create a quote (A)
 
 This call will create a quote. When doing so clients must specify a currency (the other currency is always assumed to be "BTC") an amount they are requesting and a direction. Combining these parameters in various ways will have the system address a wide array of use cases. 
@@ -618,6 +626,8 @@ A quote JSON object is returned.
 Invoices are requests for payment. They can be expressed in any arbitrary currency. They all get a unique Bitcoin payment address assigned and a Bitcoin amount calculated from the requested currency amount.
 
 Payment can be made by sending the `btc_amount` amount of Bitcoins to the `payment_address` address or directly in the requested currency from another account. The invoice payment will trigger a `POST`to the `callback_url`.
+
+These calls require the `merchant` OAuth2 scope.
 
 ### View an invoice (A)
 
@@ -959,6 +969,8 @@ In Ruby this signature can be easily checked by doing `Digest::SHA2.hexdigest(da
 
 ## Trading
 
+These calls require the `trade` OAuth2 scope.
+
 ### Place an order (A)
 
 This call will place a trade order and queue it for execution.
@@ -1231,6 +1243,8 @@ N/A
 Coupons are a way to easily move money between accounts, they are debited from the issuer's account upon creation and may be redeemed at anytime against any account (including the issuer).
 
 They are materialized by a unique redemption code. This code should be kept private as anyone having knowledge of it can redeem the funds.
+
+Creating a coupon requires the `withdraw` OAuth2 scope, other actions require the `read` scope.
 
 ### Create a coupon (A)
 
