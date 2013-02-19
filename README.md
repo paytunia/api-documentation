@@ -100,6 +100,44 @@ The available OAuth2 scopes are :
 | merchant | Manage invoices, read merchant dashboard and data                                  |
 | devices  | Manage devices                                                                     |
 
+In order to test OAuth2 integration a test app is available.
+
+| Application parameter | Value                                                              |
+|-----------------------|--------------------------------------------------------------------|
+| Application ID        | `6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b` |
+| Application secret    | `55554ecad5627f0465034c4a116e59a38d9c3ab272487a18404078ccc0b64798` |
+| Callback URL          | `urn:ietf:wg:oauth:2.0:oob`                                        |
+
+After authorization the authorization token will be directly displayed in your browser (that's what the special test callback URL is for).
+
+**Example authorization link :** [https://bitcoin-central.net/oauth/authorize?client_id=6...pe=code](https://bitcoin-central.net/oauth/authorize?client_id=6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&response_type=code)
+
+**Full usage example :**
+
+This example uses the OAuth2 Ruby gem.
+
+```
+require 'oauth2'
+
+client = OAuth2::Client.new('6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b', '55554ecad5627f0465034c4a116e59a38d9c3ab272487a18404078ccc0b64798', site: 'https://bitcoin-central.net')
+ 
+client.auth_code.authorize_url(redirect_uri: 'urn:ietf:wg:oauth:2.0:oob', scope: 'read trade')
+ => "https://bitcoin-central.net/oauth/authorize?response_type=code&client_id=6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=read+trade" 
+
+# Visit this URL in your browser, approve the request and copy the authorization code
+
+authorization_code = '...'
+
+token = client.auth_code.get_token(authorization_code, redirect_uri: 'urn:ietf:wg:oauth:2.0:oob')
+
+token.get('/api/v1/trade_orders/active').body
+
+=> [{"uuid":"148ab996-ab63-45cc-b240-99c78bb18a11","instructed_amount":300.0,"amount":268.70563158,"state":"active","created_at":"2013-02-07T19:09:44+01:00","updated_at":"2013-02-14T13:12:00+01:00","price":15.9199,"type":"buy"}]
+```
+
+If you encounter SSL certificate errors while trying this example it's probably because your Ruby install doesn't know where to find the CA certificates. In development you can use an incredibly ugly hack to temporarily skip SSL certificate validation : `OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE`. You should never do this in production.
+
+
 ## Base URL
 
 The base URL for all calls is `https://bitcoin-central.net`. A complete URL would look like this `https://bitcoin-central.net/api/v1/quotes/3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d`.
