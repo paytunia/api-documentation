@@ -1052,11 +1052,13 @@ An trade order JSON object is returned with the following parameters
 **Example response :**
     
     {
-      "amount": 10.0, 
+      "amount": 10.0,
+      "currency": "EUR",        
       "type": "buy", 
       "created_at": "2013-01-21T22:07:15Z", 
       "instructed_amount": 10.0, 
-      "price": null, 
+      "price": null,
+      "currency": "EUR", 
       "state": "pending_execution", 
       "updated_at": "2013-01-21T22:07:15Z", 
       "uuid": "8b3c3446-9c5d-48a8-8044-08622cd4607b"
@@ -1172,6 +1174,7 @@ A JSON object with the following parameters is returned.
       "type": "buy", 
       "created_at": "2013-01-22T08:19:37Z", 
       "instructed_amount": 1000.0, 
+      "currency": "EUR",       
       "price": 11.0, 
       "state": "active", 
       "updated_at": "2013-01-22T08:19:41Z", 
@@ -1196,7 +1199,8 @@ N/A
 
     [  
       {
-        "amount": 10.0, 
+        "amount": 10.0,
+        "currency": "EUR",          
         "type": "buy", 
         "created_at": "2013-01-21T22:15:38Z", 
         "instructed_amount": 10.0, 
@@ -1226,6 +1230,7 @@ N/A
     [  
       {
         "amount": 10.0, 
+        "currency": "EUR",         
         "type": "buy", 
         "created_at": "2013-01-21T22:15:38Z", 
         "instructed_amount": 10.0, 
@@ -1236,6 +1241,7 @@ N/A
       }, 
       {
         "amount": 10.0, 
+        "currency": "EUR",         
         "type": "buy", 
         "created_at": "2013-01-21T22:15:40Z", 
         "instructed_amount": 10.0, 
@@ -1266,7 +1272,7 @@ N/A
       "ask": 20.4, 
       "at": 1361056527, 
       "bid": 20.1, 
-      "currency": "eur", 
+      "currency": "EUR", 
       "high": 20.74, 
       "low": 20.2, 
       "midpoint": 20.25, 
