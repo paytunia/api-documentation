@@ -4,6 +4,8 @@ This document describes the API calls available as part of the Paytunia v1 API.
 
 The API is shared by both [Bitcoin-Central.net](https://bitcoin-central.net) and [Paytunia.com](https://paytunia.com). Both apps run against the same database, therefore using the API against one of them is equivalent to using the API against the other.
 
+If your language of choice is Ruby we recommend using the [Paytunia gem](https://github.com/paytunia/paytunia) instead of writing your own client.
+
 ## Table of contents
 
 - [**General API description**](#general-api-description)
@@ -257,6 +259,7 @@ A JSON object with the following attributes is returned :
 | created_at | Datetime | Timestamp of operation creation                   |
 | state      | String   | Operation state if relevant, `null` otherwise (3) |
 | type       | String   | Operation type (4)                                |
+| balance    | Decimal  | Balance this operation led to                     |
 
  1. Credits are expressed as positive amounts, debits are expressed as negative amounts
  2. See currencies table
