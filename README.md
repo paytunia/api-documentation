@@ -55,7 +55,8 @@ If your language of choice is Ruby we recommend using the [Paytunia gem](https:/
      - [View an order (A)](#view-an-order-a)
      - [List active orders (A,P)](#list-active-orders-ap)
      - [List all orders (A,P)](#list-all-orders-ap)
-     - [Read the ticker](#read-the-ticker)     
+     - [Read the ticker](#read-the-ticker)
+     - [Read the market depth](#read-the-market-depth)     
 <p></p>
   - [Coupons](#coupons)
      - [Create a coupon (A)](#create-a-coupon-a)
@@ -1283,6 +1284,56 @@ N/A
       "variation": -1.4634, 
       "volume": 148.80193218
     }
+
+### Read the market depth
+
+This call will return the full sorted market depth. If the `currency` parameter is omitted, the currency defaults to EUR.
+
+The asks are sorted by ascending price and the bids by descending price.
+
+**Request path :** `/api/v1/depth` or `/api/v1/depth/{currency}` 
+
+**Request method :** `GET`
+
+**Request parameters**
+
+N/A
+
+**Example request :** `GET /api/v1/depth/eur`
+
+**Example response :**
+
+    {
+      "asks": [
+        {
+          "amount": 0.48762, 
+          "currency": "EUR", 
+          "price": 24.48996, 
+          "timestamp": 1361925287
+        }, 
+        {
+          "amount": 12.96657232, 
+          "currency": "EUR", 
+          "price": 24.49, 
+          "timestamp": 1361924964
+        }
+      ],
+      "bids": [
+        {
+          "amount": 0.77372456, 
+          "currency": "EUR", 
+          "price": 24.05, 
+          "timestamp": 1361902889
+        }, 
+        {
+          "amount": 0.40491093, 
+          "currency": "EUR", 
+          "price": 24.001, 
+          "timestamp": 1361887469
+        }
+      ]
+    }
+      
 
 
 ## Coupons
