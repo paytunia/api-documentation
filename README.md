@@ -590,7 +590,11 @@ A JSON array of quote objects is returned.
 
 ### Pay a quote (A)
 
-This action applies to quotes for buying BTC. It will perform the exchange creating a user account debit of the calculated `currency_amount` or instructed `requested_currency_amount` and send out the calculated `btc_amount` or instructed `requested_btc_amount` to the Bitcoin address in the `address` field.
+This action applies only to quotes for buying BTC.
+
+It will perform the exchange creating a user account debit of the calculated `currency_amount` or instructed `requested_currency_amount` and send out the calculated `btc_amount` or instructed `requested_btc_amount` to the Bitcoin address in the `address` field.
+
+Calling this method queues the quote for payment if possible. The quote status can later be queried using the [view a quote](#view-a-quote-a) call.
 
 **Request path :** `/api/v1/quotes/{uuid}/pay`
 
@@ -606,7 +610,7 @@ This action applies to quotes for buying BTC. It will perform the exchange creat
 
 **Response**
 
-A quote JSON object is returned.
+The quote as it was when the payment was requested is returned.
 
 **Example request :** `GET /api/v1/quotes/3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d/pay`
 
@@ -623,12 +627,14 @@ A quote JSON object is returned.
       "requested_btc_amount" : null,
       "valid_until" : "2013-01-10T13:00:50Z",
       "created_at" : "2013-01-10T12:45:50Z",
-      "executed" : true
+      "executed" : false
     }
 
 ### Execute a quote (A)
 
-This action applies to quotes for buying BTC. It will perform the exchange creating user account debit and credit operations depending on the quote requested.
+This action applies to quotes for buying and selling BTC. It will perform the exchange creating user account debit and credit operations depending on the quote requested.
+
+Calling this method queues the quote for execution if possible. The quote status can later be queried using the [view a quote](#view-a-quote-a) call.
 
 **Request path :** `/api/v1/quotes/{uuid}/execute`
 
@@ -643,7 +649,7 @@ This action applies to quotes for buying BTC. It will perform the exchange creat
 
 **Response**
 
-A quote JSON object is returned.
+The quote as it was when the execution was requested is returned.
 
 **Example request :** `POST /api/v1/quotes/3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d/execute`
 
@@ -660,7 +666,7 @@ A quote JSON object is returned.
       "requested_btc_amount" : null,
       "valid_until" : "2013-01-10T13:00:50Z",
       "created_at" : "2013-01-10T12:45:50Z",
-      "executed" : true
+      "executed" : false
     }
 
 ## Invoices
