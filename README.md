@@ -25,6 +25,9 @@ If your language of choice is Ruby we recommend using the [Paytunia gem](https:/
 
 - [**API Calls**](#api-calls)
 <p></p>
+  - [Account](#account)
+     - [Get balances (A)](#get-balances-a)
+<p></p>
   - [Account operations](#account-operations)
      - [Get the detail of an account operation (A)](#get-the-details-of-an-account-operation-a)
      - [Get a list of account operations (A,P)](#get-a-list-of-account-operations-a-p)
@@ -225,9 +228,46 @@ If the API call was successful, the platform will answer with :
  * A JSON representation of the entity being created or updated if relevant
 
 
-
 # API Calls
 
+## Account
+
+### Get balances (A)
+
+This call will return the balances in all currencies.
+
+This call requires the `read` OAuth2 scope.
+
+**Request path :** `/api/v1/balances`
+
+**Request method :** `GET`
+
+**Request parameters**
+ 
+_None_
+
+**Response**
+
+A JSON object with the following attributes is returned :
+
+| Name | Type     | Description |
+|------|----------|-------------|
+| EUR  | Decimal  | EUR balance |
+| USD  | Decimal  | USD balance |
+| GBP  | Decimal  | GBP balance |
+| BTC  | Decimal  | BTC balance |
+ 
+**Example request :** `GET /api/v1/balances`
+
+**Example response :**
+     
+    {
+      "EUR" : 1.0,
+      "BTC" : 1.42,
+      "USD" : 0.0,
+      "GBP" : 0.0
+    }
+    
 ## Account operations
 
 An account operation is any ledger operation that changes the account's balance.
