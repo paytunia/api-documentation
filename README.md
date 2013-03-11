@@ -30,7 +30,7 @@ If your language of choice is Ruby we recommend using the [Paytunia gem](https:/
 <p></p>
   - [Account operations](#account-operations)
      - [Get the detail of an account operation (A)](#get-the-details-of-an-account-operation-a)
-     - [Get a list of account operations (A,P)](#get-a-list-of-account-operations-a-p)
+     - [Get a list of account operations (A,P)](#get-a-list-of-account-operations-ap)
 <p></p> 
   - [Send money](#send-money)
      - [Send Bitcoins (A)](#send-bitcoins-a)
@@ -59,7 +59,8 @@ If your language of choice is Ruby we recommend using the [Paytunia gem](https:/
      - [List active orders (A,P)](#list-active-orders-ap)
      - [List all orders (A,P)](#list-all-orders-ap)
      - [Read the ticker](#read-the-ticker)
-     - [Read the market depth](#read-the-market-depth)     
+     - [Read the market depth](#read-the-market-depth)
+     - [Read historical trades](#read-historical-trades-p)     
 <p></p>
   - [Coupons](#coupons)
      - [Create a coupon (A)](#create-a-coupon-a)
@@ -1057,7 +1058,7 @@ In Ruby this signature can be easily checked by doing `Digest::SHA2.hexdigest(da
 
 ## Trading
 
-These calls require the `trade` OAuth2 scope.
+Account specific calls require the `trade` OAuth2 scope.
 
 ### Place an order (A)
 
@@ -1379,8 +1380,56 @@ N/A
         }
       ]
     }
-      
 
+### Read historical trades (P)
+
+This call will return the most recent trades
+
+**Request path :** `/api/v1/trades/{currency}`
+
+**Request method :** `GET`
+
+**Request parameters**
+
+| Name     | Type   | Description                                   |
+|----------|--------|-----------------------------------------------|
+| currency | String | Currency filter, defaults to `EUR` if omitted |
+
+**Response**
+
+An array of trade JSON objects is returned.
+
+| Name            | Type     | Description                                      |
+|-----------------|----------|--------------------------------------------------|
+| uuid            | UUID     | Trade identifier                                 |
+| traded_currency | Decimal  | Amount traded, expressed in `currency`           |
+| traded_btc      | Decimal  | Amount of Bitcoins traded                        |
+| currency        | String   | Currency in which `traded_currency` is expressed |
+| price           | Decimal  | Price at which the exchange was made             |
+| created_at      | Datetime | Creation timestamp                               |
+
+**Example request :** `GET /api/v1/trades/eur`
+
+**Example response :**
+
+    [
+      {
+        "created_at": "2013-01-22T08:19:41Z", 
+        "currency": "EUR", 
+        "price": 5.0, 
+        "traded_btc": 980.0, 
+        "traded_currency": 4940.0, 
+        "uuid": "1c86abf0-170a-4101-84d1-cdad913c95dd"
+      },
+      {
+        "created_at": "2013-01-22T08:19:41Z", 
+        "currency": "EUR", 
+        "price": 6.0, 
+        "traded_btc": 10.0, 
+        "traded_currency": 60.0, 
+        "uuid": "170aabf0-1c86-4101-84d1-cdad913c95dd"
+      }      
+    ]
 
 ## Coupons
 
