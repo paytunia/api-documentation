@@ -144,7 +144,6 @@ token.get('/api/v1/trade_orders/active').body
 
 If you encounter SSL certificate errors while trying this example it's probably because your Ruby install doesn't know where to find the CA certificates. In development you can use an incredibly ugly hack to temporarily skip SSL certificate validation : `OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE`. You should never do this in production.
 
-
 ## Base URL
 
 The base URL for all calls is `https://bitcoin-central.net`. A complete URL would look like this `https://bitcoin-central.net/api/v1/quotes/3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d`.
@@ -213,6 +212,10 @@ Optional pagination parameters may be passed in the request URI in order to cont
 ## Localization
 
 The relevant results and error messages will be localized to the language associated to the user, currently English and French are supported.
+
+## Datetime formats
+
+Datetime values will be returned as regular JSON format and Unix timestamps, the timestamps are suffixed with `_int`.
 
 ## Error handling
 
@@ -317,6 +320,7 @@ A JSON object with the following attributes is returned :
       "amount" : 50.0,
       "currency" : "EUR",
       "created_at" : "2013-01-14T16:28:57Z",
+      "created_at_int" : 1363858355,      
       "state" : null,
       "type" : "wire_deposit",
       "balance" : 550.0
@@ -348,6 +352,7 @@ A JSON array of account operations is returned. The structure collection element
         "amount" : 50.0,
         "currency" : "EUR",
         "created_at" : "2013-01-14T16:28:57Z",
+        "created_at_int" : 1363858355,        
         "state" : null,
         "type" : "wire_deposit",
         "balance" : 550.0
@@ -357,6 +362,7 @@ A JSON array of account operations is returned. The structure collection element
         "amount" : 500.0,
         "currency" : "EUR",
         "created_at" : "2013-01-10T12:45:50Z",
+        "created_at_int" : 1363858355,        
         "state" : null,
         "type" : "wire_deposit",
         "balance" : 500.0
@@ -526,6 +532,7 @@ This demonstrates how to obtain a quote as described in the example use case #1.
       "requested_btc_amount" : null,
       "valid_until" : "2013-01-10T13:00:50Z",
       "created_at" : "2013-01-10T12:45:50Z",
+      "created_at_int" : 1363858355,      
       "executed" : false
     }
 
@@ -577,6 +584,7 @@ A JSON object with the following parameters is returned.
       "requested_btc_amount" : null,
       "valid_until" : "2013-01-10T13:00:50Z",
       "created_at" : "2013-01-10T12:45:50Z",
+      "created_at_int" : 1363858355,            
       "executed" : false
     }
 
@@ -612,6 +620,7 @@ A JSON array of quote objects is returned.
         "requested_btc_amount" : null,
         "valid_until" : "2013-01-10T13:00:50Z",
         "created_at" : "2013-01-10T12:45:50Z",
+        "created_at_int" : 1363858355,              
         "executed" : true
       },
       {
@@ -625,6 +634,7 @@ A JSON array of quote objects is returned.
         "requested_btc_amount" : null,
         "valid_until" : "2013-01-10T13:00:50Z",
         "created_at" : "2013-01-10T12:45:50Z",
+        "created_at_int" : 1363858355,                      
         "executed" : true
       }
     ]
@@ -668,6 +678,7 @@ The quote as it was when the payment was requested is returned.
       "requested_btc_amount" : null,
       "valid_until" : "2013-01-10T13:00:50Z",
       "created_at" : "2013-01-10T12:45:50Z",
+      "created_at_int" : 1363858355,                    
       "executed" : false
     }
 
@@ -707,6 +718,7 @@ The quote as it was when the execution was requested is returned.
       "requested_btc_amount" : null,
       "valid_until" : "2013-01-10T13:00:50Z",
       "created_at" : "2013-01-10T12:45:50Z",
+      "created_at_int" : 1363858355,                    
       "executed" : false
     }
 
@@ -774,6 +786,7 @@ A JSON object with the following parameters is returned.
       "notification_email_sent": false, 
       "callback_url": null, 
       "created_at": "2013-01-21T10:20:07Z", 
+      "created_at_int" : 1363858355,                    
       "currency": "EUR", 
       "expires_at": "2013-01-21T10:40:07Z", 
       "item_url": null, 
@@ -834,7 +847,8 @@ A JSON object with the following parameters is returned.
       "btc_amount": 1.021732, 
       "callback_fired": false, 
       "callback_url": null, 
-      "created_at": "2013-01-21T10:20:07Z", 
+      "created_at": "2013-01-21T10:20:07Z",
+      "created_at_int" : 1363858355,                     
       "currency": "EUR", 
       "expires_at": "2013-01-21T10:40:07Z", 
       "item_url": null, 
@@ -876,6 +890,7 @@ A JSON array of invoice objects is returned.
         "callback_fired": false, 
         "callback_url": null, 
         "created_at": "2013-01-21T10:20:07Z", 
+        "created_at_int" : 1363858355,                      
         "currency": "EUR", 
         "expires_at": "2013-01-21T10:40:07Z", 
         "item_url": null, 
@@ -894,6 +909,7 @@ A JSON array of invoice objects is returned.
         "callback_fired": false, 
         "callback_url": null, 
         "created_at": "2013-01-21T10:20:07Z", 
+        "created_at_int" : 1363858355,                      
         "currency": "EUR", 
         "expires_at": "2013-01-21T10:40:07Z", 
         "item_url": null, 
@@ -946,6 +962,7 @@ An invoice JSON object is returned.
       "callback_fired": false, 
       "callback_url": null, 
       "created_at": "2013-01-21T10:20:07Z", 
+      "created_at_int" : 1363858355,                    
       "currency": "EUR", 
       "expires_at": "2013-01-21T10:40:07Z", 
       "item_url": null, 
@@ -1107,6 +1124,7 @@ An trade order JSON object is returned with the following parameters
       "currency": "EUR",        
       "type": "buy", 
       "created_at": "2013-01-21T22:07:15Z", 
+      "created_at_int" : 1363858355,                    
       "instructed_amount": 10.0, 
       "price": null,
       "currency": "EUR", 
@@ -1171,6 +1189,7 @@ An array of trade JSON objects is returned.
     [
       {
         "created_at": "2013-01-22T08:19:41Z", 
+        "created_at_int" : 1363858355,                      
         "currency": "EUR", 
         "price": 5.0, 
         "traded_btc": 980.0, 
@@ -1179,6 +1198,7 @@ An array of trade JSON objects is returned.
       },
       {
         "created_at": "2013-01-22T08:19:41Z", 
+        "created_at_int" : 1363858355,                      
         "currency": "EUR", 
         "price": 6.0, 
         "traded_btc": 10.0, 
@@ -1224,6 +1244,7 @@ A JSON object with the following parameters is returned.
       "amount": 10.0, 
       "type": "buy", 
       "created_at": "2013-01-22T08:19:37Z", 
+      "created_at_int" : 1363858355,                    
       "instructed_amount": 1000.0, 
       "currency": "EUR",       
       "price": 11.0, 
@@ -1254,6 +1275,7 @@ N/A
         "currency": "EUR",          
         "type": "buy", 
         "created_at": "2013-01-21T22:15:38Z", 
+        "created_at_int" : 1363858355,                      
         "instructed_amount": 10.0, 
         "price": null, 
         "state": "pending_execution", 
@@ -1283,7 +1305,8 @@ N/A
         "amount": 10.0, 
         "currency": "EUR",         
         "type": "buy", 
-        "created_at": "2013-01-21T22:15:38Z", 
+        "created_at": "2013-01-21T22:15:38Z",        
+        "created_at_int" : 1363858355, 
         "instructed_amount": 10.0, 
         "price": null, 
         "state": "pending_execution", 
@@ -1295,6 +1318,7 @@ N/A
         "currency": "EUR",         
         "type": "buy", 
         "created_at": "2013-01-21T22:15:40Z", 
+        "created_at_int" : 1363858355,        
         "instructed_amount": 10.0, 
         "price": null, 
         "state": "canceled", 
@@ -1307,15 +1331,19 @@ N/A
 
 This call will return the ticker.
 
-**Request path :** `/api/v1/ticker`
+**Request path :** `/api/v1/ticker/{currency}`
 
 **Request method :** `GET`
 
 **Request parameters**
 
-N/A
+| Name     | Type   | Description                                                          |
+|----------|--------|----------------------------------------------------------------------|
+| currency | String | Show the ticker for the given currency, default to `EUR`if ommitted  |
 
-**Example request :** `GET /api/v1/ticker`
+**Example request :** `GET /api/v1/ticker/eur`
+
+**Alternate example :** `GET /api/v1/ticker`
 
 **Example response :**
 
@@ -1415,6 +1443,7 @@ An array of trade JSON objects is returned.
     [
       {
         "created_at": "2013-01-22T08:19:41Z", 
+        "created_at_int" : 1363858355,                      
         "currency": "EUR", 
         "price": 5.0, 
         "traded_btc": 980.0, 
@@ -1423,6 +1452,7 @@ An array of trade JSON objects is returned.
       },
       {
         "created_at": "2013-01-22T08:19:41Z", 
+        "created_at_int" : 1363858355,                      
         "currency": "EUR", 
         "price": 6.0, 
         "traded_btc": 10.0, 
@@ -1508,6 +1538,7 @@ A JSON object with the following parameters is returned.
       "amount": -12.0, 
       "code": "BP-EUR-9660407B43799CCED320", 
       "created_at": "2013-01-30T11:52:36Z", 
+      "created_at_int" : 1363858355,                    
       "currency": "EUR", 
       "state": "pending", 
       "uuid": "c21adaf6-f5a2-4d93-a762-a63b89b52265"
