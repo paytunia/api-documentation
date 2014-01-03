@@ -126,20 +126,19 @@ This example uses the OAuth2 Ruby gem.
 ```
 require 'oauth2'
 
-client = OAuth2::Client.new('6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b', '55554ecad5627f0465034c4a116e59a38d9c3ab272487a18404078ccc0b64798', site: 'https://bitcoin-central.net')
+client = OAuth2::Client.new('6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b', '55554ecad5627f0465034c4a116e59a38d9c3ab272487a18404078ccc0b64798', site: 'https://staging.bitcoin-central.net', authorize_url: '/api/oauth/authorize', token_url: '/api/oauth/token')
  
-client.auth_code.authorize_url(redirect_uri: 'urn:ietf:wg:oauth:2.0:oob', scope: 'read trade')
- => "https://bitcoin-central.net/oauth/authorize?response_type=code&client_id=6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=read+trade" 
+client.auth_code.authorize_url(redirect_uri: 'https://staging.bitcoin-central.net/page/oauth/test', scope: 'basic activity trade withdraw')
+ => "https://staging.bitcoin-central.net/api/oauth/authorize?response_type=code&client_id=71a28131e16a0d6756a41aa391f1aa28b2f5a2ed4a6b911cf2bf640c8a0cc2cd&redirect_uri=https%3A%2F%2Fstaging.bitcoin-central.net%2Fpage%2Foauth%2Ftest&scope=basic+activity+trade+withdraw" 
 
 # Visit this URL in your browser, approve the request and copy the authorization code
 
-authorization_code = '...'
+authorization_code = '9b55e27c840f59d927284fdc438ee3d8fac94b00e24d331162ddff76c1a6bcc0'
 
-token = client.auth_code.get_token(authorization_code, redirect_uri: 'urn:ietf:wg:oauth:2.0:oob')
+token = client.auth_code.get_token(authorization_code, redirect_uri: 'https://staging.bitcoin-central.net/page/oauth/test')
 
-token.get('/api/v1/trade_orders/active').body
-
-=> [{"uuid":"148ab996-ab63-45cc-b240-99c78bb18a11","instructed_amount":300.0,"amount":268.70563158,"state":"active","created_at":"2013-02-07T19:09:44+01:00","updated_at":"2013-02-14T13:12:00+01:00","price":15.9199,"type":"buy"}]
+token.get('/api/v1/user').body
+=> {"name":"BC-U537315","locale":"en","balance_btc":117.56672217,"locked_btc":0.0,"balance_eur":0.0,"locked_eur":0.00995186}
 ```
 
 If you encounter SSL certificate errors while trying this example it's probably because your Ruby install doesn't know where to find the CA certificates. In development you can use an incredibly ugly hack to temporarily skip SSL certificate validation : `OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE`. You should never do this in production.
