@@ -412,7 +412,7 @@ Read user activity.
 |--------------|----------------------------------------------|---------------------------|
 | offset       | pagination offset (optional)                 | 20                        |
 | limit        | pagination limit (optional)                  | 20                        |
-| types[]      | filter by types (optinal)                    | LimitOrder                |
+| types[]      | filter by types (optional)                   | LimitOrder                |
 | active       | only show active orders (optional)           | true                      |
 
 ##### Example
