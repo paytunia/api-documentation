@@ -326,7 +326,7 @@ $ curl "https://bitcoin-central.net/api/oauth/token"            \
 }
 ```
 
-An access token can be used to authorize user requests for the approved scopes and is valid 5 minutes.
+An access token can be used to authorize user requests for the approved scopes and is valid 30 minutes.
 
 ##### Refreshing the access token
 
