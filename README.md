@@ -38,11 +38,11 @@ _* Authenticating users is only available to developers that have a fully verifi
 
 ## General information
 
-## Formats and required HTTP request headers
+### Formats and required HTTP request headers
 
 The API will only answer with JSON or empty responses. It expects parameters to be passed in JSON with the correct `Content-Type: application/json` being set.
 
-## Rate-limiting
+### Rate-limiting
 
 API calls are rate-limited by IP to 5000 calls per day. Information about the status of the limit can be found in the `X-RateLimit-Limit` and `X-RateLimit-Remaining` HTTP headers.
 
