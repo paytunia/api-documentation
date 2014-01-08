@@ -298,6 +298,7 @@ function showObject(data) {
     switch(key) {
       case 'created_at':
       output += '\n' + key + ': ' + new Date(data[key]);
+      break;
       case 'updated_at':
       output += '\n' + key + ': ' + new Date(data[key]);
       case 'account_operations':
