@@ -1,0 +1,17 @@
+{
+  "name": "bitcoin_central_example",
+  "version": "0.0.0",
+  "description": "Bitcoin-Central API Example",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Paymium",
+  "license": "MIT",
+  "dependencies": {
+    "simple-oauth2": "~0.1.8",
+    "express": "~3.4.7",
+    "request": "~2.31.0",
+    "cline": "~0.7.0"
+  }
+}

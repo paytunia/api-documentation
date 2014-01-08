@@ -398,7 +398,7 @@ Read user activity.
 
 | method | path                    | authorization            |
 |--------|-------------------------|--------------------------|
-| GET    | /api/v1/orders          | oauth2 (scope: activity) |
+| GET    | /api/v1/user/orders     | oauth2 (scope: activity) |
 
 ##### Example
 
