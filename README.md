@@ -533,6 +533,16 @@ Create trade orders.
 |--------|----------------------------|--------------------------|
 | POST   | /api/v1/user/orders        | oauth2 (scope: trade)    |
 
+##### Payload
+
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| type               | Must be "LimitOrder"                    | "LimitOrder"                           |
+| currency           | Must be "EUR"                           | "EUR"                                  |
+| direction          | trade direction, must be "buy" or "sell"| "buy"                                  |
+| price              | price per BTC                           | 300.0                                  |
+| amount             | BTC amount to trade                     | 1.0                                    |
+
 ##### Example
 
 ```bash
