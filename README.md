@@ -1,3 +1,5 @@
+![Bitcoin-Central logo](https://raw2.github.com/Paymium/api-documentation/master/logo.png)
+
 The Bitcoin-Central API allows developers to extend the capabilities of Bitcoin-Central, from reading the latest ticker to automating trades with bots.
 
 Is is possible to, among other things:
