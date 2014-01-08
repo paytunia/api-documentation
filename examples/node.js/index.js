@@ -9,7 +9,7 @@ var express = require('express'),
 var OAuth2 = require('simple-oauth2')({
   clientID: '4de5809067b745f99bdc1d78c6885d8be63b85fb79578e81010e3e12bf758b72',
   clientSecret: '088d1aed6ba7062e51b4d15838ca906b0c67194339cbb1aed2324de0c625928c',
-  site: 'http://lvh.me/api',
+  site: 'https://bitcoin-central.net/api',
   tokenPath: '/oauth/token'
 });
 
@@ -53,7 +53,7 @@ function start(token) {
     delete cli._nextTick;
     cli.stream.print('loading...');
 
-    request('http://lvh.me/api/v1/data/eur/ticker', function(error, resp, body) {
+    request('https://bitcoin-central.net/api/v1/data/eur/ticker', function(error, resp, body) {
       if (error) return console.error(error.message);
 
       var data = JSON.parse(body);
@@ -68,7 +68,7 @@ function start(token) {
     delete cli._nextTick;
     cli.stream.print('loading...');
 
-    request('http://lvh.me/api/v1/user', {
+    request('https://bitcoin-central.net/api/v1/user', {
       headers: headers
     }, function(error, resp, body) {
       if (error) return console.error(error.message);
@@ -96,7 +96,7 @@ function start(token) {
     delete cli._nextTick;
     cli.stream.print('loading...');
 
-    request('http://lvh.me/api/v1/user/orders', {
+    request('https://bitcoin-central.net/api/v1/user/orders', {
       headers: headers,
       qs: {
         'types[]': 'LimitOrder',
@@ -131,7 +131,7 @@ function start(token) {
     delete cli._nextTick;
     cli.stream.print('loading...');
 
-    request('http://lvh.me/api/v1/user/orders', {
+    request('https://bitcoin-central.net/api/v1/user/orders', {
       headers: headers,
       qs: {
         'types[]': 'LimitOrder'
@@ -165,7 +165,7 @@ function start(token) {
     delete cli._nextTick;
     cli.stream.print('loading...');
 
-    request('http://lvh.me/api/v1/user/orders/' + args.uuid, {
+    request('https://bitcoin-central.net/api/v1/user/orders/' + args.uuid, {
       headers: headers
     }, function(error, resp, body) {
       if (error) return console.error(error.message);
@@ -191,7 +191,7 @@ function start(token) {
     delete cli._nextTick;
     cli.stream.print('loading...');
 
-    request('http://lvh.me/api/v1/user/orders', {
+    request('https://bitcoin-central.net/api/v1/user/orders', {
       headers: headers,
       method: 'POST',
       form: {
@@ -223,7 +223,7 @@ function start(token) {
     delete cli._nextTick;
     cli.stream.print('loading...');
 
-    request('http://lvh.me/api/v1/user/orders', {
+    request('https://bitcoin-central.net/api/v1/user/orders', {
       headers: headers,
       method: 'POST',
       form: {
@@ -251,7 +251,7 @@ function start(token) {
     delete cli._nextTick;
     cli.stream.print('loading...');
 
-    request('http://lvh.me/api/v1/user/orders/' + args.uuid + '/cancel', {
+    request('https://bitcoin-central.net/api/v1/user/orders/' + args.uuid + '/cancel', {
       headers: headers,
       method: 'DELETE'
     }, function(error, resp, body) {
