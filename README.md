@@ -24,10 +24,14 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Authentication](#authentication)
   * [User info](#user-info)
   * [User activity](#user-activity)
+  * [Order details](#order-details)
   * [Trading](#trading)
   * [Withdrawing](#withdrawing)
+  * [Canceling orders](#canceling-orders)
 
 * [**Appendix**](#appendix)
+  * [Order properties](#order-properties)
+  * [Account operation properties](#account-operation-properties)
   * [Currencies](#currencies)
   * [States](#states)
   * [Ruby example](#ruby-example)
@@ -400,37 +404,273 @@ Read user activity.
 |--------|-------------------------|--------------------------|
 | GET    | /api/v1/user/orders     | oauth2 (scope: activity) |
 
+##### Parameters
+
+| name         | description                                  | example value             |
+|--------------|----------------------------------------------|---------------------------|
+| offset       | pagination offset (optional)                 | 20                        |
+| limit        | pagination limit (optional)                  | 20                        |
+| types[]      | filter by types (optinal)                    | LimitOrder                |
+| active       | only show active orders (optional)           | true                      |
+
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/orders"                  \
+$ curl "https://bitcoin-central.net/api/v1/orders&offset=20"        \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+[
+  {
+    "uuid": "968f4580-e26c-4ad8-8bcd-874d23d55296",
+    "amount": 1.0,
+    "state": "executed",
+    "btc_fee": 0.0,
+    "currency_fee": 0.0,
+    "updated_at": "2013-10-24T10:34:37.000Z",
+    "created_at": "2013-10-22T19:12:02.000Z",
+    "currency": "BTC",
+    "type": "Transfer",
+    "account_operations": [
+      {
+        "uuid": "94b42d0f-9c2d-43f3-978b-aba28533d1f9",
+        "name": "bitcoin_transfer",
+        "amount": -1.0,
+        "currency": "BTC",
+        "created_at": "2013-10-22T19:12:02.000Z",
+        "created_at_int": 1382469122,
+        "is_trading_account": false
+      }
+    ]
+  },
+  {
+    "uuid": "1953cd1b-3903-4812-9590-42c3ebcc08c2",
+    "amount": 49.38727114,
+    "state": "executed",
+    "btc_fee": 0.0,
+    "currency_fee": 0.0,
+    "updated_at": "2013-10-22T14:30:06.000Z",
+    "created_at": "2013-10-22T14:30:06.000Z",
+    "currency": "BTC",
+    "type": "AdminOrder",
+    "account_operations": [
+      {
+        "uuid": "a940393b-4d2f-4a5a-8a0a-3470d7419bad",
+        "name": "account_operation",
+        "amount": 49.38727114,
+        "currency": "BTC",
+        "created_at": "2013-10-22T14:30:06.000Z",
+        "created_at_int": 1382452206,
+        "is_trading_account": false
+      }
+    ]
+  }
+]
+```
+
+##### Properties
+
+The response is an array of orders. See [order properties](#order-properties).
+
+### Order details
+
+##### Description
+
+Read details from a specific order.
+
+##### Endpoint
+
+| method | path                       | authorization            |
+|--------|----------------------------|--------------------------|
+| GET    | /api/v1/user/orders/{UUID} | oauth2 (scope: activity) |
+
+##### Example
+
+```bash
+$ curl "https://bitcoin-central.net/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296" \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 
 ```json
 {
-  "name": "BC-U123456",
-  "locale": "en",
-  "balance_btc": 25.78866278,
-  "locked_btc": 1.0,
-  "balance_eur": 1893.96,
-  "locked_eur": 300.00743886
+  "uuid": "968f4580-e26c-4ad8-8bcd-874d23d55296",
+  "amount": 1.0,
+  "state": "executed",
+  "btc_fee": 0.0,
+  "currency_fee": 0.0,
+  "updated_at": "2013-10-24T10:34:37.000Z",
+  "created_at": "2013-10-22T19:12:02.000Z",
+  "currency": "BTC",
+  "type": "Transfer",
+  "account_operations": [
+    {
+      "uuid": "94b42d0f-9c2d-43f3-978b-aba28533d1f9",
+      "name": "bitcoin_transfer",
+      "amount": -1.0,
+      "currency": "BTC",
+      "created_at": "2013-10-22T19:12:02.000Z",
+      "created_at_int": 1382469122,
+      "is_trading_account": false
+    }
+  ]
 }
 ```
 
 ##### Properties
 
-| name         | description                                  | example value             |
-|--------------|----------------------------------------------|---------------------------|
-| name         | account number / name                        | "BC-U123456"              |
-| locale       | locale code                                  | "en"                      |
-| balance_eur  | available EUR balance                        | 1893.96                   |
-| locked_eur   | EUR balance locked in trading                | 300.00743886              |
-| balance_btc  | available BTC balance                        | 25.78866278               |
-| locked_btc   | BTC balance locked in trading                | 1.0                       |
+See [order properties](#order-properties).
 
+### Trading
+
+##### Description
+
+Create trade orders.
+
+##### Endpoint
+
+| method | path                       | authorization            |
+|--------|----------------------------|--------------------------|
+| POST   | /api/v1/user/orders        | oauth2 (scope: trade)    |
+
+##### Example
+
+```bash
+$ curl "https://bitcoin-central.net/api/v1/user/orders              \
+     --header "Authorization: Bearer ACCESS_TOKEN"                  \
+     -d "type=LimitOrder"                                           \
+     -d "currency=EUR"                                              \
+     -d "direction=buy"                                             \
+     -d "price=300.0"                                               \
+     -d "amount=1.0"
+```
+
+```json
+{
+  "uuid": "4924ee0f-f60e-40b4-b63e-61637ef253ac",
+  "amount": 1.0,
+  "state": "pending_execution",
+  "btc_fee": 0.0,
+  "currency_fee": 0.0,
+  "updated_at": "2013-11-21T15:27:04.000Z",
+  "created_at": "2013-11-21T15:27:04.000Z",
+  "currency": "EUR",
+  "type": "LimitOrder",
+  "traded_btc": 0.0,
+  "traded_currency": 0.0,
+  "direction": "buy",
+  "price": 300.0,
+  "account_operations": [
+    {
+      "uuid": "63e1d9c4-dff2-42bc-910b-c5b585b625cc",
+      "name": "lock",
+      "amount": -300.0,
+      "currency": "EUR",
+      "created_at": "2013-11-21T15:27:04.000Z",
+      "created_at_int": 1385047624,
+      "is_trading_account": false
+    },
+    {
+      "uuid": "c9d3e824-b29a-4630-8396-3864a0704336",
+      "name": "lock",
+      "amount": 300.0,
+      "currency": "EUR",
+      "created_at": "2013-11-21T15:27:04.000Z",
+      "created_at_int": 1385047624,
+      "is_trading_account": true
+    }
+  ]
+}
+```
+
+##### Properties
+
+See [order properties](#order-properties).
+
+### Withdrawing
+
+TODO
+
+### Canceling orders
+
+##### Description
+
+Cancel an order. Only active trade orders may be canceled.
+
+##### Endpoint
+
+| method | path                              | authorization            |
+|--------|-----------------------------------|--------------------------|
+| DELETE | /api/v1/user/orders/{UUID}/cancel | oauth2 (scope: trading)  |
+
+##### Example
+
+```bash
+$ curl "https://bitcoin-central.net/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+### Web sockets
+
+TODO
 
 ## Appendix
+
+### Order properties
+
+All order types share generic properties.
+
+Each type may have additional properties as described below.
+
+##### Generic order properties
+
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| uuid               | unique id                               | "968f4580-e26c-4ad8-8bcd-874d23d55296" |
+| type               | order type                              | "Transfer"                             |
+| currency           | currency                                | "BTC"                                  |
+| created_at         | date created                            | "2013-10-24T10:34:37.000Z"             |
+| updated_at         | date updated                            | "2013-10-22T19:12:02.000Z"             |
+| amount             | currency amount                         | 1.0                                    |
+| state              | order state                             | "executed"                             |
+| currency_fee       | currency fee collected                  | 0.0                                    |
+| btc_fee            | BTC fee collected                       | 0.0                                    |
+| comment            | optional comment                        |                                        |
+| account_operations | an array of account operations executed |                                        |
+
+##### Market order specific properties
+
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| direction          | trade direction ("buy" or "sell")       | "buy"                                  |
+| price              | price per BTC                           | 620.0                                  |
+| traded_currency    | currency exchanged                      | 310.0                                  |
+| traded_btc         | BTC echanged                            | 0.5                                    |
+
+### Account operation properties
+
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| uuid               | unique id                               | "a940393b-4d2f-4a5a-8a0a-3470d7419bad" |
+| currency           | currency                                | "BTC"                                  |
+| name               | name of operation                       | "account_operation"                    |
+| created_at         | date created                            | "2013-10-22T14:30:06.000Z"             |
+| created_at_int     | timestamp                               | 1382452206                             |
+| amount             | currency amount                         | 49.38727114                            |
+| is_trading_account | whether the trading account is targeted | false                                  | 
+
+### Currencies
+
+The following currencies are available :
+
+| symbol | currency |
+|--------|----------|
+| EUR    | Euro     |
+| BTC    | Bitcoin  |
+
+### States
+
+TODO
 
 ### Ruby example
 
