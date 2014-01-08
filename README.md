@@ -241,7 +241,7 @@ Before you can access your own data or other users data, you must register an ap
 
 1. Verify your account and log in
 2. Visit [https://bitcoin-central.net/page/developers/apps](https://bitcoin-central.net/page/developers/apps)
-3. Create an application (set redirect URI to https://bitcoin-central.net/page/oauth/test when testing)
+3. Create an application (set redirect URI to `https://bitcoin-central.net/page/oauth/test when testing`)
 
 ### Authentication
 
@@ -264,12 +264,12 @@ Before you request authorization to access a user's account, you must decide whi
 
 The following scopes are available:
 
-| name           | description                                                               |
-|----------------|---------------------------------------------------------------------------|
-| basic (default)| Read account number, language, and balances                               |
-| activity       | Read trade orders, deposits, widthdrawals                                 |
-| trade          | Create and cancel trade orders                                            |
-| withdraw       | Request EUR and BTC withdrawals (requires email confirmations from users) |
+| name           | description                                                                               |
+|----------------|-------------------------------------------------------------------------------------------|
+| basic         | Read account number, language, and balances (default)                                      |
+| activity       | Read trade orders, deposits, withdrawals, and other operations                            |
+| trade          | Create and cancel trade orders                                                            |
+| withdraw       | Request EUR and BTC withdrawals (requires email confirmation from users upon withdrawing) |
 
 ##### Requesting user authorization
 
@@ -285,9 +285,9 @@ The user will then be prompted to authorize your application with the specified 
 
 ##### Receiving the authorization code
 
-If you specified the test redirection URI `https://bitcoin-central.net/page/oauth/test ` the user will be presented the autorization code upon accepting your request which can be used by the application to fetch access tokens.
+If you specified the test redirection URI `https://bitcoin-central.net/page/oauth/test`, the user will be presented the autorization code upon accepting your request which can be used by the application to fetch access tokens.
 
-Otherwise the code or error will be send to the redirection URI so that your application can retrieve it (in this case https://example.com/callback):
+Otherwise the code or error will be sent to the redirection URI so that your application can retrieve it (in this case `https://example.com/callback`):
 
     https://example.com/callback?code=AUTHORIZATION_CODE
 
@@ -324,7 +324,7 @@ An access token can be used to authorize user requests for the approved scopes a
 
 ##### Refreshing the access token
 
-Since an access token is valid only 30 minutes, your application may need to fetch a new access token using your refresh token:
+Since an access token is only valid 30 minutes, your application may need to fetch a new access token using the refresh token:
 
 ```bash
 $ curl "https://bitcoin-central.net/api/oauth/token"            \
