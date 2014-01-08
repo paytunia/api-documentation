@@ -44,21 +44,6 @@ app.get('/callback', function (req, res) {
   }
 });
 
-app.get('/activity', function (req, res) {
-  if(!req.session.token) return res.status(401).send({error: 'unauthorized'});
-
-  request('http://lvh.me/api/v1/user/orders', {
-    headers: {'Authorization': 'Bearer ' + req.session.token.access_token}
-  }, function(error, resp, body) {
-    if (error) return res.status(503).send({error: error.message});
-    res.send(body);
-  });
-});
-
-app.get('/', function (req, res) {
-  res.send('Bitcoin-Central API example');
-});
-
 function start(token) {
   var headers = {
     'Authorization': 'Bearer ' + token.access_token
