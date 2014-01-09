@@ -1,21 +1,33 @@
 // Node.js cli example
 
+// Configuration
+var config = {
+  appKey: '4de5809067b745f99bdc1d78c6885d8be63b85fb79578e81010e3e12bf758b72',
+  appSecret: '088d1aed6ba7062e51b4d15838ca906b0c67194339cbb1aed2324de0c625928c',
+
+  apiBaseUrl: 'http://lvh.me/api',
+
+  serverBaseUrl: 'http://localhost:8000',
+  serverPort: 8000
+};
+
 var express = require('express'),
     app = express(),
     request = require('request'),
-    cli = require('cline')();
+    cli = require('cline')(),
+    open = require('open');
 
-// App configuration
+// OAuth2 configuration
 var OAuth2 = require('simple-oauth2')({
-  clientID: '4de5809067b745f99bdc1d78c6885d8be63b85fb79578e81010e3e12bf758b72',
-  clientSecret: '088d1aed6ba7062e51b4d15838ca906b0c67194339cbb1aed2324de0c625928c',
-  site: 'https://bitcoin-central.net/api',
+  clientID: config.appKey,
+  clientSecret: config.appSecret,
+  site: config.apiBaseUrl,
   tokenPath: '/oauth/token'
 });
 
 // Authorization uri definition
 var authorization_uri = OAuth2.AuthCode.authorizeURL({
-  redirect_uri: 'http://localhost:8000/callback',
+  redirect_uri: config.serverBaseUrl + '/callback',
   scope: 'basic activity trade'
 });
 
@@ -27,289 +39,239 @@ app.get('/auth', function (req, res) {
 // Callback service parsing the authorization token and asking for the access token
 app.get('/callback', function (req, res) {
   var code = req.query.code;
+
   OAuth2.AuthCode.getToken({
     code: code,
-    redirect_uri: 'http://localhost:8000/callback'
+    redirect_uri: config.serverBaseUrl + '/callback'
   }, saveToken);
 
-  function saveToken(error, token) {
+  function saveToken(error, resp) {
     if (error) {
       console.error(error.message);
       return res.send(error.message);
     }
 
-    start(token);
+    token = resp;
 
     res.send('ok');
   }
 });
 
-function start(token) {
-  var headers = {
-    'Authorization': 'Bearer ' + token.access_token
-  };
-
-  cli.command('ticker', 'show ticker', function () {
-    delete cli._nextTick;
-    cli.stream.print('loading...');
-
-    request('https://bitcoin-central.net/api/v1/data/eur/ticker', function(error, resp, body) {
-      if (error) return console.error(error.message);
-
-      var data = JSON.parse(body);
-      var output = showObject(data);
-
-      cli.stream.print(output);
-      cli.interact('> ');
-    });
-  });
-
-  cli.command('balances', 'show account balances', function () {
-    delete cli._nextTick;
-    cli.stream.print('loading...');
-
-    request('https://bitcoin-central.net/api/v1/user', {
-      headers: headers
-    }, function(error, resp, body) {
-      if (error) return console.error(error.message);
-
-      if (resp.statusCode === 401) {
-        cli.stream.print('Unauthorized. You might need to refresh tokens.');
-        return cli.interact('> ');
-      }
-
-      var data = JSON.parse(body);
-      var output = '';
-
-      output += '\nCurrency\tAccount\t\tBalance\n';
-      output += 'BTC\t\tavailable\t' + data.balance_btc + '\n';
-      output += 'BTC\t\ttrading\t\t' + data.locked_btc + '\n';
-      output += 'EUR\t\tavailable\t' + data.balance_eur + '\n';
-      output += 'EUR\t\ttrading\t\t' + data.locked_eur;
-
-      cli.stream.print(output);
-      cli.interact('> ');
-    });
-  });
-
-  cli.command('active', 'show active trade orders', function () {
-    delete cli._nextTick;
-    cli.stream.print('loading...');
-
-    request('https://bitcoin-central.net/api/v1/user/orders', {
-      headers: headers,
-      qs: {
-        'types[]': 'LimitOrder',
-        active: true
-      }
-    }, function(error, resp, body) {
-      if (error) return console.error(error.message);
-
-      if (resp.statusCode === 401) {
-        cli.stream.print('Unauthorized. You might need to refresh tokens.');
-        return cli.interact('> ');
-      }
-
-      var data = JSON.parse(body);
-      var output = '';
-
-      data.forEach(function(order) {
-        output += '\n' + order.uuid + '\t';
-        output += order.direction + '\t';
-        output += order.amount.toFixed(8) + ' BTC for ';
-        output += order.price.toFixed(2) + ' ' + order.currency;
-        output += ' (' + order.traded_btc.toFixed(8) + ' BTC traded)'
-        output += '\t' + order.state
-      });
-
-      cli.stream.print(output);
-      cli.interact('> ');
-    });
-  });
-
-  cli.command('orders', 'show all trade orders', function () {
-    delete cli._nextTick;
-    cli.stream.print('loading...');
-
-    request('https://bitcoin-central.net/api/v1/user/orders', {
-      headers: headers,
-      qs: {
-        'types[]': 'LimitOrder'
-      }
-    }, function(error, resp, body) {
-      if (error) return console.error(error.message);
-
-      if (resp.statusCode === 401) {
-        cli.stream.print('Unauthorized. You might need to refresh tokens.');
-        return cli.interact('> ');
-      }
-
-      var data = JSON.parse(body);
-      var output = '';
-
-      data.forEach(function(order) {
-        output += '\n' + order.uuid + '\t';
-        output += order.direction + '\t';
-        output += order.amount.toFixed(8) + ' BTC for ';
-        output += order.price.toFixed(2) + ' ' + order.currency;
-        output += ' (' + order.traded_btc.toFixed(8) + ' BTC traded)'
-        output += '\t' + order.state
-      });
-
-      cli.stream.print(output);
-      cli.interact('> ');
-    });
-  });
-
-  cli.command('show {uuid}', 'show order by uuid', {uuid: '[0-9a-z\-]+'}, function (input, args) {
-    delete cli._nextTick;
-    cli.stream.print('loading...');
-
-    request('https://bitcoin-central.net/api/v1/user/orders/' + args.uuid, {
-      headers: headers
-    }, function(error, resp, body) {
-      if (error) return console.error(error.message);
-
-      if (resp.statusCode === 401) {
-        cli.stream.print('Unauthorized. You might need to refresh tokens.');
-        return cli.interact('> ');
-      }
-
-      var data = JSON.parse(body);
-      var output = showObject(data);
-
-      cli.stream.print(output);
-      cli.interact('> ');
-    });
-  });
-
-  cli.command('buy {amount} {price}', 'place a buy order', {amount: '[0-9\.]+', price: '[0-9\.]+'}, function (input, args) {
-    amount = parseFloat(args.amount);
-    price = parseFloat(args.price);
-    console.log('Buy ' + amount + ' BTC for ' + price + ' EUR each?')
-
-    delete cli._nextTick;
-    cli.stream.print('loading...');
-
-    request('https://bitcoin-central.net/api/v1/user/orders', {
-      headers: headers,
-      method: 'POST',
-      form: {
-        'type': 'LimitOrder',
-        currency: 'EUR',
-        direction: 'buy',
-        amount: amount,
-        price: price
-      }
-    }, function(error, resp, body) {
-      if (error) return console.error(error.message);
-
-      if (resp.statusCode === 401) {
-        cli.stream.print('Unauthorized. You might need to refresh tokens.');
-        return cli.interact('> ');
-      }
-
-      var data = JSON.parse(body);
-      cli.stream.print(data.uuid);
-      cli.interact('> ');
-    });
-  });
-
-  cli.command('sell {amount} {price}', 'place a sell order', {amount: '[0-9\.]+', price: '[0-9\.]+'}, function (input, args) {
-    amount = parseFloat(args.amount);
-    price = parseFloat(args.price);
-    console.log('Sell ' + amount + ' BTC for ' + price + ' EUR each?')
-
-    delete cli._nextTick;
-    cli.stream.print('loading...');
-
-    request('https://bitcoin-central.net/api/v1/user/orders', {
-      headers: headers,
-      method: 'POST',
-      form: {
-        'type': 'LimitOrder',
-        currency: 'EUR',
-        direction: 'sell',
-        amount: amount,
-        price: price
-      }
-    }, function(error, resp, body) {
-      if (error) return console.error(error.message);
-
-      if (resp.statusCode === 401) {
-        cli.stream.print('Unauthorized. You might need to refresh tokens.');
-        return cli.interact('> ');
-      }
-
-      var data = JSON.parse(body);
-      cli.stream.print(data.uuid);
-      cli.interact('> ');
-    });
-  });
-
-  cli.command('cancel {uuid}', 'cancel order by uuid', {uuid: '[0-9a-z\-]+'}, function (input, args) {
-    delete cli._nextTick;
-    cli.stream.print('loading...');
-
-    request('https://bitcoin-central.net/api/v1/user/orders/' + args.uuid + '/cancel', {
-      headers: headers,
-      method: 'DELETE'
-    }, function(error, resp, body) {
-      if (error) return console.error(error.message);
-
-      if (resp.statusCode === 401) {
-        cli.stream.print('Unauthorized. You might need to refresh tokens.');
-        return cli.interact('> ');
-      }
-
-      cli.stream.print('Order cancelling.');
-      cli.interact('> ');
-    });
-  });
-
-  cli.command('refresh_tokens', 'refresh access tokens', function () {
-    delete cli._nextTick;
-    cli.stream.print('loading...');
-
-    OAuth2.AccessToken.create(token).refresh(function(error, result) {
-      if (error) return console.error(error.message);
-
-      token = result.token;
-      headers = {
-        'Authorization': 'Bearer ' + token.access_token
-      };
-
-      cli.stream.print('Ok.');
-      cli.interact('> ');
-    });
-  });
-
-  cli.interact('> ');
-
-  cli.on('close', function () {
-      process.exit();
-  });
-}
-
-function showObject(data) {
+// Convert trade orders to string
+function tradeOrdersToString(data) {
   output = '';
 
-  for(key in data) {
-    switch(key) {
-      case 'created_at':
-      output += '\n' + key + ': ' + new Date(data[key]);
-      break;
-      case 'updated_at':
-      output += '\n' + key + ': ' + new Date(data[key]);
-      case 'account_operations':
-      break;
-      default:
-      output += '\n' + key + ': ' + data[key];
-    }
-  }
+  data.forEach(function(order) {
+    output += '\n' + order.uuid + '\t';
+    output += order.direction + '\t';
+    output += order.amount.toFixed(8) + ' BTC for ';
+    output += order.price.toFixed(2) + ' ' + order.currency;
+    output += ' (' + order.traded_btc.toFixed(8) + ' BTC traded)'
+    output += '\t' + order.state
+  });
 
   return output;
 }
 
-app.listen(8000);
-console.log('Open http://localhost:8000/auth in your browser to authorize the application.')
+// Register an API command
+var token;
+function addApiCommand(cmd, path, options, cb) {
+  options = options || {};
+
+  cli.command(cmd, cmd.desc, options.args, function (input, args) {
+    if(options.restricted && !token) {
+      var url = config.serverBaseUrl + '/auth';
+      cli.stream.print('opening ' + url + ' in your browser...');
+      open(url);
+      return;
+    }
+
+    delete cli._nextTick;
+    cli.stream.print('loading...');
+
+    options.headers = options.headers || {};
+
+    if(options.restricted) {
+      options.headers['Authorization'] = 'Bearer ' + token.access_token;
+    }
+
+    var pathStr = path;
+
+    if (typeof path === 'function') {
+      pathStr = path(input, args);
+    }
+
+    if (typeof options.payload === 'function') {
+      options.form = options.payload(input, args);
+    }
+
+    request(config.apiBaseUrl + pathStr, options, function(error, resp, body) {
+      if (error) {
+        cli.stream.print(error.message);
+        return cli.interact('> ');
+      }
+
+      if (resp.statusCode === 401) {
+        cli.stream.print('unauthorized, use refresh_tokens to refresh access tokens');
+        return cli.interact('> ');
+      }
+
+      if (resp.statusCode === 422) {
+        cli.stream.print('unprocessable entity');
+        return cli.interact('> ');
+      } 
+
+      var data = {};
+
+      try {
+        var data = JSON.parse(body);
+      } catch(e) {}
+
+      cli.stream.print(cb(data));
+      cli.interact('> ');
+    });
+  });
+}
+
+// Ticker command
+addApiCommand('ticker', '/v1/data/eur/ticker', {
+  desc: 'show ticker'
+}, function(data) {
+  return JSON.stringify(data, true, '\t');
+});
+
+// Balances command
+addApiCommand('balances', '/v1/user', {
+  desc: 'show account balances',
+  restricted: true
+}, function(data) {
+  var output = '';
+
+  output += '\nCurrency\tAccount\t\tBalance\n';
+  output += 'BTC\t\tavailable\t' + data.balance_btc + '\n';
+  output += 'BTC\t\ttrading\t\t' + data.locked_btc + '\n';
+  output += 'EUR\t\tavailable\t' + data.balance_eur + '\n';
+  output += 'EUR\t\ttrading\t\t' + data.locked_eur;
+
+  return output;
+});
+
+// Active command
+addApiCommand('active', '/v1/user/orders', {
+  desc: 'show active trade orders',
+  restricted: true,
+  qs: {
+    'types[]': 'LimitOrder',
+    active: true
+  }
+}, function(data) {
+  return tradeOrdersToString(data);
+});
+
+// Orders command
+addApiCommand('orders', '/v1/user/orders', {
+  desc: 'show all tade orders',
+  restricted: true,
+  qs: {
+    'types[]': 'LimitOrder'
+  }
+}, function(data) {
+  return tradeOrdersToString(data);
+});
+
+// Order command
+addApiCommand('show {uuid}', function(input, args) {return '/v1/user/orders/' + args.uuid;}, {
+  desc: 'show all orders',
+  restricted: true,
+  args: {
+    uuid: '[0-9a-z\-]+'
+  }
+}, function(data) {
+  return JSON.stringify(data, true, '\t');
+});
+
+// Buy command
+addApiCommand('buy {amount} {price}', '/v1/user/orders', {
+  desc: 'place a buy order',
+  restricted: true,
+  method: 'POST',
+  args: {
+    amount: '[0-9\.]+',
+    price: '[0-9\.]+'
+  },
+  payload: function(input, args) {
+    return {
+      'type': 'LimitOrder',
+      currency: 'EUR',
+      direction: 'buy',
+      amount: args.amount,
+      price: args.price
+    }
+  }
+}, function(data) {
+  return data.uuid;
+});
+
+// Sell command
+addApiCommand('sell {amount} {price}', '/v1/user/orders', {
+  desc: 'place a sell order',
+  restricted: true,
+  method: 'POST',
+  args: {
+    amount: '[0-9\.]+',
+    price: '[0-9\.]+'
+  },
+  payload: function(input, args) {
+    return {
+      'type': 'LimitOrder',
+      currency: 'EUR',
+      direction: 'sell',
+      amount: args.amount,
+      price: args.price
+    }
+  }
+}, function(data) {
+  return data.uuid;
+});
+
+// Cancel command
+addApiCommand('cancel {uuid}', function(input, args) {return '/v1/user/orders/' + args.uuid + '/cancel';}, {
+  desc: 'cancel a trade order',
+  restricted: true,
+  method: 'DELETE',
+  args: {
+    uuid: '[0-9a-z\-]+'
+  }
+}, function(data) {
+  return 'cancel requested';
+});
+
+// Refresh tokens command
+cli.command('refresh_tokens', 'refresh access tokens', function () {
+  if (!token) {
+    cli.stream.print('no tokens yet');
+    return cli.interact('> ');
+  }
+
+  delete cli._nextTick;
+  cli.stream.print('loading...');
+
+  OAuth2.AccessToken.create(token).refresh(function(error, result) {
+    if (error) {
+      cli.stream.print(error.message);
+      return cli.interact('> ');
+    }
+
+    token = result.token;
+
+    cli.stream.print('refreshed');
+    cli.interact('> ');
+  });
+});
+
+app.listen(config.serverPort);
+cli.interact('> ');
+
+cli.on('close', function () {
+    process.exit();
+});
