@@ -179,7 +179,7 @@ function addApiCommand(cmd, path, options, cb) {
         }
 
         if (resp.statusCode === 422) {
-          cli.stream.print('unprocessable entity');
+          cli.stream.print(JSON.parse(body).errors);
           return cli.interact('> ');
         } 
 
