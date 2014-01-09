@@ -32,10 +32,11 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Canceling orders](#canceling-orders)
 
 * [**Appendix**](#appendix)
-  * [Order properties](#order-properties)
-  * [Account operation properties](#account-operation-properties)
   * [Currencies](#currencies)
-  * [States](#states)
+  * [Order types](#order-types)
+  * [Order properties](#order-properties)
+  * [Order states](#order-states)
+  * [Account operation properties](#account-operation-properties)
   * [Ruby example](#ruby-example)
 
 ## General information
@@ -628,6 +629,27 @@ TODO
 
 ## Appendix
 
+### Currencies
+
+The following currencies are available:
+
+| symbol | currency |
+|--------|----------|
+| EUR    | Euro     |
+| BTC    | Bitcoin  |
+
+### Order types
+
+Orders can have the following types:
+
+| type           | description                        |
+|----------------|------------------------------------|
+| WireDeposit    | wire (FIAT) deposit                |
+| BitcoinDeposit | BTC deposit                        |
+| LimitOrder     | limit trade order                  |
+| Transfer       | BTC or fiat transfer or withdraw   |
+| AdminOrder     | special order executed by an admin |
+
 ### Order properties
 
 All order types share generic properties.
@@ -659,6 +681,19 @@ Each type may have additional properties as described below.
 | traded_currency    | currency exchanged                      | 310.0                                  |
 | traded_btc         | BTC echanged                            | 0.5                                    |
 
+### Order states
+
+| name               | description                                                                      |
+|--------------------|----------------------------------------------------------------------------------|
+| pending_execution  | order is queued and pending execution                                            |
+| pending            | order is pending, such as an unconfirmed withdrawal                              |
+| processin          | order is processing                                                              |
+| authorized         | order has been authorized, such as a confirmed withdrawal                        |
+| active             | order is active, such as a trade order in the order book                         |
+| filled             | order has been completely filled                                                 |
+| executed           | order has been executed                                                          |
+| canceled           | order has been canceled                                                          |
+
 ### Account operation properties
 
 | name               | description                             | example value                          |
@@ -669,20 +704,7 @@ Each type may have additional properties as described below.
 | created_at         | date created                            | "2013-10-22T14:30:06.000Z"             |
 | created_at_int     | timestamp                               | 1382452206                             |
 | amount             | currency amount                         | 49.38727114                            |
-| is_trading_account | whether the trading account is targeted | false                                  | 
-
-### Currencies
-
-The following currencies are available :
-
-| symbol | currency |
-|--------|----------|
-| EUR    | Euro     |
-| BTC    | Bitcoin  |
-
-### States
-
-TODO
+| is_trading_account | whether the trading account is targeted | false                                  |
 
 ### Ruby example
 
