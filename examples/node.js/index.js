@@ -8,7 +8,8 @@ var config = require('./config'),
     request = require('request'),
     cli = require('cline')(),
     fs = require('fs'),
-    open = require('open');
+    open = require('open'),
+    easycrypto = require('easycrypto').getInstance();
 
 // Known order uuids
 var knownUuids = {};
@@ -24,7 +25,7 @@ var OAuth2 = require('simple-oauth2')({
 // Authorization uri definition
 var authorization_uri = OAuth2.AuthCode.authorizeURL({
   redirect_uri: config.serverBaseUrl + '/callback',
-  scope: 'basic activity trade'
+  scope: config.scopes
 });
 
 // Authorization page redirecting to Bitcoin-Central
@@ -42,39 +43,55 @@ app.get('/callback', function (req, res) {
     redirect_uri: config.serverBaseUrl + '/callback'
   }, saveToken);
 
-  function saveToken(error, resp) {
+  function saveToken(error, tokens) {
     if (error) {
       console.error(error.message);
       return res.send(error.message);
     }
 
-    token = resp;
-
-    if (config.tokenFile) {
-      fs.writeFileSync(config.tokenFile, JSON.stringify(token));
-    }
-
     res.send('You may close this window.');
 
-    if(afterAuth) afterAuth();
+    cli.password('choose a password: ', '*', function(pwd) {
+      var data = easycrypto.encrypt(JSON.stringify(tokens), pwd);
+      fs.writeFileSync(config.tokenFile, data, {encoding: 'utf8'});
 
-    afterAuth = null;
+      access_token = tokens.access_token;
+      expires = new Date(new Date().getTime() + 1000 * tokens.expires_in);
+
+      if(afterAuth) afterAuth();
+      afterAuth = null;
+    });
   }
 });
 
 // Refresh tokens
 function refreshTokens(cb) {
-  OAuth2.AccessToken.create(token).refresh(function(error, result) {
-    if (!error) {
-      token = result.token;
-
-      if (config.tokenFile) {
-        fs.writeFileSync(config.tokenFile, JSON.stringify(token));
+  function doIt() {
+    cli.password('enter password: ', '*', function(pwd) {
+      try {
+        var tokens = JSON.parse(easycrypto.decrypt(fs.readFileSync(config.tokenFile, {
+          encoding: 'utf8'
+        }), pwd));
       }
-    }
+      catch(e) {
+        doIt();
+      }
 
-    cb(error);
-  });
+      OAuth2.AccessToken.create(tokens).refresh(function(error, result) {
+        if (!error) {
+          var tokens = result.token;
+          var data = easycrypto.encrypt(JSON.stringify(tokens), pwd);
+          fs.writeFileSync(config.tokenFile, data, {encoding: 'utf8'});
+          access_token = tokens.access_token;
+          expires = new Date(new Date().getTime() + 1000 * tokens.expires_in)
+        }
+
+        if(cb) cb(error);
+      });
+    });
+  }
+
+  doIt();
 };
 
 // Convert trade orders to string
@@ -100,7 +117,7 @@ function matchUuid(uuid) {
     return [uuid];
   }
 
-  matches = [];
+  var matches = [];
 
   for (key in knownUuids) {
     if(key.indexOf(uuid) === 0) {
@@ -112,17 +129,25 @@ function matchUuid(uuid) {
 }
 
 // Register an API command
-var token;
+var access_token;
+var expires;
+
 function addApiCommand(cmd, path, options, cb) {
   options = options || {};
 
   cli.command(cmd, cmd.desc, options.args, function (input, args) {
-    if(options.restricted && !token) {
+    if(options.restricted && !access_token) {
       delete cli._nextTick;
-      var url = config.serverBaseUrl + '/auth';
-      cli.stream.print('opening ' + url + ' in your browser...');
-      afterAuth = doRequest;
-      return open(url);
+
+      if (fs.existsSync(config.tokenFile)) {
+        return refreshTokens(doRequest);
+      }
+      else {
+        var url = config.serverBaseUrl + '/auth';
+        cli.stream.print('opening ' + url + ' in your browser...');
+        afterAuth = doRequest;
+        return open(url);
+      }
     }
 
     var state;
@@ -133,7 +158,7 @@ function addApiCommand(cmd, path, options, cb) {
       options.headers = options.headers || {};
 
       if(options.restricted) {
-        options.headers['Authorization'] = 'Bearer ' + token.access_token;
+        options.headers['Authorization'] = 'Bearer ' + access_token;
       }
 
       var pathStr = path;
@@ -157,7 +182,7 @@ function addApiCommand(cmd, path, options, cb) {
         }
 
         if (resp.statusCode === 401) {
-          if (token && !state) {
+          if (access_token && !state) {
             refreshTokens(function(error) {
               state = 'refreshed';
               doRequest();
@@ -337,9 +362,16 @@ addApiCommand('cancel {uuid}', function(input, args) {
   return 'cancel requested';
 });
 
-if (config.tokenFile && fs.existsSync(config.tokenFile)) { 
-  token = JSON.parse(fs.readFileSync(config.tokenFile));
-}
+// TTL command
+cli.command('ttl', 'show access token time to live', function () {
+  if(access_token) {
+    var time =  expires.getTime() - new Date().getTime();
+    cli.stream.print(Math.ceil(time / 1000 / 60) + ' min');
+  }
+  else {
+    cli.stream.print('no access token');
+  }
+});
 
 console.log('Welcome to Bitcoin-Central JS. Type `help` for help.');
 
@@ -347,5 +379,5 @@ app.listen(config.serverPort);
 cli.interact('> ');
 
 cli.on('close', function () {
-    process.exit();
+  process.exit();
 });

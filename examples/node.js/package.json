@@ -13,10 +13,11 @@
     "express": "~3.4.7",
     "request": "~2.31.0",
     "cline": "~0.7.0",
-    "open": "0.0.4"
+    "open": "0.0.4",
+    "easycrypto": "~0.1.1"
   },
   "preferGlobal": "true",
   "bin": {
-    "bcjs" : "index.js"
+    "bcjs": "index.js"
   }
 }
