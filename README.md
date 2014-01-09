@@ -15,6 +15,9 @@ _* Authenticating users is only available to developers that have a fully verifi
 
 * [**General information**](#general-information)
   * [Formats and required HTTP request headers](#formats-and-required-http-request-headers)
+  * [Localization](#localization)
+  * [Error handling](#error-handling)
+  * [Successful calls](#sucessful-calls)
   * [Rate-limiting](#rate-limiting)
 
 * [**Public data**](#public-data)
@@ -44,6 +47,39 @@ _* Authenticating users is only available to developers that have a fully verifi
 ### Formats and required HTTP request headers
 
 The API will only answer with JSON or empty responses. It expects parameters to be passed in JSON with the correct `Content-Type: application/json` being set.
+
+## Localization
+
+The relevant results and error messages will be localized to the language associated to the user, currently English and French are supported.
+
+## Datetime formats
+
+Datetime values will be returned as regular JSON format and Unix timestamps, the timestamps are suffixed with `_int`.
+
+## Error handling
+
+Whenever an error is encountered, the answer to a JSON API call will have:
+
+ * An HTTP 422 status (Unprocessable entity) or HTTP 400 (Bad request)
+ * A JSON array of localized error messages in the `errors` attribute of the response body
+
+##### Example:
+
+```json
+{
+  "errors": [
+    "Operations account operations amount is greater than your available balance (1781.96 EUR)"
+    "Amount can't be greater than your limit (1781.96 EUR)"
+  ]
+}
+```
+
+## Successful calls
+
+If the API call was successful, the platform will answer with:
+
+ * An HTTP 200 status (OK) or HTTP 201 (Created),
+ * A JSON representation of the entity being created or updated if relevant
 
 ### Rate-limiting
 
@@ -254,7 +290,7 @@ Before you can access your own data or other users data, you must register an ap
 
 To access and manipulate user data, you must first request permission from the user.
 
-Authorizations are granted using the standard [OAuth2 protocol](http://oauth.net/2/).
+Authorizations are granted using the standard [OAuth2](http://oauth.net/2/) Authorization Code Grant.
 
 Many programming languages already have libraries to develop clients that connect to OAuth2 APIs, hence the following steps may not be necessary. For instance, if you are a Ruby developer, you can use [this example to get started](#ruby-example).
 
