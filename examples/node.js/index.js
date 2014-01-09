@@ -49,7 +49,10 @@ app.get('/callback', function (req, res) {
     }
 
     token = resp;
-    fs.writeFileSync(config.tokenFile, JSON.stringify(token));
+
+    if (config.tokenFile) {
+      fs.writeFileSync(config.tokenFile, JSON.stringify(token));
+    }
 
     res.send('You may close this window.');
 
@@ -64,7 +67,10 @@ function refreshTokens(cb) {
   OAuth2.AccessToken.create(token).refresh(function(error, result) {
     if (!error) {
       token = result.token;
-      fs.writeFileSync(config.tokenFile, JSON.stringify(token));
+
+      if (config.tokenFile) {
+        fs.writeFileSync(config.tokenFile, JSON.stringify(token));
+      }
     }
 
     cb(error);
@@ -331,7 +337,7 @@ addApiCommand('cancel {uuid}', function(input, args) {
   return 'cancel requested';
 });
 
-if (fs.existsSync(config.tokenFile)) { 
+if (config.tokenFile && fs.existsSync(config.tokenFile)) { 
   token = JSON.parse(fs.readFileSync(config.tokenFile));
 }
 

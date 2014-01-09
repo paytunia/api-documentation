@@ -9,5 +9,6 @@ module.exports = {
   serverBaseUrl: 'http://localhost:8000',
   serverPort: 8000,
 
+  // Remove to disable saving tokens to file
   tokenFile: path.resolve(__dirname, 'tokens')
 };
