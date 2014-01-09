@@ -11,7 +11,7 @@ Configuration is stored in `config.js`. You must set `appKey` and `appSecret` to
 ### Installation
 
 1. install node.js
-2. downloads this package
+2. download this package
 3. run `npm install`
 4. run `npm link`
 5. launch the app using `bcjs`
