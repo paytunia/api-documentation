@@ -644,7 +644,7 @@ Orders can have the following types:
 
 | type           | description                        |
 |----------------|------------------------------------|
-| WireDeposit    | wire (FIAT) deposit                |
+| WireDeposit    | wire (fiat) deposit                |
 | BitcoinDeposit | BTC deposit                        |
 | LimitOrder     | limit trade order                  |
 | Transfer       | BTC or fiat transfer or withdraw   |
