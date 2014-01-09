@@ -687,7 +687,7 @@ Each type may have additional properties as described below.
 |--------------------|----------------------------------------------------------------------------------|
 | pending_execution  | order is queued and pending execution                                            |
 | pending            | order is pending, such as an unconfirmed withdrawal                              |
-| processin          | order is processing                                                              |
+| processing         | order is processing                                                              |
 | authorized         | order has been authorized, such as a confirmed withdrawal                        |
 | active             | order is active, such as a trade order in the order book                         |
 | filled             | order has been completely filled                                                 |
