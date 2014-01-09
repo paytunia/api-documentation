@@ -74,7 +74,7 @@ function refreshTokens(cb) {
         }), pwd));
       }
       catch(e) {
-        doIt();
+        return doIt();
       }
 
       OAuth2.AccessToken.create(tokens).refresh(function(error, result) {
