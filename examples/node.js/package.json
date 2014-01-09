@@ -14,5 +14,9 @@
     "request": "~2.31.0",
     "cline": "~0.7.0",
     "open": "0.0.4"
+  },
+  "preferGlobal": "true",
+  "bin": {
+    "bcjs" : "index.js"
   }
 }

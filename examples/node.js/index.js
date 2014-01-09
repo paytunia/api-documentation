@@ -1,20 +1,13 @@
+#! /usr/bin/env node
+
 // Node.js cli example
 
-// Configuration
-var config = {
-  appKey: '4de5809067b745f99bdc1d78c6885d8be63b85fb79578e81010e3e12bf758b72',
-  appSecret: '088d1aed6ba7062e51b4d15838ca906b0c67194339cbb1aed2324de0c625928c',
-
-  apiBaseUrl: 'http://lvh.me/api',
-
-  serverBaseUrl: 'http://localhost:8000',
-  serverPort: 8000
-};
-
-var express = require('express'),
+var config = require('./config'),
+    express = require('express'),
     app = express(),
     request = require('request'),
     cli = require('cline')(),
+    fs = require('fs'),
     open = require('open');
 
 // OAuth2 configuration
@@ -37,6 +30,7 @@ app.get('/auth', function (req, res) {
 });
 
 // Callback service parsing the authorization token and asking for the access token
+var afterAuth;
 app.get('/callback', function (req, res) {
   var code = req.query.code;
 
@@ -52,10 +46,27 @@ app.get('/callback', function (req, res) {
     }
 
     token = resp;
+    fs.writeFileSync(config.tokenFile, JSON.stringify(token));
 
-    res.send('ok');
+    res.send('You may close this window.');
+
+    if(afterAuth) afterAuth();
+
+    afterAuth = null;
   }
 });
+
+// Refresh tokens
+function refreshTokens(cb) {
+  OAuth2.AccessToken.create(token).refresh(function(error, result) {
+    if (!error) {
+      token = result.token;
+      fs.writeFileSync(config.tokenFile, JSON.stringify(token));
+    }
+
+    cb(error);
+  });
+};
 
 // Convert trade orders to string
 function tradeOrdersToString(data) {
@@ -80,56 +91,78 @@ function addApiCommand(cmd, path, options, cb) {
 
   cli.command(cmd, cmd.desc, options.args, function (input, args) {
     if(options.restricted && !token) {
+      delete cli._nextTick;
       var url = config.serverBaseUrl + '/auth';
       cli.stream.print('opening ' + url + ' in your browser...');
-      open(url);
-      return;
+      afterAuth = doRequest;
+      return open(url);
     }
 
-    delete cli._nextTick;
-    cli.stream.print('loading...');
+    var state;
 
-    options.headers = options.headers || {};
+    function doRequest() {
+      delete cli._nextTick;
+      cli.stream.print('loading...');
 
-    if(options.restricted) {
-      options.headers['Authorization'] = 'Bearer ' + token.access_token;
-    }
+      options.headers = options.headers || {};
 
-    var pathStr = path;
-
-    if (typeof path === 'function') {
-      pathStr = path(input, args);
-    }
-
-    if (typeof options.payload === 'function') {
-      options.form = options.payload(input, args);
-    }
-
-    request(config.apiBaseUrl + pathStr, options, function(error, resp, body) {
-      if (error) {
-        cli.stream.print(error.message);
-        return cli.interact('> ');
+      if(options.restricted) {
+        options.headers['Authorization'] = 'Bearer ' + token.access_token;
       }
 
-      if (resp.statusCode === 401) {
-        cli.stream.print('unauthorized, use refresh_tokens to refresh access tokens');
-        return cli.interact('> ');
+      var pathStr = path;
+
+      if (typeof path === 'function') {
+        pathStr = path(input, args);
       }
 
-      if (resp.statusCode === 422) {
-        cli.stream.print('unprocessable entity');
-        return cli.interact('> ');
-      } 
+      if (typeof options.payload === 'function') {
+        options.form = options.payload(input, args);
+      }
 
-      var data = {};
+      request(config.apiBaseUrl + pathStr, options, function(error, resp, body) {
+        if (error) {
+          cli.stream.print(error.message);
+          return cli.interact('> ');
+        }
 
-      try {
-        var data = JSON.parse(body);
-      } catch(e) {}
+        if (resp.statusCode === 401) {
+          if (token && !state) {
+            refreshTokens(function(error) {
+              state = 'refreshed';
+              doRequest();
+            });
+          }
+          else if (state == 'refreshed') {
+            state = 'authorizing';
+            var url = config.serverBaseUrl + '/auth';
+            cli.stream.print('opening ' + url + ' in your browser...');
+            afterAuth = doRequest;
+            return open(url);
+          }
+          else {
+            cli.stream.print('unauthorized');
+            return cli.interact('> ');
+          }
+        }
 
-      cli.stream.print(cb(data));
-      cli.interact('> ');
-    });
+        if (resp.statusCode === 422) {
+          cli.stream.print('unprocessable entity');
+          return cli.interact('> ');
+        } 
+
+        var data = {};
+
+        try {
+          var data = JSON.parse(body);
+        } catch(e) {}
+
+        cli.stream.print(cb(data));
+        cli.interact('> ');
+      });
+    }
+
+    doRequest();
   });
 }
 
@@ -246,28 +279,11 @@ addApiCommand('cancel {uuid}', function(input, args) {return '/v1/user/orders/' 
   return 'cancel requested';
 });
 
-// Refresh tokens command
-cli.command('refresh_tokens', 'refresh access tokens', function () {
-  if (!token) {
-    cli.stream.print('no tokens yet');
-    return cli.interact('> ');
-  }
+if (fs.existsSync(config.tokenFile)) { 
+  token = JSON.parse(fs.readFileSync(config.tokenFile));
+}
 
-  delete cli._nextTick;
-  cli.stream.print('loading...');
-
-  OAuth2.AccessToken.create(token).refresh(function(error, result) {
-    if (error) {
-      cli.stream.print(error.message);
-      return cli.interact('> ');
-    }
-
-    token = result.token;
-
-    cli.stream.print('refreshed');
-    cli.interact('> ');
-  });
-});
+console.log('Welcome to Bitcoin-Central JS. Type `help` for help.');
 
 app.listen(config.serverPort);
 cli.interact('> ');
