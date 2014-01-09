@@ -83,12 +83,12 @@ function tradeOrdersToString(data) {
 
   data.forEach(function(order) {
     knownUuids[order.uuid] = true;
-    output += '\n' + order.uuid + '\t';
+    output += order.uuid + '\t';
     output += order.direction + '\t';
     output += order.amount.toFixed(8) + ' BTC for ';
     output += order.price.toFixed(2) + ' ' + order.currency;
     output += ' (' + order.traded_btc.toFixed(8) + ' BTC traded)'
-    output += '\t' + order.state
+    output += '\t' + order.state + '\n'
   });
 
   return output;
@@ -150,8 +150,6 @@ function addApiCommand(cmd, path, options, cb) {
         options.form = options.payload(input, args);
       }
 
-      cli.stream.print('loading...');
-
       request(config.apiBaseUrl + pathStr, options, function(error, resp, body) {
         if (error) {
           cli.stream.print(error.message);
@@ -170,12 +168,14 @@ function addApiCommand(cmd, path, options, cb) {
             var url = config.serverBaseUrl + '/auth';
             cli.stream.print('opening ' + url + ' in your browser...');
             afterAuth = doRequest;
-            return open(url);
+            open(url);
           }
           else {
             cli.stream.print('unauthorized');
-            return cli.interact('> ');
+            cli.interact('> ');
           }
+
+          return;
         }
 
         if (resp.statusCode === 422) {
@@ -212,7 +212,7 @@ addApiCommand('balances', '/v1/user', {
 }, function(data) {
   var output = '';
 
-  output += '\nCurrency\tAccount\t\tBalance\n';
+  output += 'Currency\tAccount\t\tBalance\n';
   output += 'BTC\t\tavailable\t' + data.balance_btc + '\n';
   output += 'BTC\t\ttrading\t\t' + data.locked_btc + '\n';
   output += 'EUR\t\tavailable\t' + data.balance_eur + '\n';
