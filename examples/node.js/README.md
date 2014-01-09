@@ -2,6 +2,8 @@
 
 This is an example of how to use the Bicoin-Central API using Node.js, including handling OAuth2 callbacks and refresh tokens.
 
+USE AT YOUR OWN RISK!
+
 ### Configuration
 
 To use, you must register an application on Bitcoin-Central with redirection URI set to `http://localhost:8000/callback`.
