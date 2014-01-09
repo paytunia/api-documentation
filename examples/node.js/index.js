@@ -10,6 +10,9 @@ var config = require('./config'),
     fs = require('fs'),
     open = require('open');
 
+// Known order uuids
+var knownUuids = {};
+
 // OAuth2 configuration
 var OAuth2 = require('simple-oauth2')({
   clientID: config.appKey,
@@ -73,6 +76,7 @@ function tradeOrdersToString(data) {
   output = '';
 
   data.forEach(function(order) {
+    knownUuids[order.uuid] = true;
     output += '\n' + order.uuid + '\t';
     output += order.direction + '\t';
     output += order.amount.toFixed(8) + ' BTC for ';
@@ -82,6 +86,23 @@ function tradeOrdersToString(data) {
   });
 
   return output;
+}
+
+// Try to match incomplete uuid to know ones
+function matchUuid(uuid) {
+  if(uuid.length === 36) {
+    return [uuid];
+  }
+
+  matches = [];
+
+  for (key in knownUuids) {
+    if(key.indexOf(uuid) === 0) {
+      matches.push(key);
+    }
+  }
+
+  return matches;
 }
 
 // Register an API command
@@ -102,7 +123,6 @@ function addApiCommand(cmd, path, options, cb) {
 
     function doRequest() {
       delete cli._nextTick;
-      cli.stream.print('loading...');
 
       options.headers = options.headers || {};
 
@@ -114,11 +134,17 @@ function addApiCommand(cmd, path, options, cb) {
 
       if (typeof path === 'function') {
         pathStr = path(input, args);
+
+        if (!pathStr) {
+          return cli.interact('> '); 
+        }
       }
 
       if (typeof options.payload === 'function') {
         options.form = options.payload(input, args);
       }
+
+      cli.stream.print('loading...');
 
       request(config.apiBaseUrl + pathStr, options, function(error, resp, body) {
         if (error) {
@@ -212,8 +238,20 @@ addApiCommand('orders', '/v1/user/orders', {
   return tradeOrdersToString(data);
 });
 
-// Order command
-addApiCommand('show {uuid}', function(input, args) {return '/v1/user/orders/' + args.uuid;}, {
+// Show command
+addApiCommand('show {uuid}', function(input, args) {
+  var uuids = matchUuid(args.uuid);
+
+  if(uuids.length === 0) {
+    cli.stream.print('no matching uuid');
+  }
+  else if(uuids.length === 1) {
+    return '/v1/user/orders/' + uuids[0];
+  }
+  else {
+    cli.stream.print('multiple matching uuids: ' + uuids);
+  }
+}, {
   desc: 'show all orders',
   restricted: true,
   args: {
@@ -242,6 +280,7 @@ addApiCommand('buy {amount} {price}', '/v1/user/orders', {
     }
   }
 }, function(data) {
+  knownUuids[data.uuid] = true;
   return data.uuid;
 });
 
@@ -264,11 +303,24 @@ addApiCommand('sell {amount} {price}', '/v1/user/orders', {
     }
   }
 }, function(data) {
+  knownUuids[data.uuid] = true;
   return data.uuid;
 });
 
 // Cancel command
-addApiCommand('cancel {uuid}', function(input, args) {return '/v1/user/orders/' + args.uuid + '/cancel';}, {
+addApiCommand('cancel {uuid}', function(input, args) {
+  var uuids = matchUuid(args.uuid);
+
+  if(uuids.length === 0) {
+    cli.stream.print('no matching uuid');
+  }
+  else if(uuids.length === 1) {
+    return '/v1/user/orders/' + uuids[0] + '/cancel';
+  }
+  else {
+    cli.stream.print('multiple matching uuids: ' + uuids);
+  }
+}, {
   desc: 'cancel a trade order',
   restricted: true,
   method: 'DELETE',
