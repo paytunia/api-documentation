@@ -540,8 +540,8 @@ Create trade orders.
 
 | name               | description                             | example value                          |
 |--------------------|-----------------------------------------|----------------------------------------|
-| type               | Must be "LimitOrder"                    | "LimitOrder"                           |
-| currency           | Must be "EUR"                           | "EUR"                                  |
+| type               | must be "LimitOrder"                    | "LimitOrder"                           |
+| currency           | must be "EUR"                           | "EUR"                                  |
 | direction          | trade direction, must be "buy" or "sell"| "buy"                                  |
 | price              | price per BTC                           | 300.0                                  |
 | amount             | BTC amount to trade                     | 1.0                                    |
@@ -602,7 +602,62 @@ See [order properties](#order-properties).
 
 ### Withdrawing
 
-TODO
+Request BTC or fiat withdrawals. A confirmation is sent by email to the user before it can be executed.
+
+##### Endpoint
+
+| method | path                       | authorization            |
+|--------|----------------------------|--------------------------|
+| POST   | /api/v1/user/orders        | oauth2 (scope: withdraw) |
+
+##### Payload
+
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| type               | must be "Transfer"                      | "Transfer"                             |
+| currency           | currency code                           | "BTC"                                  |
+| amount             | amount to transfer                      | 0.5                                    |
+| address            | BTC address is withdrawing BTC          | "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"   |
+
+##### Example
+
+```bash
+$ curl "https://bitcoin-central.net/api/v1/user/orders              \
+     --header "Authorization: Bearer ACCESS_TOKEN"                  \
+     -d "type=Transfer"                                             \
+     -d "currency=BTC"                                              \
+     -d "amount=0.5"                                                \
+     -d "address=1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"
+```
+
+```json
+{
+  "uuid": "9229fd6e-0aad-45d6-8090-a400f37a0129",
+  "amount": 0.5,
+  "state": "pending",
+  "btc_fee": 0.0,
+  "currency_fee": 0.0,
+  "updated_at": "2014-01-09T10:22:00.858Z",
+  "created_at": "2014-01-09T10:22:00.858Z",
+  "currency": "BTC",
+  "type": "Transfer",
+  "account_operations": [
+    {
+      "uuid": "4c4f4682-354f-46d1-a916-72d88d5584e3",
+      "name": "bitcoin_transfer",
+      "amount": -0.5,
+      "currency": "BTC",
+      "created_at": "2014-01-09T10:22:02.171Z",
+      "created_at_int": 1389262922,
+      "is_trading_account": false
+    }
+  ]
+}
+```
+
+##### Properties
+
+See [order properties](#order-properties).
 
 ### Canceling orders
 
@@ -625,7 +680,7 @@ $ curl "https://bitcoin-central.net/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-8
 
 ### Web sockets
 
-TODO
+Web sockets are available to get real-time notifications and will be documented in the future.
 
 ## Appendix
 
