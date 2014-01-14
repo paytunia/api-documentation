@@ -653,7 +653,7 @@ Request BTC or fiat withdrawals. A confirmation is sent by email to the user bef
 | type               | must be "Transfer"                      | "Transfer"                             |
 | currency           | currency code                           | "BTC"                                  |
 | amount             | amount to transfer                      | 0.5                                    |
-| address            | BTC address is withdrawing BTC          | "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"   |
+| address            | BTC address if withdrawing BTC          | "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"   |
 
 ##### Example
 

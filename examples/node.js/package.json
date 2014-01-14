@@ -14,7 +14,8 @@
     "request": "~2.31.0",
     "cline": "~0.7.0",
     "open": "0.0.4",
-    "easycrypto": "~0.1.1"
+    "easycrypto": "~0.1.1",
+    "babar": "0.0.3"
   },
   "preferGlobal": "true",
   "bin": {

@@ -9,7 +9,8 @@ var config = require('./config'),
     cli = require('cline')(),
     fs = require('fs'),
     open = require('open'),
-    easycrypto = require('easycrypto').getInstance();
+    easycrypto = require('easycrypto').getInstance(),
+    babar = require('babar');
 
 // Known order uuids
 var knownUuids = {};
@@ -155,68 +156,85 @@ function addApiCommand(cmd, path, options, cb) {
     function doRequest() {
       delete cli._nextTick;
 
-      options.headers = options.headers || {};
-
-      if(options.restricted) {
-        options.headers['Authorization'] = 'Bearer ' + access_token;
-      }
-
-      var pathStr = path;
-
-      if (typeof path === 'function') {
-        pathStr = path(input, args);
-
-        if (!pathStr) {
-          return cli.interact('> '); 
-        }
-      }
-
-      if (typeof options.payload === 'function') {
-        options.form = options.payload(input, args);
-      }
-
-      request(config.apiBaseUrl + pathStr, options, function(error, resp, body) {
-        if (error) {
-          cli.stream.print(error.message);
-          return cli.interact('> ');
-        }
-
-        if (resp.statusCode === 401) {
-          if (access_token && !state) {
-            refreshTokens(function(error) {
-              state = 'refreshed';
-              doRequest();
-            });
-          }
-          else if (state == 'refreshed') {
-            state = 'authorizing';
-            var url = config.serverBaseUrl + '/auth';
-            cli.stream.print('opening ' + url + ' in your browser...');
-            afterAuth = doRequest;
-            open(url);
+      if (options.confirm) {
+        delete cli._nextTick;
+        cli.confirm(options.confirm(input, args) + ' (y/n) ', function(ok) {
+          if (ok) {
+            runRequest();
           }
           else {
-            cli.stream.print('unauthorized');
             cli.interact('> ');
           }
+        });
+      }
+      else {
+        runRequest();
+      }
 
-          return;
+      function runRequest() {
+        options.headers = options.headers || {};
+
+        if(options.restricted) {
+          options.headers['Authorization'] = 'Bearer ' + access_token;
         }
 
-        if (resp.statusCode === 422) {
-          cli.stream.print(JSON.parse(body).errors);
-          return cli.interact('> ');
-        } 
+        var pathStr = path;
 
-        var data = {};
+        if (typeof path === 'function') {
+          pathStr = path(input, args);
 
-        try {
-          var data = JSON.parse(body);
-        } catch(e) {}
+          if (!pathStr) {
+            return cli.interact('> '); 
+          }
+        }
 
-        cli.stream.print(cb(data));
-        cli.interact('> ');
-      });
+        if (typeof options.payload === 'function') {
+          options.form = options.payload(input, args);
+        }
+
+        request(config.apiBaseUrl + pathStr, options, function(error, resp, body) {
+          if (error) {
+            cli.stream.print(error.message);
+            return cli.interact('> ');
+          }
+
+          if (resp.statusCode === 401) {
+            if (access_token && !state) {
+              refreshTokens(function(error) {
+                state = 'refreshed';
+                doRequest();
+              });
+            }
+            else if (state == 'refreshed') {
+              state = 'authorizing';
+              var url = config.serverBaseUrl + '/auth';
+              cli.stream.print('opening ' + url + ' in your browser...');
+              afterAuth = doRequest;
+              open(url);
+            }
+            else {
+              cli.stream.print('unauthorized');
+              cli.interact('> ');
+            }
+
+            return;
+          }
+
+          if (resp.statusCode === 422) {
+            cli.stream.print(JSON.parse(body).errors);
+            return cli.interact('> ');
+          } 
+
+          var data = {};
+
+          try {
+            var data = JSON.parse(body);
+          } catch(e) {}
+
+          cli.stream.print(cb(data));
+          cli.interact('> ');
+        });
+      }
     }
 
     doRequest();
@@ -228,6 +246,42 @@ addApiCommand('ticker', '/v1/data/eur/ticker', {
   desc: 'show ticker'
 }, function(data) {
   return JSON.stringify(data, true, '\t');
+});
+
+// Depth command
+addApiCommand('depth', '/v1/data/eur/depth', {
+  desc: 'show market depth',
+}, function(data) {
+  var bids = data.bids.slice(0).sort(function(a, b) {return b.price - a.price;});
+  var asks = data.asks.slice(0).sort(function(a, b) {return a.price - b.price;});
+
+  var mid = .5 * (bids[0].price + asks[0].price);
+  var min = Math.floor(mid * .2);
+  var max = Math.ceil(mid * 1.8);
+
+  bids = bids.filter(function(i) {return i.price >= min;});
+  asks = asks.filter(function(i) {return i.price <= max;});
+
+  var points = [];
+
+
+
+  for (var i = 0, c = 0; i < bids.length; i++) {
+    var p = bids[i];
+    c += p.amount;
+    points.unshift([p.price, c]);
+  };
+
+  for (var i = 0, c = 0; i < asks.length; i++) {
+    var p = asks[i];
+    c += p.amount;
+    points.push([p.price, c]);
+  };
+
+  return babar(points, {
+    width: process.stdout.columns,
+    height: process.stdout.rows - 1
+  });
 });
 
 // Balances command
@@ -301,6 +355,9 @@ addApiCommand('buy {amount} {price}', '/v1/user/orders', {
     amount: '[0-9\.]+',
     price: '[0-9\.]+'
   },
+  confirm: function(input, args) {
+    return "buy " + args.amount + " BTC for " + args.price + " EUR each?";
+  },
   payload: function(input, args) {
     return {
       'type': 'LimitOrder',
@@ -323,6 +380,9 @@ addApiCommand('sell {amount} {price}', '/v1/user/orders', {
   args: {
     amount: '[0-9\.]+',
     price: '[0-9\.]+'
+  },
+  confirm: function(input, args) {
+    return "sell " + args.amount + " BTC for " + args.price + " EUR each?";
   },
   payload: function(input, args) {
     return {
@@ -362,9 +422,57 @@ addApiCommand('cancel {uuid}', function(input, args) {
   return 'cancel requested';
 });
 
+// Withdraw EUR command
+addApiCommand('withdraw_eur {amount}', '/v1/user/orders', {
+  desc: 'withdraw eur',
+  restricted: true,
+  method: 'POST',
+  args: {
+    amount: '[0-9\.]+'
+  },
+  confirm: function(input, args) {
+    return "withdraw " + args.amount + " EUR?";
+  },
+  payload: function(input, args) {
+    return {
+      'type': 'Transfer',
+      currency: 'EUR',
+      amount: args.amount
+    }
+  }
+}, function(data) {
+  knownUuids[data.uuid] = true;
+  return data.uuid;
+});
+
+// Withdraw BTC command
+addApiCommand('withdraw_btc {amount} {address}', '/v1/user/orders', {
+  desc: 'withdraw eur',
+  restricted: true,
+  method: 'POST',
+  args: {
+    amount: '[0-9\.]+',
+    address: '[13][1-9A-HJ-NP-Za-km-z]{26,33}'
+  },
+  confirm: function(input, args) {
+    return "withdraw " + args.amount + " BTC to " + args.address + " ?";
+  },
+  payload: function(input, args) {
+    return {
+      'type': 'Transfer',
+      currency: 'BTC',
+      amount: args.amount,
+      address: args.address
+    }
+  }
+}, function(data) {
+  knownUuids[data.uuid] = true;
+  return data.uuid;
+});
+
 // TTL command
 cli.command('ttl', 'show access token time to live', function () {
-  if(access_token) {
+  if (access_token) {
     var time =  expires.getTime() - new Date().getTime();
     cli.stream.print(Math.ceil(time / 1000 / 60) + ' min');
   }
