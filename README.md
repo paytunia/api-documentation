@@ -284,7 +284,7 @@ Before you can access your own data or other users data, you must register an ap
 
 1. Verify your account and log in
 2. Visit [https://bitcoin-central.net/page/developers/apps](https://bitcoin-central.net/page/developers/apps)
-3. Create an application (set redirect URI to `https://bitcoin-central.net/page/oauth/test when testing`)
+3. Create an application (set redirect URI to `https://bitcoin-central.net/page/oauth/test` when testing)
 
 ### Authentication
 
@@ -455,7 +455,7 @@ Read user activity.
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/orders&offset=20"        \
+$ curl "https://bitcoin-central.net/api/v1/user/orders&offset=20"        \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 
@@ -585,7 +585,7 @@ Create trade orders.
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/user/orders              \
+$ curl "https://bitcoin-central.net/api/v1/user/orders"             \
      --header "Authorization: Bearer ACCESS_TOKEN"                  \
      -d "type=LimitOrder"                                           \
      -d "currency=EUR"                                              \
@@ -658,7 +658,7 @@ Request BTC or fiat withdrawals. A confirmation is sent by email to the user bef
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/user/orders              \
+$ curl "https://bitcoin-central.net/api/v1/user/orders"             \
      --header "Authorization: Bearer ACCESS_TOKEN"                  \
      -d "type=Transfer"                                             \
      -d "currency=BTC"                                              \
