@@ -455,7 +455,7 @@ Read user activity.
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/user/orders&offset=20"        \
+$ curl "https://bitcoin-central.net/api/v1/user/orders?offset=20"        \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 
