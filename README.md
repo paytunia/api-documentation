@@ -24,6 +24,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Ticker](#ticker)
   * [Latest trades](#latest-trades)
   * [Market depth](#market-depth)
+  * [Bitcoin-Charts endpoints](#bitcoin-charts-endpoints)
 
 * [**User data**](#user-data)
   * [Authentication](#authentication)
@@ -83,7 +84,7 @@ If the API call was successful, the platform will answer with:
 
 ### Rate-limiting
 
-API calls are rate-limited by IP to 5000 calls per day. Information about the status of the limit can be found in the `X-RateLimit-Limit` and `X-RateLimit-Remaining` HTTP headers.
+API calls are rate-limited by IP to 86400 calls per day (one per second on average). Information about the status of the limit can be found in the `X-RateLimit-Limit` and `X-RateLimit-Remaining` HTTP headers.
 
 **Example response with rate-limit headers**
 
@@ -277,6 +278,16 @@ $ curl "https://bitcoin-central.net/api/v1/data/eur/depth"
 | timestamp       | timestamp                                    | 1389087724                             |
 | price           | price                                        | 665.0                                  |
 | amount          | amount at price                              | 0.06                                   |
+
+
+### Bitcoin-Charts endpoints
+
+Two API endpoints dedicated to [Bitcoin-Charts](bitcoincharts.com) are publicly accessible, they are accessible at:
+
+ * `https://bitcoin-central.net/api/v1/bitcoin_charts/eur/trades`, and
+ * `https://bitcoin-central.net/api/v1/bitcoin_charts/eur/depth`
+
+The data they return is formatted according to the [Bitcoin Charts exchange API specification](http://bitcoincharts.com/about/exchanges/).
 
 ## User data
 
