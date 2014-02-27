@@ -282,7 +282,7 @@ $ curl "https://bitcoin-central.net/api/v1/data/eur/depth"
 
 ### Bitcoin-Charts endpoints
 
-Two API endpoints dedicated to [Bitcoin-Charts](bitcoincharts.com) are publicly accessible, they are accessible at:
+Two API endpoints dedicated to [Bitcoin-Charts](http://bitcoincharts.com) are publicly accessible, they are accessible at:
 
  * `https://bitcoin-central.net/api/v1/bitcoin_charts/eur/trades`, and
  * `https://bitcoin-central.net/api/v1/bitcoin_charts/eur/depth`
