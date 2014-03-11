@@ -575,7 +575,15 @@ See [order properties](#order-properties).
 
 ##### Description
 
-Create trade orders.
+Create trade orders. 
+
+Limit and market orders are supported, the `price` parameter must be omitted for market orders.
+
+Either one of `amount` or `currency_amount` must be specified. When the `amount` is specified, the 
+engine will buy or sell this amount of Bitcoins. When the `currency_amount` is specified, the engine
+will buy as much Bitcoins as possible for `currency_amount` or sell as much Bitcoins as necessary to 
+obtain `currency_amount`.
+
 
 ##### Endpoint
 
@@ -585,13 +593,14 @@ Create trade orders.
 
 ##### Payload
 
-| name               | description                             | example value                          |
-|--------------------|-----------------------------------------|----------------------------------------|
-| type               | must be "LimitOrder"                    | "LimitOrder"                           |
-| currency           | must be "EUR"                           | "EUR"                                  |
-| direction          | trade direction, must be "buy" or "sell"| "buy"                                  |
-| price              | price per BTC                           | 300.0                                  |
-| amount             | BTC amount to trade                     | 1.0                                    |
+| name               | description                                                   | example value |
+|--------------------|---------------------------------------------------------------|---------------|
+| type               | must be "LimitOrder" or "MarketOrder"                         | "LimitOrder"  |
+| currency           | must be "EUR"                                                 | "EUR"         |
+| direction          | trade direction, must be "buy" or "sell"                      | "buy"         |
+| price              | price per BTC, must be omitted for market orders              | 300.0         |
+| amount             | BTC amount to trade (only if no currency_amount is specified) | 1.0           |
+| currency_amount    | Currency amount to trade (only if no amount is specified)     | 1.0           |
 
 ##### Example
 
