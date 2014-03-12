@@ -25,6 +25,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Latest trades](#latest-trades)
   * [Market depth](#market-depth)
   * [Bitcoin-Charts endpoints](#bitcoin-charts-endpoints)
+  * [WebSocket](#websocket)
 
 * [**User data**](#user-data)
   * [Authentication](#authentication)
@@ -288,6 +289,58 @@ Two API endpoints dedicated to [Bitcoin-Charts](http://bitcoincharts.com) are pu
  * `https://bitcoin-central.net/api/v1/bitcoin_charts/eur/depth`
 
 The data they return is formatted according to the [Bitcoin Charts exchange API specification](http://bitcoincharts.com/about/exchanges/).
+
+### WebSocket
+
+A [socket.io](http://socket.io) endpoint is available to receive public data. This allows you to receive new data without having to poll the server.
+
+The socket.io socket will emit a `stream` event when new data is available. The received JSON data contains one or more of the properties listed below, depending on what was updated.
+
+#### Socket.io configuration
+
+Socket.io must connect to `https://bitcoin-central.net/public` and the `resource` option must be set to `ws/socket.io`.
+
+#### Stream properties
+
+| name            | description                                                                |
+|-----------------|----------------------------------------------------------------------------|
+| ticker          | object containing updated ticker data                                      |
+| trades          | array of newly executed trades                                             |
+| bids            | array of new or updated bids (a bid is considered gone if amount is 0)     |
+| asks            | array of new or updated asks (an ask is considered gone if amount is 0)    |
+
+#### Node.js example
+
+Assuming you have node.js installed, you can install the socket.io client library by running `npm install socket.io-client@0.9`.
+
+The code below shows how to connect to the Bitcoin-Central socket, and outputs any received data to the console.
+
+The example is available in the `examples/public_socket.js` directory of this repository.
+
+```javascript
+  var io = require('socket.io-client');
+
+  socket = io.connect('https://bitcoin-central.net/public', {
+    resource: 'ws/socket.io'
+  });
+
+  console.log('CONNECTING');
+
+  socket.on('connect', function() {
+    console.log('CONNECTED');
+    console.log('WAITING FOR DATA...');
+  });
+
+  socket.on('disconnect', function() {
+    console.log('DISCONNECTED');
+  });
+
+  socket.on('stream', function(data) {
+    console.log('GOT DATA:');
+    console.log(data);
+  });
+
+```
 
 ## User data
 
@@ -733,10 +786,6 @@ Cancel an order. Only active trade orders may be canceled.
 $ curl "https://bitcoin-central.net/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296" \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
-
-### Web sockets
-
-Web sockets are available to get real-time notifications and will be documented in the future.
 
 ## Appendix
 
