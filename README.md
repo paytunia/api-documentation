@@ -127,6 +127,7 @@ $ curl "https://bitcoin-central.net/api/v1/data/eur/ticker"
   "midpoint": 678.00499995,
   "at": 1389092410,
   "price": 680.0,
+  "vwap": 679.87459,
   "variation": -5.5556,
   "currency": "EUR"
 }
@@ -146,6 +147,7 @@ $ curl "https://bitcoin-central.net/api/v1/data/eur/ticker"
 | variation    | 24h variation (percentage)                   | -5.5556                   |
 | high         | 24h high price                               | 720.0                     |
 | low          | 24h low price                                | 640.0001                  |
+| vwap         | 24h volume-weighted average price            | 679.87459                 |
 
 ### Latest trades
 
