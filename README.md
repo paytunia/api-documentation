@@ -304,12 +304,12 @@ Socket.io must connect to `https://bitcoin-central.net/public` and the `resource
 
 #### Stream properties
 
-| name            | description                                                                |
-|-----------------|----------------------------------------------------------------------------|
-| ticker          | object containing updated ticker data                                      |
-| trades          | array of newly executed trades                                             |
-| bids            | array of new or updated bids (a bid is considered gone if amount is 0)     |
-| asks            | array of new or updated asks (an ask is considered gone if amount is 0)    |
+| name            | description                                                                   |
+|-----------------|-------------------------------------------------------------------------------|
+| ticker          | object containing updated ticker data                                         |
+| trades          | array of newly executed trades                                                |
+| bids            | array of new or updated bids (a bid is considered gone if amount is null)     |
+| asks            | array of new or updated asks (an ask is considered gone if amount is null)    |
 
 #### Node.js example
 
