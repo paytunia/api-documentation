@@ -860,7 +860,7 @@ See [Payment properties](#returned-json-object-properties)
 
 When a payment is created or updated, and if a callback URL was provided, a notification is made.
 
-When the notification is made a `POST` request is made to the callback URL, it contains the JSON representation of the payment (see [payment properties](#payment-properties-display) and is authenticated with a special `X-Payment-Signature` hash.
+When the notification is made a `POST` request is made to the callback URL, it contains the JSON representation of the payment (see the [payment properties](#get-payment-information) and is authenticated with a special `X-Payment-Signature` hash.
 
 The merchant platform must check the `X-Payment-Signature` header of each request to ensure their authenticity. It is populated with the SHA-2 digest of the with the request body concatenated with merchant token.
  
@@ -899,7 +899,7 @@ This endpoint returns the payment request as a JSON object given a payment UUID
 | uuid               | Payment UUID                                                          |
 | currency           | Currency in which the `currency_amount` is expressed                  |
 | payment_split      | Percentage of the payment the merchant will get in `currency`         |
-| state              | See [Payment states](#payment-states)                                 |
+| state              | See [payment states](#payment-states)                                 |
 | callback_url       | Merchant notification URL                                             |
 | redirect_url       | Redirection url to which the customer is redirected on success        |
 | merchant_name      | Name of the merchant that is displayed to the customer                |
