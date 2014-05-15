@@ -37,14 +37,17 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Canceling orders](#canceling-orders)
 
 * [**Merchant API**](#merchant-api)
-  * E-commerce plugins
-
+  * [Payment creation](#payment-creation)
+  * [Payment callbacks](#payment-callbacks)
+  * [Get payment information](#get-payment-information)
+  * [E-commerce frameworks plugins](#ecommerce-frameworks-plugins)
 
 * [**Appendix**](#appendix)
   * [Currencies](#currencies)
   * [Order types](#order-types)
   * [Order properties](#order-properties)
   * [Order states](#order-states)
+  * [Payment states](#payment-states)
   * [Account operation properties](#account-operation-properties)
   * [Ruby example](#ruby-example)
 
@@ -809,9 +812,9 @@ For merchants that have very simple needs payment buttons are also available, th
 
 ##### Authentication
 
-The authentication used for the merchant API calls does not use OAuth2 but instead is base on static tokens. These tokens allow only the creation of invoices (payments) and do not allow withdrawals or trading to take place against the merchant's account.
+The authentication used for this call does not use OAuth2 but instead is base on static tokens. These tokens allow only the creation of invoices (payments) and do not allow withdrawals or trading to take place against the merchant's account.
 
-**Note: The tokens are provided by the Bitcoin-Central support, upon request.**
+**Note:** The tokens are provided by the Bitcoin-Central support, upon request.
 
 
 ##### Description
@@ -821,7 +824,9 @@ A payment is created by a merchant platform when the customer chooses Bitcoin as
 The merchant platform can then :
 * display the payment Bitcoin address on his own web interface,
 * include the Bitcoin-Central web interface url in an iframe in order to display a payment pop-up as an overlay,
-* redirect the buyer to the payement's URL, in this case the payment is displayed on a separate screen
+* redirect the buyer to the payement's URL (see below), in this case the payment is displayed on a separate screen
+
+To display the payment request to the user, the `https://bitcoin-central.net/invoice/{UUID}` can be used, this is used by the e-commerce framework plugins.
 
 Once the payment request is displayed, the customer has 15 minutes to send the appropriate amount.
 
@@ -849,15 +854,16 @@ Bitcoin-Central notifies the merchant of the completion of his payment via the a
 
 ##### Response
 
-See [Payment properties](#payment-properties)
+See [Payment properties](#returned-json-object-properties)
 
-##### Payment Callbacks
+### Payment callbacks
 
 When a payment is created or updated, and if a callback URL was provided, a notification is made.
 
+When the notification is made a `POST` request is made to the callback URL, it contains the JSON representation of the payment (see [payment properties](#payment-properties-display) and is authenticated with a special `X-Payment-Signature` hash.
+
 The merchant platform must check the `X-Payment-Signature` header of each request to ensure their authenticity. It is populated with the SHA-2 digest of the with the request body concatenated with merchant token.
-
-
+ 
 **PHP code example**
 
 ```php
@@ -874,20 +880,9 @@ if ($hash === $signature) {
 **Note :** The callback notifications are not guaranteed to be unique, it must have idempotent results on the merchant side if the payment has not actually changed. 
 
 
-##### Payment states
+### Get payment information
 
-| Name           | Description                                                                        |
-|----------------|------------------------------------------------------------------------------------|
-| pending_payment| Waiting for payment                                                                |
-| processing     | The correct amount has been received, waiting for a Bitcoin network confirmation   |
-| paid           | Payment completed, the requested amount has been credited to the merchant account  |
-| error          | An error has occurred, the merchant must get in touch with the support             |
-| expired        | Payment expired, no Bitcoins were received                                         |
-
-
-### Payment properties display
-
-This endpoint returns the payment request as a JSON object given an ID
+This endpoint returns the payment request as a JSON object given a payment UUID
 
 
 ##### Endpoint
@@ -918,7 +913,7 @@ This endpoint returns the payment request as a JSON object given an ID
 | account_operations | Account operations made against the merchant account                  |
 
 
-** Example **
+**Example**
 ```json
 {
     "account_operations": [
@@ -951,6 +946,14 @@ This endpoint returns the payment request as a JSON object given an ID
 }
 ```
 
+### E-commerce frameworks plugins
+
+The currently available plugins are available
+
+| Framework      | Plugin URL                             |
+|----------------|----------------------------------------|
+| PrestaShop 1.5 | https://github.com/Paymium/prestashop  |
+| WooCommerce    | https://github.com/Paymium/woocommerce |
 
 ## Appendix
 
@@ -1018,6 +1021,17 @@ Each type may have additional properties as described below.
 | filled             | order has been completely filled                                                 |
 | executed           | order has been executed                                                          |
 | canceled           | order has been canceled                                                          |
+
+
+### Payment states
+
+| Name           | Description                                                                        |
+|----------------|------------------------------------------------------------------------------------|
+| pending_payment| Waiting for payment                                                                |
+| processing     | The correct amount has been received, waiting for a Bitcoin network confirmation   |
+| paid           | Payment completed, the requested amount has been credited to the merchant account  |
+| error          | An error has occurred, the merchant must get in touch with the support             |
+| expired        | Payment expired, no Bitcoins were received                                         |
 
 ### Account operation properties
 
