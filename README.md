@@ -37,6 +37,8 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Canceling orders](#canceling-orders)
 
 * [**Merchant API**](#merchant-api)
+  * E-commerce plugins
+
 
 * [**Appendix**](#appendix)
   * [Currencies](#currencies)
@@ -671,6 +673,8 @@ $ curl "https://bitcoin-central.net/api/v1/user/orders"             \
      -d "amount=1.0"
 ```
 
+Would return:
+
 ```json
 {
   "uuid": "4924ee0f-f60e-40b4-b63e-61637ef253ac",
@@ -743,6 +747,8 @@ $ curl "https://bitcoin-central.net/api/v1/user/orders"             \
      -d "address=1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"
 ```
 
+Would return:
+
 ```json
 {
   "uuid": "9229fd6e-0aad-45d6-8090-a400f37a0129",
@@ -790,6 +796,161 @@ Cancel an order. Only active trade orders may be canceled.
 $ curl "https://bitcoin-central.net/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296" \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
+
+## Merchant API
+
+The Merchant API enables merchants to securely sell goods and services and get paid in Bitcoin. The API makes it possible for the merchant to completely eliminate the risk of market fluctuations when requesting to receive fiat currency in their account. It is also possible to keep a part of the payment in Bitcoin without having it converted at a guaranteed rate.
+
+The API allows developers to integrate Bitcoin payments very tightly into their platforms, pre-packaged plugins are also available for a growing list of popular e-commerce frameworks.
+
+For merchants that have very simple needs payment buttons are also available, these buttons remove the integration completely by allowing merchants to simply include a code snippet on a static HTML page, or on a blog to receive fixed-amount payments.
+
+### Payment creation
+
+##### Authentication
+
+The authentication used for the merchant API calls does not use OAuth2 but instead is base on static tokens. These tokens allow only the creation of invoices (payments) and do not allow withdrawals or trading to take place against the merchant's account.
+
+**Note: The tokens are provided by the Bitcoin-Central support, upon request.**
+
+
+##### Description
+
+A payment is created by a merchant platform when the customer chooses Bitcoin as his desired checkout option.
+
+The merchant platform can then :
+* display the payment Bitcoin address on his own web interface,
+* include the Bitcoin-Central web interface url in an iframe in order to display a payment pop-up as an overlay,
+* redirect the buyer to the payement's URL, in this case the payment is displayed on a separate screen
+
+Once the payment request is displayed, the customer has 15 minutes to send the appropriate amount.
+
+Bitcoin-Central notifies the merchant of the completion of his payment via the associated callback (for which an URL may be provided when creating the payment request), once one Bitcoin confirmation for the payment is received the funds are credited to the merchant's account, a callback notification is then made.
+
+
+##### Endpoint
+
+| method | path |
+|--------|------|
+| POST   | /api/v1/merchant/create_payment |
+
+
+##### Parameters
+
+| name         | description                                  | example value             |
+|--------------|----------------------------------------------|--------------------|
+| token	              | Merchant token (required) | 37d669e6d381c53ba3f6 |
+| amount              | Amount requested for the payment (required) | 20  |
+| payment_split       | Percentage of the payment the _merchant_ will get in `currency` expressed as a two-decimal places float between 0 and 1 (required) | 1.0 |
+| currency            | Currency in which the merchant wishes to be credited and in which the `amount` is expressed (required) | EUR |
+| callback_url        | Merchant callback URL, it is called when the state of the payment changes (optional)        | http://myonlineshop/payments/order-987978/callback |
+| redirect_url        | URL to which the customer should be redirected at upon payment (optional) | http://myonlineshop/payments/order-987978/success  |
+| merchant_reference  | Arbitrary merchant data associated to the payment (optional) | order-987978 |
+
+##### Response
+
+See [Payment properties](#payment-properties)
+
+##### Payment Callbacks
+
+When a payment is created or updated, and if a callback URL was provided, a notification is made.
+
+The merchant platform must check the `X-Payment-Signature` header of each request to ensure their authenticity. It is populated with the SHA-2 digest of the with the request body concatenated with merchant token.
+
+
+**PHP code example**
+
+```php
+$req_body = file_get_contents("php://input");
+$signature = $_SERVER['HTTP_X_PAYMENT_SIGNATURE'];
+$token = Configuration::get('paymium_token');
+$hash = hash('sha256', $token . $req_body);
+
+if ($hash === $signature) {
+  // Callback is authentic
+}
+```
+
+**Note :** The callback notifications are not guaranteed to be unique, it must have idempotent results on the merchant side if the payment has not actually changed. 
+
+
+##### Payment states
+
+| Name           | Description                                                                        |
+|----------------|------------------------------------------------------------------------------------|
+| pending_payment| Waiting for payment                                                                |
+| processing     | The correct amount has been received, waiting for a Bitcoin network confirmation   |
+| paid           | Payment completed, the requested amount has been credited to the merchant account  |
+| error          | An error has occurred, the merchant must get in touch with the support             |
+| expired        | Payment expired, no Bitcoins were received                                         |
+
+
+### Payment properties display
+
+This endpoint returns the payment request as a JSON object given an ID
+
+
+##### Endpoint
+
+| Method | Path                                |
+|--------|-------------------------------------|
+| POST   | /api/v1/merchant/get_payment/{UUID} |
+
+
+##### Returned JSON object properties
+
+| Name               | Description                                                           |
+|--------------------|-----------------------------------------------------------------------|
+| uuid               | Payment UUID                                                          |
+| currency           | Currency in which the `currency_amount` is expressed                  |
+| payment_split      | Percentage of the payment the merchant will get in `currency`         |
+| state              | See [Payment states](#payment-states)                                 |
+| callback_url       | Merchant notification URL                                             |
+| redirect_url       | Redirection url to which the customer is redirected on success        |
+| merchant_name      | Name of the merchant that is displayed to the customer                |
+| expires_at         | Expiration timestamp                                                  |
+| merchant_reference | Reference string associated to the payment                            |
+| currency_amount    | Amount associated to the payment                                      |
+| amount             | BTC amount to pay                                                     |
+| payment_address    | Payment address                                                       |
+| created_at         | Creation timestamp                                                    |
+| updated_at         | Last update timestamp                                                 |
+| account_operations | Account operations made against the merchant account                  |
+
+
+** Example **
+```json
+{
+    "account_operations": [
+        {
+            "amount": 25.0,
+            "created_at": "2014-05-15T10:19:21.000Z",
+            "created_at_int": 1400149161,
+            "currency": "EUR",
+            "is_trading_account": false,
+            "name": "merchant_currency_payment",
+            "uuid": "afca953b-dfa6-40b6-b856-c04d548baefb"
+        }
+    ],
+    "amount": 25.0,
+    "btc_amount": 0.079945,
+    "callback_url": "http://mysite.com/wc-api/WC_Paymium/",
+    "cancel_url": "http://mysite.com/commande/panier/",
+    "comment": null,
+    "created_at": 1400147834,
+    "currency": "EUR",
+    "expires_at": 1400148734,
+    "merchant_name": "Demo SAS",
+    "merchant_reference": "888",
+    "payment_address": "1NHRnMn1831D84owh7powxtAbqfzA9aaL5",
+    "payment_split": 1.0,
+    "redirect_url": "http://mysite.com/order/checkout/order-received/888?key=wc_order_53784&order=888",
+    "state": "paid",
+    "updated_at": 1400149161,
+    "uuid": "f8e7c539-7b7b-4b63-9ccf-5fc2ca91bf0b"
+}
+```
+
 
 ## Appendix
 
@@ -891,113 +1052,3 @@ token = client.auth_code.get_token(authorization_code, redirect_uri: 'https://bi
 token.get('/api/v1/user').body
 => {"name":"BC-U123456","locale":"en","balance_btc":117.56672217,"locked_btc":0.0,"balance_eur":0.0,"locked_eur":0.00995186}
 ```
-
-## Merchant API
-
-The Merchant API allow _Bitcoin Central users_ to securely sell services online and get paid in bitcoin, chosing the percentage of their revenues they want in both BTC and FIAT currency.
-
-The _Payment API_ provide all the requested features to allow _Bitcoin Central users_ to integrate bitcoin payments with **standard e-comerce plugins**.
-
-If you need a simpler solution to display payment buttons on your personal website, please refer to the merchant section of bitcoin-central.net.
-
-### Payment creation
-
-#####Authentication
-
-User authentication is realized thanks to a _merchant secret token_ you have pass as a parameter in your create query
-
-
-**Note: Before using the merchant payment feature, please log us a ticket to get your _merchant token_.**
-
-##### Description
-
-A payment is created by a BC user (the _merchant_) when his _buyer_ choose bitcoin as his desired payment option.
-
-The _merchant_ can then
-
-* display the payment receptional bitcoin address on his own web interface
-* include the _Bitcoin Central_ web interface url in an iframe
-* redirect the _buyer_ to the _Bitcoin Central_ payment url
-
-The _buyer_ has then to send the required amount of bitcoin to the receptional address provided within the next 15 minutes after the payment creation.
-
-_Bitcoin Central_ informs the _merchant_ of the completion of his _payment_ via the associated callback url provided, one confirmation after the required amount of bitcoins are received.
-
-_Bitcoin Central_ also exchanges the requested percentage of the bitcoin received in FIAT currency if requested by the _merchant_, bearing the exchange risk and/or profits.
-
-
-##### Endpoint
-
-| method | path |
-|--------|--------------------------------------------------------------|
-| POST   | /api/v1/merchant/create_payment |
-
-
-##### Parameters
-
-| name         | description                                  | example value             |
-|--------------|----------------------------------------------|--------------------|
-| token	              | merchant token | 37d669e6d381c53ba3f6|
-| amount              | btc amount asked by the _merchant_ to his _buyer_ (required)| 20  |
-| payment_split       | Percentage of the payment the _merchant_ will get in FIAT currency| 0.6|
-| Currency            | Currency the payment stand again | EUR                       |
-| callback_url        | url called on payment change        | http://myonlineshop/payments/order-987978/callback                |
-| redirect_url        | redirection url after a payment has been proceeded on Bitcoin central (optional)  | http://myonlineshop/payments/order-987978/success  |
-| merchant_reference  | string associated to the payment (optional)    | order-987978
-
-#####Response
-
-cf [Payment properties](#payment-properties)
-
-#####Payment Callbacks
-
-When a payment is created or updated and if a callback url is provided, the callback url will be triggered every time the payment is changed.
-
-The _merchant_ can check the **X-Payment-Signature** header of each callback query to ensure their authenticity. It displays the SHA-2 hexadigest hash of the (secret) merchant token concatenated with the properties json representation of the payment displayed in the query body.
-
-**Note :** The callback url may be hit several time without any payment state change
-
-#####Payment states
-
-| name         | description       |
-|--------------|-------------------|
-|pending_payment| Waiting for payment|
-|processing| Receiving bitcoin waiting for confirmation or amount completion|
-|paid| Bitcoin received and eventually transformed in euro as required|
-|error| An error occured|
-|expired| Payment expired|
-
-#####Payment redirection on success
-
-todo
-
-### Payment properties display
-
-##### Endpoint
-
-| method | path |
-|--------|--------------------------------------------------------------|
-| POST   | /api/v1/merchant/get_payment
-
-##### Payment properties
-
-| name         | description                                  | example value  |
-|--------------|----------------------------------------------|----------------|
-|uuid| payment unique id| 375d5cb8-1dc3-4b31-9b8d-9cb9f3d9e1b9|
-|currency| currency the payment stand again | EUR
-|payment_split| Percentage of the payment the _merchant_ will get in FIAT| 0.6|
-|state| payment state | pending_payment|
-|comment|
-|callback_url|url called on payment change
-|redirect_url|redirection url after a payment has been proceeded on Bitcoin central|
-|merchant_name|_seller_ id| BC-KJH76571
-|expires_at| expiration date of the payment
-|merchant_reference| reference string associated to the payment
-|currency_amount| FIAT amount associated to the payment (when payment_split > 0)| 150
-|amount| BTC amount associated to the payment
-|payment_address| receptional address of the payment
-|created_at| creation date of the payment
-|updated_at| last update date of the payment
-|account_operations| account operations explaining the payment split
-
-
