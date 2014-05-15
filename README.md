@@ -40,7 +40,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Payment creation](#payment-creation)
   * [Payment callbacks](#payment-callbacks)
   * [Get payment information](#get-payment-information)
-  * [E-commerce frameworks plugins](#ecommerce-frameworks-plugins)
+  * [E-commerce frameworks plugins](#e-commerce-frameworks-plugins)
 
 * [**Appendix**](#appendix)
   * [Currencies](#currencies)
@@ -1021,7 +1021,6 @@ Each type may have additional properties as described below.
 | filled             | order has been completely filled                                                 |
 | executed           | order has been executed                                                          |
 | canceled           | order has been canceled                                                          |
-
 
 ### Payment states
 
