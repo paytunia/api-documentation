@@ -1048,6 +1048,8 @@ Each type may have additional properties as described below.
 
 This example uses the OAuth2 Ruby gem.
 
+The [`AutoRefreshToken`](https://gist.github.com/davout/edb4db0315dc417fa78d) class encapsulates this logic, it is available as a [Gist](https://gist.github.com/davout/edb4db0315dc417fa78d).
+
 ```ruby
 require 'oauth2'
 
