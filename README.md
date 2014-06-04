@@ -2,6 +2,8 @@
 
 The Bitcoin-Central API allows developers to extend the capabilities of Bitcoin-Central, from reading the latest ticker to automating trades with bots.
 
+**IMPORTANT NOTE**: Your API client must support [SNI](http://en.wikipedia.org/wiki/Server_Name_Indication) in order to not receive certificate name mismatch warnings.
+
 Is is possible to, among other things:
 
 * Access public data (ticker, asks, bids, trades, etc...)
