@@ -35,6 +35,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Trading](#trading)
   * [Withdrawing](#withdrawing)
   * [Canceling orders](#canceling-orders)
+  * [Bitcoin address](#bitcoin-address)
 
 * [**Merchant API**](#merchant-api)
 
@@ -790,6 +791,61 @@ Cancel an order. Only active trade orders may be canceled.
 $ curl "https://bitcoin-central.net/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296" \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
+### Bitcoin addresses
+
+##### Description
+
+List and create addresses 
+
+##### Endpoint
+
+| method | path                              | authorization            |
+|--------|-----------------------------------|--------------------------|
+| GET    | /api/v1/user/addresses/           | oauth2 (scope: deposit)  |
+| GET    | /api/v1/user/addresses/:btc_address| oauth2 (scope: deposit)  |
+| POST   | /api/v1/user/addresses            | oauth2 (scope: deposit)  |
+
+##### Example
+
+```bash
+$ curl "https://bitcoin-central.net/api/v1/user/addresses" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+[
+  {
+    address: "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+    valid_until: 1402579836
+  } 
+]
+```
+
+```bash
+$ curl "https://bitcoin-central.net/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+{
+  address: "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+  valid_until: 1402579836
+} 
+```
+
+```bash
+$ curl -X POST "https://bitcoin-central.net/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+{
+  address: "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+  valid_until: 1402579836
+} 
+```
+
+
 
 ## Appendix
 
@@ -902,10 +958,9 @@ If you need a simpler solution to display payment buttons on your personal websi
 
 ### Payment creation
 
-#####Authentication
+##### Authentication
 
 User authentication is realized thanks to a _merchant secret token_ you have pass as a parameter in your create query
-
 
 **Note: Before using the merchant payment feature, please log us a ticket to get your _merchant token_.**
 
