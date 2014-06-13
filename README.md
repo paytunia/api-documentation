@@ -37,7 +37,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Trading](#trading)
   * [Withdrawing](#withdrawing)
   * [Canceling orders](#canceling-orders)
-  * [Bitcoin address](#bitcoin-address)
+  * [Bitcoin addresses](#bitcoin-addresses)
 
 * [**Merchant API**](#merchant-api)
   * [Payment creation](#payment-creation)
