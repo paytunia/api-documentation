@@ -37,6 +37,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Trading](#trading)
   * [Withdrawing](#withdrawing)
   * [Canceling orders](#canceling-orders)
+  * [Bitcoin address](#bitcoin-address)
 
 * [**Merchant API**](#merchant-api)
   * [Payment creation](#payment-creation)
@@ -388,6 +389,8 @@ The following scopes are available:
 | activity       | Read trade orders, deposits, withdrawals, and other operations                            |
 | trade          | Create and cancel trade orders                                                            |
 | withdraw       | Request EUR and BTC withdrawals (requires email confirmation from users upon withdrawing) |
+| deposit        | List bitcoin deposit addresses and create a new one if needed |
+
 
 ##### Requesting user authorization
 
@@ -801,6 +804,61 @@ Cancel an order. Only active trade orders may be canceled.
 $ curl "https://bitcoin-central.net/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296" \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
+### Bitcoin addresses
+
+##### Description
+
+List and create bitcoin deposit addresses
+
+##### Endpoint
+
+| method | path                              | authorization            |
+|--------|-----------------------------------|--------------------------|
+| GET    | /api/v1/user/addresses/           | oauth2 (scope: deposit)  |
+| GET    | /api/v1/user/addresses/:btc_address| oauth2 (scope: deposit)  |
+| POST   | /api/v1/user/addresses            | oauth2 (scope: deposit)  |
+
+##### Example
+
+```bash
+$ curl "https://bitcoin-central.net/api/v1/user/addresses" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+[
+  {
+    address: "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+    valid_until: 1402579836
+  } 
+]
+```
+
+```bash
+$ curl "https://bitcoin-central.net/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+{
+  address: "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+  valid_until: 1402579836
+} 
+```
+
+```bash
+$ curl -X POST "https://bitcoin-central.net/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+{
+  address: "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+  valid_until: 1402579836
+} 
+```
+
+
 
 ## Merchant API
 
