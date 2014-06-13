@@ -382,6 +382,8 @@ The following scopes are available:
 | activity       | Read trade orders, deposits, withdrawals, and other operations                            |
 | trade          | Create and cancel trade orders                                                            |
 | withdraw       | Request EUR and BTC withdrawals (requires email confirmation from users upon withdrawing) |
+| deposit        | List bitcoin deposit addresses and create a new one if needed |
+
 
 ##### Requesting user authorization
 
