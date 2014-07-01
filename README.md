@@ -1,6 +1,6 @@
-![Bitcoin-Central logo](https://raw2.github.com/Paymium/api-documentation/master/logo.png)
+![Paymium logo](https://raw2.github.com/Paymium/api-documentation/master/logo.png)
 
-The Bitcoin-Central API allows developers to extend the capabilities of Bitcoin-Central, from reading the latest ticker to automating trades with bots.
+The Paymium API allows developers to extend the capabilities of the Paymium platform, from reading the latest ticker to automating trades with bots.
 
 **IMPORTANT NOTE**: Your API client must support [SNI](http://en.wikipedia.org/wiki/Server_Name_Indication) in order to not receive certificate name mismatch warnings.
 
@@ -11,7 +11,7 @@ Is is possible to, among other things:
 * Access authenticated user balances, trades, and other data *
 * Automate trading *
 
-_* Authenticating users is only available to developers that have a fully verified and approved Bitcoin-Central account. On the other hand, public data is available to everyone_
+_* Authenticating users is only available to developers that have a fully verified and approved Paymium account. On the other hand, public data is available to everyone_
 
 ## Table of contents
 
@@ -124,7 +124,7 @@ Read the latest ticker data.
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/data/eur/ticker"
+$ curl "https://paymium.com/api/v1/data/eur/ticker"
 ```
 
 ```json
@@ -174,7 +174,7 @@ Read the latest executed trades.
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/data/eur/trades"
+$ curl "https://paymium.com/api/v1/data/eur/trades"
 ```
 
 ```json
@@ -240,7 +240,7 @@ Read the market depth. Bids and asks are grouped by price.
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/data/eur/depth"
+$ curl "https://paymium.com/api/v1/data/eur/depth"
 ```
 
 ```json
@@ -297,8 +297,8 @@ $ curl "https://bitcoin-central.net/api/v1/data/eur/depth"
 
 Two API endpoints dedicated to [Bitcoin-Charts](http://bitcoincharts.com) are publicly accessible, they are accessible at:
 
- * `https://bitcoin-central.net/api/v1/bitcoin_charts/eur/trades`, and
- * `https://bitcoin-central.net/api/v1/bitcoin_charts/eur/depth`
+ * `https://paymium.com/api/v1/bitcoin_charts/eur/trades`, and
+ * `https://paymium.com/api/v1/bitcoin_charts/eur/depth`
 
 The data they return is formatted according to the [Bitcoin Charts exchange API specification](http://bitcoincharts.com/about/exchanges/).
 
@@ -310,7 +310,7 @@ The socket.io socket will emit a `stream` event when new data is available. The 
 
 #### Socket.io configuration
 
-Socket.io must connect to `https://bitcoin-central.net/public` and the `resource` option must be set to `ws/socket.io`.
+Socket.io must connect to `https://paymium.com/public` and the `resource` option must be set to `ws/socket.io`.
 
 #### Stream properties
 
@@ -325,14 +325,14 @@ Socket.io must connect to `https://bitcoin-central.net/public` and the `resource
 
 Assuming you have node.js installed, you can install the socket.io client library by running `npm install socket.io-client@0.9`.
 
-The code below shows how to connect to the Bitcoin-Central socket, and outputs any received data to the console.
+The code below shows how to connect to the Paymium socket, and outputs any received data to the console.
 
 The example is available in the `examples/public_socket.js` directory of this repository.
 
 ```javascript
   var io = require('socket.io-client');
 
-  socket = io.connect('https://bitcoin-central.net/public', {
+  socket = io.connect('https://paymium.com/public', {
     resource: 'ws/socket.io'
   });
 
@@ -356,11 +356,11 @@ The example is available in the `examples/public_socket.js` directory of this re
 
 ## User data
 
-Before you can access your own data or other users data, you must register an application on Bitcoin-Central:
+Before you can access your own data or other users data, you must register an application on Paymium:
 
 1. Verify your account and log in
-2. Visit [https://bitcoin-central.net/page/developers/apps](https://bitcoin-central.net/page/developers/apps)
-3. Create an application (set redirect URI to `https://bitcoin-central.net/page/oauth/test` when testing)
+2. Visit [https://paymium.com/page/developers/apps](https://paymium.com/page/developers/apps)
+3. Create an application (set redirect URI to `https://paymium.com/page/oauth/test` when testing)
 
 ### Authentication
 
@@ -394,19 +394,19 @@ The following scopes are available:
 
 ##### Requesting user authorization
 
-To get user's permission to use his/her account, you must send him/her to your application's redirect URI. You can see this URI by visiting your application's page: [https://bitcoin-central.net/page/developers/apps](https://bitcoin-central.net/page/developers/apps).
+To get user's permission to use his/her account, you must send him/her to your application's redirect URI. You can see this URI by visiting your application's page: [https://paymium.com/page/developers/apps](https://paymium.com/page/developers/apps).
 
 By default, the `basic` scope will be requested.
 
 If your application requires specific access scopes, you must append a scope GET parameter to the authorization URI:
 
-    https://bitcoin-central.net/...&scope=basic+activity+trade
+    https://paymium.com/...&scope=basic+activity+trade
 
 The user will then be prompted to authorize your application with the specified scopes.
 
 ##### Receiving the authorization code
 
-If you specified the test redirection URI `https://bitcoin-central.net/page/oauth/test`, the user will be presented the autorization code upon accepting your request which can be used by the application to fetch access tokens.
+If you specified the test redirection URI `https://paymium.com/page/oauth/test`, the user will be presented the autorization code upon accepting your request which can be used by the application to fetch access tokens.
 
 Otherwise the code or error will be sent to the redirection URI so that your application can retrieve it (in this case `https://example.com/callback`):
 
@@ -423,7 +423,7 @@ The authorization code is valid 5 minutes.
 Once your application received the authorization code, it can request an access token and a refresh token:
 
 ```bash
-$ curl "https://bitcoin-central.net/api/oauth/token"            \
+$ curl "https://paymium.com/api/oauth/token"                    \
     -d "client_id=APPLICATION_KEY"                              \
     -d "client_secret=APPLICATION_SECRET"                       \
     -d "grant_type=authorization_code"                          \
@@ -448,7 +448,7 @@ An access token can be used to authorize user requests for the approved scopes a
 Since an access token is only valid 30 minutes, your application may need to fetch a new access token using the refresh token:
 
 ```bash
-$ curl "https://bitcoin-central.net/api/oauth/token"            \
+$ curl "https://paymium.com/api/oauth/token"                    \
     -d "client_id=APPLICATION_KEY"                              \
     -d "client_secret=APPLICATION_SECRET"                       \
     -d "grant_type=refresh_token"                               \
@@ -483,7 +483,7 @@ Read the latest user info.
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/user"                \
+$ curl "https://paymium.com/api/v1/user"                        \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 
@@ -533,7 +533,7 @@ Read user activity.
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/user/orders?offset=20"        \
+$ curl "https://paymium.com/api/v1/user/orders?offset=20"                \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 
@@ -605,7 +605,7 @@ Read details from a specific order.
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296" \
+$ curl "https://paymium.com/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296"         \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 
@@ -672,7 +672,7 @@ obtain `currency_amount`.
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/user/orders"             \
+$ curl "https://paymium.com/api/v1/user/orders"                     \
      --header "Authorization: Bearer ACCESS_TOKEN"                  \
      -d "type=LimitOrder"                                           \
      -d "currency=EUR"                                              \
@@ -747,7 +747,7 @@ Request BTC or fiat withdrawals. A confirmation is sent by email to the user bef
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/user/orders"             \
+$ curl "https://paymium.com/api/v1/user/orders"                     \
      --header "Authorization: Bearer ACCESS_TOKEN"                  \
      -d "type=Transfer"                                             \
      -d "currency=BTC"                                              \
@@ -801,7 +801,7 @@ Cancel an order. Only active trade orders may be canceled.
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296" \
+$ curl "https://paymium.com/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296"         \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 ### Bitcoin addresses
@@ -812,16 +812,16 @@ List and create bitcoin deposit addresses
 
 ##### Endpoint
 
-| method | path                              | authorization            |
-|--------|-----------------------------------|--------------------------|
-| GET    | /api/v1/user/addresses/           | oauth2 (scope: deposit)  |
-| GET    | /api/v1/user/addresses/:btc_address| oauth2 (scope: deposit)  |
-| POST   | /api/v1/user/addresses            | oauth2 (scope: deposit)  |
+| method | path                                | authorization            |
+|--------|-------------------------------------|--------------------------|
+| GET    | /api/v1/user/addresses/             | oauth2 (scope: deposit)  |
+| GET    | /api/v1/user/addresses/:btc_address | oauth2 (scope: deposit)  |
+| POST   | /api/v1/user/addresses              | oauth2 (scope: deposit)  |
 
 ##### Example
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/user/addresses" \
+$ curl "https://paymium.com/api/v1/user/addresses"         \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 
@@ -835,7 +835,7 @@ $ curl "https://bitcoin-central.net/api/v1/user/addresses" \
 ```
 
 ```bash
-$ curl "https://bitcoin-central.net/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn" \
+$ curl "https://paymium.com/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"         \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 
@@ -847,7 +847,7 @@ $ curl "https://bitcoin-central.net/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3ww
 ```
 
 ```bash
-$ curl -X POST "https://bitcoin-central.net/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn" \
+$ curl -X POST "https://paymium.com/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"         \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 
@@ -874,7 +874,7 @@ For merchants that have very simple needs payment buttons are also available, th
 
 The authentication used for this call does not use OAuth2 but instead is base on static tokens. These tokens allow only the creation of invoices (payments) and do not allow withdrawals or trading to take place against the merchant's account.
 
-**Note:** The tokens are provided by the Bitcoin-Central support, upon request.
+**Note:** The tokens are provided by the Paymium support, upon request.
 
 
 ##### Description
@@ -883,14 +883,14 @@ A payment is created by a merchant platform when the customer chooses Bitcoin as
 
 The merchant platform can then :
 * display the payment Bitcoin address on his own web interface,
-* include the Bitcoin-Central web interface url in an iframe in order to display a payment pop-up as an overlay,
+* include the Paymium web interface url in an iframe in order to display a payment pop-up as an overlay,
 * redirect the buyer to the payement's URL (see below), in this case the payment is displayed on a separate screen
 
-To display the payment request to the user, the `https://bitcoin-central.net/invoice/{UUID}` can be used, this is used by the e-commerce framework plugins.
+To display the payment request to the user, the `https://paymium.com/invoice/{UUID}` can be used, this is used by the e-commerce framework plugins.
 
 Once the payment request is displayed, the customer has 15 minutes to send the appropriate amount.
 
-Bitcoin-Central notifies the merchant of the completion of his payment via the associated callback (for which an URL may be provided when creating the payment request), once one Bitcoin confirmation for the payment is received the funds are credited to the merchant's account, a callback notification is then made.
+Paymium notifies the merchant of the completion of his payment via the associated callback (for which an URL may be provided when creating the payment request), once one Bitcoin confirmation for the payment is received the funds are credited to the merchant's account, a callback notification is then made.
 
 
 ##### Endpoint
@@ -1113,16 +1113,16 @@ The [`AutoRefreshToken`](https://gist.github.com/davout/edb4db0315dc417fa78d) cl
 ```ruby
 require 'oauth2'
 
-client = OAuth2::Client.new('6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b', '55554ecad5627f0465034c4a116e59a38d9c3ab272487a18404078ccc0b64798', site: 'https://bitcoin-central.net', authorize_url: '/api/oauth/authorize', token_url: '/api/oauth/token')
+client = OAuth2::Client.new('6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b', '55554ecad5627f0465034c4a116e59a38d9c3ab272487a18404078ccc0b64798', site: 'https://paymium.com', authorize_url: '/api/oauth/authorize', token_url: '/api/oauth/token')
  
-client.auth_code.authorize_url(redirect_uri: 'https://bitcoin-central.net/page/oauth/test', scope: 'basic activity trade withdraw')
- => "https://staging.bitcoin-central.net/api/oauth/authorize?response_type=code&client_id=71a28131e16a0d6756a41aa391f1aa28b2f5a2ed4a6b911cf2bf640c8a0cc2cd&redirect_uri=https%3A%2F%2Fstaging.bitcoin-central.net%2Fpage%2Foauth%2Ftest&scope=basic+activity+trade+withdraw" 
+client.auth_code.authorize_url(redirect_uri: 'https://paymium.com/page/oauth/test', scope: 'basic activity trade withdraw')
+ => "https://staging.paymium.com/api/oauth/authorize?response_type=code&client_id=71a28131e16a0d6756a41aa391f1aa28b2f5a2ed4a6b911cf2bf640c8a0cc2cd&redirect_uri=https%3A%2F%2Fstaging.paymium.com%2Fpage%2Foauth%2Ftest&scope=basic+activity+trade+withdraw" 
 
 # Visit this URL in your browser, approve the request and copy the authorization code
 
 authorization_code = '9b55e27c840f59d927284fdc438ee3d8fac94b00e24d331162ddff76c1a6bcc0'
 
-token = client.auth_code.get_token(authorization_code, redirect_uri: 'https://bitcoin-central.net/page/oauth/test')
+token = client.auth_code.get_token(authorization_code, redirect_uri: 'https://paymium.com/page/oauth/test')
 
 token.get('/api/v1/user').body
 => {"name":"BC-U123456","locale":"en","balance_btc":117.56672217,"locked_btc":0.0,"balance_eur":0.0,"locked_eur":0.00995186}
