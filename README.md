@@ -828,8 +828,8 @@ $ curl "https://paymium.com/api/v1/user/addresses"         \
 ```json
 [
   {
-    address: "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
-    valid_until: 1402579836
+    "address": "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+    "valid_until": 1402579836
   } 
 ]
 ```
@@ -841,20 +841,20 @@ $ curl "https://paymium.com/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwU
 
 ```json
 {
-  address: "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
-  valid_until: 1402579836
+  "address": "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+  "valid_until": 1402579836
 } 
 ```
 
 ```bash
-$ curl -X POST "https://paymium.com/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"         \
+$ curl -X POST "https://bitcoin-central.net/api/v1/user/addresses" \
      --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 
 ```json
 {
-  address: "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
-  valid_until: 1402579836
+  "address": "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+  "valid_until": 1402579836
 } 
 ```
 
