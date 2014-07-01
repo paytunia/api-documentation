@@ -1,4 +1,4 @@
-![Paymium logo](https://raw2.github.com/Paymium/api-documentation/master/logo.png)
+![Paymium logo](https://raw.githubusercontent.com/Paymium/api-documentation/master/logo.png)
 
 The Paymium API allows developers to extend the capabilities of the Paymium platform, from reading the latest ticker to automating trades with bots.
 
