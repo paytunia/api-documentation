@@ -814,11 +814,13 @@ List and create bitcoin deposit addresses
 
 | method | path                                | authorization            |
 |--------|-------------------------------------|--------------------------|
-| GET    | /api/v1/user/addresses/             | oauth2 (scope: deposit)  |
+| GET    | /api/v1/user/addresses              | oauth2 (scope: deposit)  |
 | GET    | /api/v1/user/addresses/:btc_address | oauth2 (scope: deposit)  |
 | POST   | /api/v1/user/addresses              | oauth2 (scope: deposit)  |
 
-##### Example
+##### Exampleis
+
+Retrieve your Bitcoin deposit addresses along with their expiration timestamp.
 
 ```bash
 $ curl "https://paymium.com/api/v1/user/addresses"         \
@@ -834,6 +836,8 @@ $ curl "https://paymium.com/api/v1/user/addresses"         \
 ]
 ```
 
+Retrieve details for a single address.
+
 ```bash
 $ curl "https://paymium.com/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"         \
      --header "Authorization: Bearer ACCESS_TOKEN"
@@ -845,6 +849,8 @@ $ curl "https://paymium.com/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwU
   "valid_until": 1402579836
 } 
 ```
+
+Create a new Bitcoin deposit address unless another one is already active.
 
 ```bash
 $ curl -X POST "https://bitcoin-central.net/api/v1/user/addresses" \
