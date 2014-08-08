@@ -22,15 +22,18 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Successful calls](#sucessful-calls)
   * [Rate-limiting](#rate-limiting)
 
+* [**Authentication**](#authentication)
+  * [OAuth2 authentication](#oauth2-authentication)
+  * [Token authentication](#token-authentication)
+
 * [**Public data**](#public-data)
   * [Ticker](#ticker)
   * [Latest trades](#latest-trades)
   * [Market depth](#market-depth)
   * [Bitcoin-Charts endpoints](#bitcoin-charts-endpoints)
   * [WebSocket](#websocket)
-
+  
 * [**User data**](#user-data)
-  * [Authentication](#authentication)
   * [User info](#user-info)
   * [User activity](#user-activity)
   * [Order details](#order-details)
@@ -104,6 +107,114 @@ API calls are rate-limited by IP to 86400 calls per day (one per second on avera
     X-Ratelimit-Limit: 5000
     X-Ratelimit-Remaining: 4982
     Date: Wed, 30 Jan 2013 12:08:58 GMT
+
+## Authentication
+### Token authentication
+### OAuth2 authentication
+
+To access and manipulate user data, you must first request permission from the user.
+
+Authorizations are granted using the standard [OAuth2](http://oauth.net/2/) Authorization Code Grant.
+
+Many programming languages already have libraries to develop clients that connect to OAuth2 APIs, hence the following steps may not be necessary. For instance, if you are a Ruby developer, you can use [this example to get started](#ruby-example).
+
+The process of authenticating a user can be summarized as follows:
+
+1. Send the user to your application's authorization URL
+2. Receive the authorization code if the user accepted the request
+3. Get an access token and a refresh token from the authorization code
+4. Refresh the access token when needed
+
+##### Scopes
+
+Before you request authorization to access a user's account, you must decide which scopes you would like to access.
+
+The following scopes are available:
+
+| name           | description                                                                               |
+|----------------|-------------------------------------------------------------------------------------------|
+| basic         | Read account number, language, and balances (default)                                      |
+| activity       | Read trade orders, deposits, withdrawals, and other operations                            |
+| trade          | Create and cancel trade orders                                                            |
+| withdraw       | Request EUR and BTC withdrawals (requires email confirmation from users upon withdrawing) |
+| deposit        | List bitcoin deposit addresses and create a new one if needed |
+
+
+##### Requesting user authorization
+
+To get user's permission to use his/her account, you must send him/her to your application's redirect URI. You can see this URI by visiting your application's page: [https://paymium.com/page/developers/apps](https://paymium.com/page/developers/apps).
+
+By default, the `basic` scope will be requested.
+
+If your application requires specific access scopes, you must append a scope GET parameter to the authorization URI:
+
+    https://paymium.com/...&scope=basic+activity+trade
+
+The user will then be prompted to authorize your application with the specified scopes.
+
+##### Receiving the authorization code
+
+If you specified the test redirection URI `https://paymium.com/page/oauth/test`, the user will be presented the autorization code upon accepting your request which can be used by the application to fetch access tokens.
+
+Otherwise the code or error will be sent to the redirection URI so that your application can retrieve it (in this case `https://example.com/callback`):
+
+    https://example.com/callback?code=AUTHORIZATION_CODE
+
+Or if the request was denied by the user:
+
+    https://example.com/callback?error=access_denied&error_description=The+resource+owner+or+authorization+server+denied+the+request.
+
+The authorization code is valid 5 minutes.
+
+##### Fetching an access token and a refresh token
+
+Once your application received the authorization code, it can request an access token and a refresh token:
+
+```bash
+$ curl "https://paymium.com/api/oauth/token"                    \
+    -d "client_id=APPLICATION_KEY"                              \
+    -d "client_secret=APPLICATION_SECRET"                       \
+    -d "grant_type=authorization_code"                          \
+    -d "redirect_uri=REDIRECT_URI"                              \
+    -d "code=AUTHORIZATION_CODE"
+```
+
+```json
+{
+  "access_token": "ACCESS_TOKEN",
+  "token_type": "bearer",
+  "expires_in": 1800,
+  "refresh_token": "REFRESH_TOKEN",
+  "scope": "basic"
+}
+```
+
+An access token can be used to authorize user requests for the approved scopes and is valid 30 minutes.
+
+##### Refreshing the access token
+
+Since an access token is only valid 30 minutes, your application may need to fetch a new access token using the refresh token:
+
+```bash
+$ curl "https://paymium.com/api/oauth/token"                    \
+    -d "client_id=APPLICATION_KEY"                              \
+    -d "client_secret=APPLICATION_SECRET"                       \
+    -d "grant_type=refresh_token"                               \
+    -d "redirect_uri=REDIRECT_URI"                              \
+    -d "refresh_token=REFRESH_TOKEN"
+```
+
+```json
+{
+  "access_token": "NEW_ACCESS_TOKEN",
+  "token_type": "bearer",
+  "expires_in": 1800,
+  "refresh_token": "NEW_REFRESH_TOKEN",
+  "scope": "basic"
+}
+```
+
+After refreshing the access token, the previous tokens (access and refresh) are no longer valid.
 
 ## Public data
 
@@ -361,112 +472,6 @@ Before you can access your own data or other users data, you must register an ap
 1. Verify your account and log in
 2. Visit [https://paymium.com/page/developers/apps](https://paymium.com/page/developers/apps)
 3. Create an application (set redirect URI to `https://paymium.com/page/oauth/test` when testing)
-
-### Authentication
-
-To access and manipulate user data, you must first request permission from the user.
-
-Authorizations are granted using the standard [OAuth2](http://oauth.net/2/) Authorization Code Grant.
-
-Many programming languages already have libraries to develop clients that connect to OAuth2 APIs, hence the following steps may not be necessary. For instance, if you are a Ruby developer, you can use [this example to get started](#ruby-example).
-
-The process of authenticating a user can be summarized as follows:
-
-1. Send the user to your application's authorization URL
-2. Receive the authorization code if the user accepted the request
-3. Get an access token and a refresh token from the authorization code
-4. Refresh the access token when needed
-
-##### Scopes
-
-Before you request authorization to access a user's account, you must decide which scopes you would like to access.
-
-The following scopes are available:
-
-| name           | description                                                                               |
-|----------------|-------------------------------------------------------------------------------------------|
-| basic         | Read account number, language, and balances (default)                                      |
-| activity       | Read trade orders, deposits, withdrawals, and other operations                            |
-| trade          | Create and cancel trade orders                                                            |
-| withdraw       | Request EUR and BTC withdrawals (requires email confirmation from users upon withdrawing) |
-| deposit        | List bitcoin deposit addresses and create a new one if needed |
-
-
-##### Requesting user authorization
-
-To get user's permission to use his/her account, you must send him/her to your application's redirect URI. You can see this URI by visiting your application's page: [https://paymium.com/page/developers/apps](https://paymium.com/page/developers/apps).
-
-By default, the `basic` scope will be requested.
-
-If your application requires specific access scopes, you must append a scope GET parameter to the authorization URI:
-
-    https://paymium.com/...&scope=basic+activity+trade
-
-The user will then be prompted to authorize your application with the specified scopes.
-
-##### Receiving the authorization code
-
-If you specified the test redirection URI `https://paymium.com/page/oauth/test`, the user will be presented the autorization code upon accepting your request which can be used by the application to fetch access tokens.
-
-Otherwise the code or error will be sent to the redirection URI so that your application can retrieve it (in this case `https://example.com/callback`):
-
-    https://example.com/callback?code=AUTHORIZATION_CODE
-
-Or if the request was denied by the user:
-
-    https://example.com/callback?error=access_denied&error_description=The+resource+owner+or+authorization+server+denied+the+request.
-
-The authorization code is valid 5 minutes.
-
-##### Fetching an access token and a refresh token
-
-Once your application received the authorization code, it can request an access token and a refresh token:
-
-```bash
-$ curl "https://paymium.com/api/oauth/token"                    \
-    -d "client_id=APPLICATION_KEY"                              \
-    -d "client_secret=APPLICATION_SECRET"                       \
-    -d "grant_type=authorization_code"                          \
-    -d "redirect_uri=REDIRECT_URI"                              \
-    -d "code=AUTHORIZATION_CODE"
-```
-
-```json
-{
-  "access_token": "ACCESS_TOKEN",
-  "token_type": "bearer",
-  "expires_in": 1800,
-  "refresh_token": "REFRESH_TOKEN",
-  "scope": "basic"
-}
-```
-
-An access token can be used to authorize user requests for the approved scopes and is valid 30 minutes.
-
-##### Refreshing the access token
-
-Since an access token is only valid 30 minutes, your application may need to fetch a new access token using the refresh token:
-
-```bash
-$ curl "https://paymium.com/api/oauth/token"                    \
-    -d "client_id=APPLICATION_KEY"                              \
-    -d "client_secret=APPLICATION_SECRET"                       \
-    -d "grant_type=refresh_token"                               \
-    -d "redirect_uri=REDIRECT_URI"                              \
-    -d "refresh_token=REFRESH_TOKEN"
-```
-
-```json
-{
-  "access_token": "NEW_ACCESS_TOKEN",
-  "token_type": "bearer",
-  "expires_in": 1800,
-  "refresh_token": "NEW_REFRESH_TOKEN",
-  "scope": "basic"
-}
-```
-
-After refreshing the access token, the previous tokens (access and refresh) are no longer valid.
 
 ### User info
 
