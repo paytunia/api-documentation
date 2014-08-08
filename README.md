@@ -23,6 +23,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Rate-limiting](#rate-limiting)
 
 * [**Authentication**](#authentication)
+  * [Permissions](#permissions)
   * [OAuth2 authentication](#oauth2-authentication)
   * [Token authentication](#token-authentication)
 
@@ -109,25 +110,10 @@ API calls are rate-limited by IP to 86400 calls per day (one per second on avera
     Date: Wed, 30 Jan 2013 12:08:58 GMT
 
 ## Authentication
-### Token authentication
-### OAuth2 authentication
 
-To access and manipulate user data, you must first request permission from the user.
+### Permissions
 
-Authorizations are granted using the standard [OAuth2](http://oauth.net/2/) Authorization Code Grant.
-
-Many programming languages already have libraries to develop clients that connect to OAuth2 APIs, hence the following steps may not be necessary. For instance, if you are a Ruby developer, you can use [this example to get started](#ruby-example).
-
-The process of authenticating a user can be summarized as follows:
-
-1. Send the user to your application's authorization URL
-2. Receive the authorization code if the user accepted the request
-3. Get an access token and a refresh token from the authorization code
-4. Refresh the access token when needed
-
-##### Scopes
-
-Before you request authorization to access a user's account, you must decide which scopes you would like to access.
+Before you request authorization to access a user's account, you must decide which permissions, or scopes you would like to access.
 
 The following scopes are available:
 
@@ -139,6 +125,45 @@ The following scopes are available:
 | withdraw       | Request EUR and BTC withdrawals (requires email confirmation from users upon withdrawing) |
 | deposit        | List bitcoin deposit addresses and create a new one if needed |
 
+### Token authentication
+
+This authentication mechanism is the recommended method if you need to access your own account data and is also referred to as **HMAC authentication**, if you need to access other users accounts on their behalf you'll need to use the OAuth2 authentication method.
+
+##### Generating a token
+
+For this authentication method you need to generate a token/secret pair that you will use to make requests against our API. In order to do so visit the "API tokens" menu in your account profile and click on "Create token". You will be presented with the following screen that will enable you to select the desired access permissions for this token. For security reasons you will need to confirm your access credentials.
+
+![Create an API token](https://raw.githubusercontent.com/Paymium/api-documentation/master/create-token.png)
+
+Once your token is created you'll be presented **once** with the matching secret key, this secret key is only displayed once, you need to record it carefully. If the secret key is lost the token becomes useless.
+
+##### Making requests
+
+Once you have an API token and its matching secret key you can use them to make requests against our API. In order to do so you must include three HTTP headers that will authenticate your request.
+
+```bash
+$ curl "https://paymium.com/api/v1/user"               \
+     --header "Api-Key: <YOUR API TOKEN>"              \
+     --header "Api-Signature: <THE REQUEST SIGNATURE>" \
+     --header "Api-Nonce: <AN UPDATED NONCE>"          \
+```
+
+ * The **API key** is the token that is displayed when listing your currently active tokens,
+ * The **API signature** is a HMAC-SHA256 hash of the nonce concatenated with the full URL and body of the HTTP request, encoded using your API secret key,
+ * The **nonce** is a positive integer number that must increase with every request you make
+
+### OAuth2 authentication
+
+This authentication mechanism is best suited to cases where a developer publishes an app that requires access its users Paymium accounts.
+
+Many programming languages already have libraries to develop clients that connect to OAuth2 APIs, hence the following steps may not be necessary. For instance, if you are a Ruby developer, you can use [this example to get started](#ruby-example).
+
+The process can be summarized as follows:
+
+1. Send the user to your application's authorization URL
+2. Receive the authorization code if the user accepted the request
+3. Get an access token and a refresh token from the authorization code
+4. Refresh the access token when needed
 
 ##### Requesting user authorization
 
