@@ -133,7 +133,7 @@ This authentication mechanism is the recommended method if you need to access yo
 
 For this authentication method you need to generate a token/secret pair that you will use to make requests against our API. In order to do so visit the "API tokens" menu in your account profile and click on "Create token". You will be presented with the following screen that will enable you to select the desired access permissions for this token. For security reasons you will need to confirm your access credentials.
 
-![Create an API token](https://raw.githubusercontent.com/Paymium/api-documentation/master/create-token.png)
+![Create an API token](https://raw.githubusercontent.com/Paymium/api-documentation/master/create-api-token.png)
 
 Once your token is created you'll be presented **once** with the matching secret key, this secret key is only displayed once, you need to record it carefully. If the secret key is lost the token becomes useless.
 
