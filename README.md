@@ -1138,6 +1138,8 @@ Each type may have additional properties as described below.
 | created_at         | date created                            | "2013-10-22T14:30:06.000Z"             |
 | created_at_int     | timestamp                               | 1382452206                             |
 | amount             | currency amount                         | 49.38727114                            |
+| address            | bitcoin address if any                  | "1FPDBXNqSkZMsw1kSkkajcj8berxDQkUoc"   |
+| tx_hash            | bitcoin transaction hash if any         | "86e6e72aa559428524e035cd6b2997004..." |
 | is_trading_account | whether the trading account is targeted | false                                  |
 
 ### Ruby example
