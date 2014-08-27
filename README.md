@@ -908,10 +908,7 @@ For merchants that have very simple needs payment buttons are also available, th
 
 ##### Authentication
 
-The authentication used for this call does not use OAuth2 but instead is base on static tokens. These tokens allow only the creation of invoices (payments) and do not allow withdrawals or trading to take place against the merchant's account.
-
-**Note:** The tokens are provided by the Paymium support, upon request.
-
+_The "merchant token" authentication mechanism has been removed please use an [API token](#token-authentication) or an [OAuth2 token](#oauth2-authentication) instead with the "merchant" scope._
 
 ##### Description
 
@@ -940,7 +937,6 @@ Paymium notifies the merchant of the completion of his payment via the associate
 
 | name         | description                                  | example value             |
 |--------------|----------------------------------------------|--------------------|
-| token	              | Merchant token (required) | 37d669e6d381c53ba3f6 |
 | amount              | Amount requested for the payment (required) | 20  |
 | payment_split       | Percentage of the payment the _merchant_ will get in `currency` expressed as a two-decimal places float between 0 and 1 (required) | 1.0 |
 | currency            | Currency in which the merchant wishes to be credited and in which the `amount` is expressed (required) | EUR |
@@ -956,9 +952,9 @@ See [Payment properties](#returned-json-object-properties)
 
 When a payment is created or updated, and if a callback URL was provided, a notification is made.
 
-When the notification is made a `POST` request is made to the callback URL, it contains the JSON representation of the payment (see the [payment properties](#get-payment-information) and is authenticated with a special `X-Payment-Signature` hash.
+When the notification is made a `POST` request is made to the callback URL, it contains the JSON representation of the payment (see the [payment properties](#get-payment-information).
 
-The merchant platform must check the `X-Payment-Signature` header of each request to ensure their authenticity. It is populated with the SHA-2 digest of the with the request body concatenated with merchant token.
+The merchant should ensure the callback is legitimate by requesting confirmation from the Paymium API for the invoice data.
  
 **PHP code example**
 
