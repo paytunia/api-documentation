@@ -894,8 +894,6 @@ $ curl -X POST "https://bitcoin-central.net/api/v1/user/addresses" \
 } 
 ```
 
-
-
 ## Merchant API
 
 The Merchant API enables merchants to securely sell goods and services and get paid in Bitcoin. The API makes it possible for the merchant to completely eliminate the risk of market fluctuations when requesting to receive fiat currency in their account. It is also possible to keep a part of the payment in Bitcoin without having it converted at a guaranteed rate.
@@ -955,19 +953,6 @@ When a payment is created or updated, and if a callback URL was provided, a noti
 When the notification is made a `POST` request is made to the callback URL, it contains the JSON representation of the payment (see the [payment properties](#get-payment-information).
 
 The merchant should ensure the callback is legitimate by requesting confirmation from the Paymium API for the invoice data.
- 
-**PHP code example**
-
-```php
-$req_body = file_get_contents("php://input");
-$signature = $_SERVER['HTTP_X_PAYMENT_SIGNATURE'];
-$token = Configuration::get('paymium_token');
-$hash = hash('sha256', $token . $req_body);
-
-if ($hash === $signature) {
-  // Callback is authentic
-}
-```
 
 **Note :** The callback notifications are not guaranteed to be unique, it must have idempotent results on the merchant side if the payment has not actually changed. 
 
