@@ -1,6 +1,6 @@
 var io = require('socket.io-client');
 
-socket = io.connect('https://bitcoin-central.net/public', {
+socket = io.connect('https://paymium.com/public', {
   resource: 'ws/socket.io'
 });
 

@@ -6,7 +6,7 @@ module.exports = {
 
   scopes: 'basic activity trade withdraw',
 
-  apiBaseUrl: 'https://bitcoin-central.net/api',
+  apiBaseUrl: 'https://paymium.com/api',
 
   serverBaseUrl: 'http://localhost:8000',
   serverPort: 8000,
