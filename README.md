@@ -950,7 +950,7 @@ See [Payment properties](#returned-json-object-properties)
 
 When a payment is created or updated, and if a callback URL was provided, a notification is made.
 
-When the notification is made a `POST` request is made to the callback URL, it contains the JSON representation of the payment (see the [payment properties](#get-payment-information).
+When the notification is made a `POST` request is made to the callback URL, it contains the JSON representation of the payment (see the [payment properties](#get-payment-information)).
 
 The merchant should ensure the callback is legitimate by requesting confirmation from the Paymium API for the invoice data.
 
