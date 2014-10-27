@@ -1,5 +1,8 @@
 ![Paymium logo](https://raw.githubusercontent.com/Paymium/api-documentation/master/logo.png)
 
+
+**NEW: Check-out our FIX API for real-time market data ([documentation](https://github.com/Paymium/api-documentation/blob/master/FIX-4.4.md))**
+
 The Paymium API allows developers to extend the capabilities of the Paymium platform, from reading the latest ticker to automating trades with bots.
 
 **IMPORTANT NOTE**: Your API client must support [SNI](http://en.wikipedia.org/wiki/Server_Name_Indication) in order to not receive certificate name mismatch warnings.
