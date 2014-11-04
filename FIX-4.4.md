@@ -1,5 +1,7 @@
 ![Paymium logo](https://raw.githubusercontent.com/Paymium/api-documentation/master/logo.png)
 
+### NEW : Java example connector now avaible [here](https://github.com/Paymium/fix-connector-example)
+
 The Paymium FIX API allows developers to subscribe to real-time market updates using the Financial Information eXchange protocol in its 4.4 version. **This API is currently in alpha-testing phase.**
 
 Do not hesitate to contact the support for any issues or suggestions. We're also available on IRC at Freenode on the #paymium channel, ring davout for assistance.
