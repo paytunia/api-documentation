@@ -123,8 +123,6 @@ def main():
 
     while True:
         time.sleep(10)
-        msg = fixMsg.Heartbeat()
-        fix.Session.sendToTarget(msg, sessionID)
 
     acceptor.stop()
 
