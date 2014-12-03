@@ -1032,7 +1032,7 @@ The currently available plugins are available
 
 | Framework      | Plugin URL                             |
 |----------------|----------------------------------------|
-| PrestaShop 1.5 | https://github.com/Paymium/prestashop  |
+| PrestaShop 1.6 | https://github.com/Paymium/prestashop  |
 | WooCommerce    | https://github.com/Paymium/woocommerce |
 
 ## Appendix
