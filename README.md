@@ -122,11 +122,12 @@ The following scopes are available:
 
 | name           | description                                                                               |
 |----------------|-------------------------------------------------------------------------------------------|
-| basic         | Read account number, language, and balances (default)                                      |
+| basic          | Read account number, language, and balances (default)                                     |
 | activity       | Read trade orders, deposits, withdrawals, and other operations                            |
 | trade          | Create and cancel trade orders                                                            |
 | withdraw       | Request EUR and BTC withdrawals (requires email confirmation from users upon withdrawing) |
-| deposit        | List bitcoin deposit addresses and create a new one if needed |
+| deposit        | List bitcoin deposit addresses and create a new one if needed                             |
+| merchant       | Create and manage an account's invoices                                                   |
 
 ### Token authentication
 
