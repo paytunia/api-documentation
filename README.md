@@ -986,8 +986,8 @@ This endpoint returns the payment request as a JSON object given a payment UUID
 | merchant_name      | Name of the merchant that is displayed to the customer                |
 | expires_at         | Expiration timestamp                                                  |
 | merchant_reference | Reference string associated to the payment                            |
-| currency_amount    | Amount associated to the payment                                      |
-| amount             | BTC amount to pay                                                     |
+| amount             | Amount associated to the payment                                      |
+| btc_amount         | BTC amount to pay                                                     |
 | payment_address    | Payment address                                                       |
 | created_at         | Creation timestamp                                                    |
 | updated_at         | Last update timestamp                                                 |
