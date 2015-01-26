@@ -17,7 +17,7 @@ Do not hesitate to contact the support for any issues or suggestions. We're also
 # Using the FIX API
 
 ## Obtaining access
-The API is not publicly available, you must request access to it through a support ticket. You will receive further instructions on how to establish a connection to our FIX acceptor.
+Our FIX acceptor is available at fix.paymium.com on port 8359.
 
 ## Managing the session
 Once connected, your client is expected to issue a `Logon` message containing `PAYMIUM` as the `TARGET_COMP_ID`, a non-blank `Username` (553) field. Encryption is not supported, the `EncryptMethod` (98) field must be set to `0`.
