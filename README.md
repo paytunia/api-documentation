@@ -1,7 +1,7 @@
 ![Paymium logo](https://raw.githubusercontent.com/Paymium/api-documentation/master/logo.png)
 
 
-**NEW: Check-out our FIX API for real-time market data ([documentation](https://github.com/Paymium/api-documentation/blob/master/FIX-4.4.md))**
+**NEW: Our sandbox environment is now available, visit [sandbox.paymium.com](https://sandbox.paymium.com) (you may have to add a security exception for the SSL certificate to validate).**
 
 The Paymium API allows developers to extend the capabilities of the Paymium platform, from reading the latest ticker to automating trades with bots.
 
@@ -36,6 +36,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Market depth](#market-depth)
   * [Bitcoin-Charts endpoints](#bitcoin-charts-endpoints)
   * [WebSocket](#websocket)
+  * [FIX streaming API](#fix-streaming-api)
   
 * [**User data**](#user-data)
   * [User info](#user-info)
@@ -493,6 +494,11 @@ The example is available in the `examples/public_socket.js` directory of this re
   });
 
 ```
+
+### FIX streaming API
+
+The FIX API is documented separately: [documentation](https://github.com/Paymium/api-documentation/blob/master/FIX-4.4.md).
+
 
 ## User data
 
