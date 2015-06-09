@@ -976,7 +976,7 @@ This endpoint returns the payment request as a JSON object given a payment UUID
 
 | Method | Path                                |
 |--------|-------------------------------------|
-| POST   | /api/v1/merchant/get_payment/{UUID} |
+| GET    | /api/v1/merchant/get_payment/{UUID} |
 
 
 ##### Returned JSON object properties
