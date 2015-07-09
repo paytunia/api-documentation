@@ -826,6 +826,72 @@ Would return:
 
 See [order properties](#order-properties).
 
+### Sending money
+
+Send money to an e-mail address.
+
+Executed strait away if the user have a valid account
+
+Sends an e-mail with a registration invitation if the user doesn't have avy account.
+
+The a new user have 30 days to register and validate his account.
+
+If the transfer has expired, the order will be cancelled
+
+#### Endpoint
+
+| method | path                       | authorization            |
+|--------|----------------------------|--------------------------|
+| POST   | /api/v1/user/orders        | oauth2 (scope: send)     |
+
+##### Payload
+
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| type               | must be "EmailTransfer"                 | "EmailTransfer"                        |
+| currency           | currency code                           | "BTC"                                  |
+| amount             | amount to transfer                      | 0.5                                    |
+| email              | an e-mail address                       | "user@example.com"                     |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/user/orders"                     \
+     --header "Authorization: Bearer ACCESS_TOKEN"                  \
+     -d "type=EmailTransfer"                                        \
+     -d "currency=BTC"                                              \
+     -d "amount=0.5"                                                \
+     -d "email=user@example.com"
+```
+
+Would return:
+
+```json
+{
+  "uuid": "9229fd6e-0aad-45d6-8090-a400f37a0129",
+  "amount": 0.5,
+  "state": "pending",
+  "btc_fee": 0.0,
+  "currency_fee": 0.0,
+  "updated_at": "2014-01-09T10:22:00.858Z",
+  "created_at": "2014-01-09T10:22:00.858Z",
+  "currency": "BTC",
+  "type": "EmailTransfer",
+  "account_operations": [
+    {
+      "uuid": "4c4f4682-354f-46d1-a916-72d88d5584e3",
+      "name": "email_transfer",
+      "amount": -0.5,
+      "currency": "BTC",
+      "created_at": "2014-01-09T10:22:02.171Z",
+      "created_at_int": 1389262922,
+      "is_trading_account": false
+    }
+  ]
+}
+```
+
+
 ### Canceling orders
 
 ##### Description
