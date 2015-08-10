@@ -828,15 +828,13 @@ See [order properties](#order-properties).
 
 ### Sending money
 
-Send money to an e-mail address.
+##### Description
 
-Executed strait away if the user have a valid account
+Initiate a money transfer to an e-mail address.
 
-Sends an e-mail with a registration invitation if the user doesn't have avy account.
+The transfer is immediately executed if the user have a valid account. Otherwise, an e-mail is sent with a registration invitation.
 
-The a new user have 1 month to register and validate his account.
-
-If the transfer has expired, the order will be cancelled.
+This transfer expire after 1 month if it is not collected. In this case, the order is cancelled and the sender re-credited.
 
 #### Endpoint
 
@@ -898,7 +896,7 @@ Would return:
 
 ##### Description
 
-Cancel an order. Only active trade orders may be canceled.
+Cancel an order. Only active trade orders and email tranfers may be canceled.
 
 ##### Endpoint
 
