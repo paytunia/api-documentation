@@ -37,7 +37,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Bitcoin-Charts endpoints](#bitcoin-charts-endpoints)
   * [WebSocket](#websocket)
   * [FIX streaming API](#fix-streaming-api)
-  
+
 * [**User data**](#user-data)
   * [User info](#user-info)
   * [User activity](#user-activity)
@@ -682,13 +682,13 @@ See [order properties](#order-properties).
 
 ##### Description
 
-Create trade orders. 
+Create trade orders.
 
 Limit and market orders are supported, the `price` parameter must be omitted for market orders.
 
-Either one of `amount` or `currency_amount` must be specified. When the `amount` is specified, the 
+Either one of `amount` or `currency_amount` must be specified. When the `amount` is specified, the
 engine will buy or sell this amount of Bitcoins. When the `currency_amount` is specified, the engine
-will buy as much Bitcoins as possible for `currency_amount` or sell as much Bitcoins as necessary to 
+will buy as much Bitcoins as possible for `currency_amount` or sell as much Bitcoins as necessary to
 obtain `currency_amount`.
 
 
@@ -834,9 +834,9 @@ Executed strait away if the user have a valid account
 
 Sends an e-mail with a registration invitation if the user doesn't have avy account.
 
-The a new user have 30 days to register and validate his account.
+The a new user have 1 month to register and validate his account.
 
-If the transfer has expired, the order will be cancelled
+If the transfer has expired, the order will be cancelled.
 
 #### Endpoint
 
@@ -852,6 +852,7 @@ If the transfer has expired, the order will be cancelled
 | currency           | currency code                           | "BTC"                                  |
 | amount             | amount to transfer                      | 0.5                                    |
 | email              | an e-mail address                       | "user@example.com"                     |
+| comment            | a small note explaining the transfer    | "Hi, refund for that thing"            |
 
 ##### Example
 
@@ -861,7 +862,8 @@ $ curl "https://paymium.com/api/v1/user/orders"                     \
      -d "type=EmailTransfer"                                        \
      -d "currency=BTC"                                              \
      -d "amount=0.5"                                                \
-     -d "email=user@example.com"
+     -d "email=user@example.com"                                    \
+     -d "comment=Hi, refund for that thing"
 ```
 
 Would return:
@@ -938,7 +940,7 @@ $ curl "https://paymium.com/api/v1/user/addresses"         \
   {
     "address": "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
     "valid_until": 1402579836
-  } 
+  }
 ]
 ```
 
@@ -953,7 +955,7 @@ $ curl "https://paymium.com/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwU
 {
   "address": "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
   "valid_until": 1402579836
-} 
+}
 ```
 
 Create a new Bitcoin deposit address unless another one is already active.
@@ -967,7 +969,7 @@ $ curl -X POST "https://bitcoin-central.net/api/v1/user/addresses" \
 {
   "address": "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
   "valid_until": 1402579836
-} 
+}
 ```
 
 ## Merchant API
@@ -1030,7 +1032,7 @@ When the notification is made a `POST` request is made to the callback URL, it c
 
 The merchant should ensure the callback is legitimate by requesting confirmation from the Paymium API for the invoice data.
 
-**Note :** The callback notifications are not guaranteed to be unique, it must have idempotent results on the merchant side if the payment has not actually changed. 
+**Note :** The callback notifications are not guaranteed to be unique, it must have idempotent results on the merchant side if the payment has not actually changed.
 
 
 ### Get payment information
@@ -1209,9 +1211,9 @@ The [`AutoRefreshToken`](https://gist.github.com/davout/edb4db0315dc417fa78d) cl
 require 'oauth2'
 
 client = OAuth2::Client.new('6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b', '55554ecad5627f0465034c4a116e59a38d9c3ab272487a18404078ccc0b64798', site: 'https://paymium.com', authorize_url: '/api/oauth/authorize', token_url: '/api/oauth/token')
- 
+
 client.auth_code.authorize_url(redirect_uri: 'https://paymium.com/page/oauth/test', scope: 'basic activity trade withdraw')
- => "https://staging.paymium.com/api/oauth/authorize?response_type=code&client_id=71a28131e16a0d6756a41aa391f1aa28b2f5a2ed4a6b911cf2bf640c8a0cc2cd&redirect_uri=https%3A%2F%2Fstaging.paymium.com%2Fpage%2Foauth%2Ftest&scope=basic+activity+trade+withdraw" 
+ => "https://staging.paymium.com/api/oauth/authorize?response_type=code&client_id=71a28131e16a0d6756a41aa391f1aa28b2f5a2ed4a6b911cf2bf640c8a0cc2cd&redirect_uri=https%3A%2F%2Fstaging.paymium.com%2Fpage%2Foauth%2Ftest&scope=basic+activity+trade+withdraw"
 
 # Visit this URL in your browser, approve the request and copy the authorization code
 
