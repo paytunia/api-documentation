@@ -44,6 +44,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Order details](#order-details)
   * [Trading](#trading)
   * [Withdrawing](#withdrawing)
+  * [Sending money](#sending-money)
   * [Canceling orders](#canceling-orders)
   * [Bitcoin addresses](#bitcoin-addresses)
 
