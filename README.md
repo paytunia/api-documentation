@@ -1130,6 +1130,7 @@ Orders can have the following types:
 | BitcoinDeposit | BTC deposit                        |
 | LimitOrder     | limit trade order                  |
 | Transfer       | BTC or fiat transfer or withdraw   |
+| EmailTransfer  | BTC or fiat transfer by e-mail     |
 | AdminOrder     | special order executed by an admin |
 
 ### Order properties
@@ -1163,6 +1164,13 @@ Each type may have additional properties as described below.
 | traded_currency    | currency exchanged                      | 310.0                                  |
 | traded_btc         | BTC echanged                            | 0.5                                    |
 
+##### EmailTransfer specific properties
+
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| email_address      | email address of the receiver           | "user@example.com"                     |
+
+
 ### Order states
 
 | name               | description                                                                      |
@@ -1175,6 +1183,16 @@ Each type may have additional properties as described below.
 | filled             | order has been completely filled                                                 |
 | executed           | order has been executed                                                          |
 | canceled           | order has been canceled                                                          |
+
+### Email Transfer states
+
+| Name               | Description                                                                            |
+|--------------------|----------------------------------------------------------------------------------------|
+| pending            | Email Transfer is pending the email confirmation                                       |
+| pending_collection | Email Transfer queued and pending for the receiver registration and profile completion |
+| executed           | Email Transfer has been executed                                                       |
+| expired            | Email Transfer has expired                                                             |
+| canceled           | Email Transfer has been canceled                                                       |
 
 ### Payment states
 
