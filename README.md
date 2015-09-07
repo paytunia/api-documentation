@@ -909,7 +909,7 @@ Cancel an order. Only active trade orders and email tranfers may be canceled.
 
 ```bash
 $ curl "https://paymium.com/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296"         \
-     --header "Authorization: Bearer ACCESS_TOKEN"
+     -X DELETE --header "Authorization: Bearer ACCESS_TOKEN"
 ```
 ### Bitcoin addresses
 
