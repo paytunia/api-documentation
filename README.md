@@ -313,6 +313,13 @@ Read the latest executed trades.
 |--------|-------------------------|---------------|
 | GET    | /api/v1/data/eur/trades | not required  |
 
+##### Query string
+
+| name     | description                      | required | default value |
+| -------- | -------------------------------- | -------- | ------------- |
+| page     | The page to get.                 | false    |  1            |
+| per_page | The number of results per page.  | false    | 20            |
+
 ##### Example
 
 ```bash
