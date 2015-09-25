@@ -45,6 +45,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Trading](#trading)
   * [Withdrawing](#withdrawing)
   * [Sending money](#sending-money)
+  * [Receiving money](#receiving-money)
   * [Canceling orders](#canceling-orders)
   * [Bitcoin addresses](#bitcoin-addresses)
 
@@ -892,6 +893,45 @@ Would return:
 }
 ```
 
+### Receiving money
+
+##### Description
+
+Allow to send a payment request by email to an e-mail address.
+
+Thus, by following the link in the sent email, the related invoice is displayed.
+
+#### Endpoint
+
+| method | path                          | authorization           |
+|--------|-------------------------------|-------------------------|
+| POST   | /api/v1/user/payment_requests | oauth2 (scope: receive) |
+
+##### Payload
+
+| name          | description                             | example value               |
+|-------------- |-----------------------------------------|-----------------------------|
+| type          | must be "PaymentRequest"                | "PaymentRequest"            |
+| currency      | currency code                           | "BTC"                       |
+| amount        | amount to transfer                      | 0.5                         |
+| email         | an e-mail address                       | "user@example.com"          |
+| payment_split | Percentage of the payment the _merchant_ will get in `currency` expressed as a two-decimal places float between 0 and 1 (required) | 1.0 |
+| label         | a small note explaining the transfer    | "Hi, refund for that thing" |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/user/payment_requests" \
+     --header "Authorization: Bearer ACCESS_TOKEN"        \
+     -d "type=PaymentRequest"                             \
+     -d "currency=BTC"                                    \
+     -d "amount=0.5"                                      \
+     -d "email=user@example.com"                          \
+     -d "payment_split=1"                                 \
+     -d "label=Hi, refund for that thing"
+```
+
+If successful, responds `HTTP/1.1 204 No Content`.
 
 ### Canceling orders
 
