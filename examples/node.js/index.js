@@ -184,7 +184,7 @@ function addApiCommand(cmd, path, options, cb) {
           pathStr = path(input, args);
 
           if (!pathStr) {
-            return cli.interact('> '); 
+            return cli.interact('> ');
           }
         }
 
@@ -223,7 +223,7 @@ function addApiCommand(cmd, path, options, cb) {
           if (resp.statusCode === 422) {
             cli.stream.print(JSON.parse(body).errors);
             return cli.interact('> ');
-          } 
+          }
 
           var data = {};
 

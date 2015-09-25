@@ -13,7 +13,7 @@ Do not hesitate to contact the support for any issues or suggestions. We're also
 
 ## On the roadmap
  - Ability to place orders and receive execution reports
- 
+
 # Using the FIX API
 
 ## Obtaining access
