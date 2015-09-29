@@ -916,7 +916,7 @@ Thus, by following the link in the sent email, the related invoice is displayed.
 | amount        | amount to transfer                      | 0.5                         |
 | email         | an e-mail address                       | "user@example.com"          |
 | payment_split | Percentage of the payment the _merchant_ will get in `currency` expressed as a two-decimal places float between 0 and 1 (required) | 1.0 |
-| label         | a small note explaining the transfer    | "Hi, refund for that thing" |
+| comment       | a small note explaining the transfer    | "Hi, refund for that thing" |
 
 ##### Example
 
@@ -928,7 +928,7 @@ $ curl "https://paymium.com/api/v1/user/payment_requests" \
      -d "amount=0.5"                                      \
      -d "email=user@example.com"                          \
      -d "payment_split=1"                                 \
-     -d "label=Hi, refund for that thing"
+     -d "comment=Hi, refund for that thing"
 ```
 
 If successful, responds `HTTP/1.1 204 No Content`.
