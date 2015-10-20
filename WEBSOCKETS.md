@@ -26,9 +26,9 @@ These messages are emitted when an account balance is updated, when the updated 
 {
   "event": "balance",
   "payload": {
-    "balance": <new balance>,
-    "currency": <"EUR"|"BTC">,
-    "trading":  <true|false>
+    "balance": 10.0,
+    "currency": "<EUR|BTC>",
+    "trading":  "<true|false>"
 }
 ````
 
@@ -41,7 +41,7 @@ Emitted whenever an order is persisted. See the REST API documentation for detai
 ````json
 {
   "event": "order",
-  "payload": <JSON-serialized order>
+  "payload": "<JSON-serialized order>"
 }
 ````
 
@@ -54,7 +54,7 @@ Emitted whenever a text notification is issued to the user.
 {
   "event": "notice",
   "payload": {
-    "message": <message>
+    "message": "<message>"
   }
 }
 ````
@@ -68,7 +68,7 @@ Emitted whenever the user state is updated (for example due to KYC steps being c
 {
   "event": "state",
   "payload": {
-    "state": <new state>
+    "state": "<new state>"
   }
 }
 ````
@@ -81,7 +81,7 @@ Emitted whenever a payment is updated. See the REST API documentation for detail
 ````json
 {
   "event": "payment",
-  "payload": <JSON-serialized payment>
+  "payload": "<JSON-serialized payment>"
 }
 ````
 
@@ -92,16 +92,16 @@ These messages are publicly broadcast, each type is broadcast on a separate chan
 
 ### Trades
 
-These messages are broadcast on the "trade" channel.
+These messages are broadcast on the "trade" channel. Its timestamp is expressed in milliseconds.
 
 **Message structure**
 ````json
 {
   "event": "new-trade",
   "payload": {
-    "price": <execution price>,
-    "traded_btc": <traded quantity>,
-    "timestamp": <msec timestamp>,
+    "price": 201.28,
+    "traded_btc": 12.4,
+    "timestamp": 1445348298584,
     "currency": "EUR"
   }
 }
@@ -129,10 +129,10 @@ These messages are broadcast on the "market-depth" channel.
 {
   "event": "update-market-depth",
   "payload": {
-    "category": <"buy"|"sell">,
-    "timestamp": <sec timestamp>,
-    "amount": <amount>
-    "price": <price>,
+    "category": "<buy|sell>",
+    "timestamp": 1445348298,
+    "amount": 4.8,
+    "price": 201.87,
     "currency": "EUR"
   }
 }
