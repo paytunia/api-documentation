@@ -455,14 +455,9 @@ The socket.io socket will emit a `stream` event when new data is available. The 
 
 Socket.io must connect to `https://paymium.com/public` and the `resource` option must be set to `ws/socket.io`.
 
-#### Stream properties
+#### Message descriptions
 
-| name            | description                                                                   |
-|-----------------|-------------------------------------------------------------------------------|
-| ticker          | object containing updated ticker data                                         |
-| trades          | array of newly executed trades                                                |
-| bids            | array of new or updated bids (a bid is considered gone if amount is null)     |
-| asks            | array of new or updated asks (an ask is considered gone if amount is null)    |
+The Websocket messages are documented separately: [documentation](https://github.com/Paymium/api-documentation/blob/master/WEBSOCKETS.md).
 
 #### Node.js example
 
