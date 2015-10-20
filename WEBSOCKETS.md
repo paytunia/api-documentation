@@ -116,7 +116,7 @@ These messages are broadcast on the "ticker" channel.
 ````json
 {
   "event": "tick",
-  "payload": <ticker>
+  "payload": "<JSON ticker>"
 }
 ````
 
