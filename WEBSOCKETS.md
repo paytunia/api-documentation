@@ -1,23 +1,23 @@
 # WebSocket API
 
-* [Private messages](#private_messages)
- * [Channel subscription](#channel_subscribtion)
- * [Balance changes](#balance_changes)   
- * [Order update & creation](#order_update_creation)
- * [User state update](#user_state_update)
- * [Payments updates](#payments_updates)
- 
-* [Public messages](#public_messages)
+* [Private messages](#private-messages)
+ * [Channel subscription](#channel-subscribtion)
+ * [Balance changes](#balance-changes)   
+ * [Order update & creation](#order-update-creation)
+ * [User state update](#user-state-update)
+ * [Payments updates](#payments-updates)
+
+* [Public messages](#public-messages)
  * [Trades](#trades)
- * [Ticker updates](#ticker_updates) 
- * [Market depth updates](#market_depth_updates)
- * [Text notifications](#text_notifications)  
- 
-* [Connection examples](#connection_examples)
- * [Public socket](#public_socket)
- * [User socket](#user_socket)
- 
- 
+ * [Ticker updates](#ticker-updates) 
+ * [Market depth updates](#market-depth-updates)
+ * [Text notifications](#text-notifications)  
+
+* [Connection examples](#connection-examples)
+ * [Public socket](#public-socket)
+ * [User socket](#user-socket)
+
+
 ## Private messages
 
 ### Channel subscription
