@@ -45,7 +45,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Trading](#trading)
   * [Withdrawing](#withdrawing)
   * [Sending money](#sending-money)
-  * [Receiving money](#receiving-money)
+  * [Requesting money by e-mail](#requesting-money-by-e-mail)
   * [Canceling orders](#canceling-orders)
   * [Bitcoin addresses](#bitcoin-addresses)
 
@@ -887,13 +887,14 @@ Would return:
 }
 ```
 
-### Receiving money
+### Receiving money by e-mail
 
 ##### Description
 
-Allow to send a payment request by email to an e-mail address.
+This functionality allows one to create a payment request that is sent by e-mail to the designated recipient, when the link contained in the e-mail is clicked,
+the recipient is presented with a Bitcoin address to which he is instructed to direct his payment.
 
-Thus, by following the link in the sent email, the related invoice is displayed.
+Once the Bitcoin payment is confirmed, the payee is credited in the originally requested currency.
 
 #### Endpoint
 
