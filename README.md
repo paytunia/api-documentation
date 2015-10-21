@@ -461,35 +461,34 @@ The Websocket messages are documented separately: [documentation](https://github
 
 #### Node.js example
 
-Assuming you have node.js installed, you can install the socket.io client library by running `npm install socket.io-client@0.9`.
+Assuming you have node.js installed, you can install the socket.io client library by running `npm install socket.io-client`.
 
 The code below shows how to connect to the Paymium socket, and outputs any received data to the console.
 
 The example is available in the `examples/public_socket.js` directory of this repository.
 
 ```javascript
-  var io = require('socket.io-client');
+var io = require('socket.io-client');
 
-  socket = io.connect('https://paymium.com/public', {
-    resource: 'ws/socket.io'
-  });
+var socket = io.connect('paymium.com/public', {
+  path: '/ws/socket.io'
+});
 
-  console.log('CONNECTING');
+console.log('CONNECTING');
 
-  socket.on('connect', function() {
-    console.log('CONNECTED');
-    console.log('WAITING FOR DATA...');
-  });
+socket.on('connect', function() {
+  console.log('CONNECTED');
+  console.log('WAITING FOR DATA...');
+});
 
-  socket.on('disconnect', function() {
-    console.log('DISCONNECTED');
-  });
+socket.on('disconnect', function() {
+  console.log('DISCONNECTED');
+});
 
-  socket.on('stream', function(data) {
-    console.log('GOT DATA:');
-    console.log(data);
-  });
-
+socket.on('stream', function(data) {
+  console.log('GOT DATA:');
+  console.log(data);
+});
 ```
 
 ### FIX streaming API

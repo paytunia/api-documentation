@@ -1,7 +1,7 @@
 var io = require('socket.io-client');
 
-socket = io.connect('https://paymium.com/public', {
-  resource: 'ws/socket.io'
+var socket = io.connect('paymium.com/public', {
+  path: '/ws/socket.io'
 });
 
 console.log('CONNECTING');
