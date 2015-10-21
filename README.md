@@ -887,7 +887,7 @@ Would return:
 }
 ```
 
-### Receiving money by e-mail
+### Requesting money by e-mail
 
 ##### Description
 
