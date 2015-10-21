@@ -453,7 +453,7 @@ The socket.io socket will emit a `stream` event when new data is available. The 
 
 #### Socket.io configuration
 
-Socket.io must connect to `https://paymium.com/public` and the `resource` option must be set to `ws/socket.io`.
+Socket.io must connect to `paymium.com/<public or user>` and the `path` option must be set to `/ws/socket.io`.
 
 #### Message descriptions
 
