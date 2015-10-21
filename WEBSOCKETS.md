@@ -1,9 +1,9 @@
 # WebSocket API
 
 * [Private messages](#private-messages)
- * [Channel subscription](#channel-subscribtion)
+ * [Channel subscribtion](#channel-subscribtion)
  * [Balance changes](#balance-changes)   
- * [Order update & creation](#order-update-creation)
+ * [Order update & creation](#order-update--creation)
  * [User state update](#user-state-update)
  * [Payments updates](#payments-updates)
 
@@ -20,7 +20,7 @@
 
 ## Private messages
 
-### Channel subscription
+### Channel subscribtion
 
 These messages are broadcast on specific channels, and not publicly. Knowledge of the channel identifier is required in order to subscribe to these messages.
 
