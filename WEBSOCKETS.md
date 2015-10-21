@@ -1,6 +1,24 @@
 # WebSocket API
 
-## Private messages (user details, payment updates)
+* [Private messages](#private_messages)
+ * [Channel subscription](#channel_subscribtion)
+ * [Balance changes](#balance_changes)   
+ * [Order update & creation](#order_update_creation)
+ * [User state update](#user_state_update)
+ * [Payments updates](#payments_updates)
+ 
+* [Public messages](#public_messages)
+ * [Trades](#trades)
+ * [Ticker updates](#ticker_updates) 
+ * [Market depth updates](#market_depth_updates)
+ * [Text notifications](#text_notifications)  
+ 
+* [Connection examples](#connection_examples)
+ * [Public socket](#public_socket)
+ * [User socket](#user_socket)
+ 
+ 
+## Private messages
 
 ### Channel subscription
 
@@ -33,7 +51,7 @@ These messages are emitted when an account balance is updated, when the updated 
 ````
 
 
-### Order update/creation
+### Order update & creation
 
 Emitted whenever an order is persisted. See the REST API documentation for details on order serialization.
 
@@ -124,7 +142,7 @@ These messages are broadcast on the "market-depth" channel.
 }
 ````
 
-### Text notification
+### Text notifications
 
 Emitted whenever a text notification is issued to all users.
 
@@ -138,9 +156,9 @@ Emitted whenever a text notification is issued to all users.
 }
 ````
 
-### Example
+## Connection examples
 
-#### Public socket
+### Public socket
 
 ```javascript
 var io = require('socket.io-client');
@@ -166,7 +184,7 @@ socket.on('stream', function(data) {
 });
 ```
 
-#### User socket
+### User socket
 
 ```javascript
 var io = require('socket.io-client');
