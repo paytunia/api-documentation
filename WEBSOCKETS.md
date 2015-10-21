@@ -45,20 +45,6 @@ Emitted whenever an order is persisted. See the REST API documentation for detai
 }
 ````
 
-### Text notification
-
-Emitted whenever a text notification is issued to the user.
-
-**Message structure**
-````json
-{
-  "event": "notice",
-  "payload": {
-    "message": "<message>"
-  }
-}
-````
-
 ### User state update
 
 Emitted whenever the user state is updated (for example due to KYC steps being completed). See the REST API documentation for details on the different possible states.
@@ -134,6 +120,20 @@ These messages are broadcast on the "market-depth" channel.
     "amount": 4.8,
     "price": 201.87,
     "currency": "EUR"
+  }
+}
+````
+
+### Text notification
+
+Emitted whenever a text notification is issued to all users.
+
+**Message structure**
+````json
+{
+  "event": "notice",
+  "payload": {
+    "message": "<message>"
   }
 }
 ````
