@@ -22,7 +22,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Formats and required HTTP request headers](#formats-and-required-http-request-headers)
   * [Localization](#localization)
   * [Error handling](#error-handling)
-  * [Successful calls](#sucessful-calls)
+  * [Successful calls](#successful-calls)
   * [Rate-limiting](#rate-limiting)
 
 * [**Authentication**](#authentication)
@@ -48,6 +48,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Requesting money by e-mail](#requesting-money-by-e-mail)
   * [Canceling orders](#canceling-orders)
   * [Bitcoin addresses](#bitcoin-addresses)
+  * [Price alerts](#price-alerts)
 
 * [**Merchant API**](#merchant-api)
   * [Payment creation](#payment-creation)
@@ -926,7 +927,7 @@ $ curl "https://paymium.com/api/v1/user/payment_requests" \
      -d "comment=Hi, refund for that thing"
 ```
 
-If successful, responds `HTTP/1.1 204 No Content`.
+If successful, responds with a `HTTP/1.1 201 Created` status code.
 
 ### Canceling orders
 
@@ -960,7 +961,7 @@ List and create bitcoin deposit addresses
 | GET    | /api/v1/user/addresses/:btc_address | oauth2 (scope: deposit)  |
 | POST   | /api/v1/user/addresses              | oauth2 (scope: deposit)  |
 
-##### Exampleis
+##### Examples
 
 Retrieve your Bitcoin deposit addresses along with their expiration timestamp.
 
@@ -1005,6 +1006,55 @@ $ curl -X POST "https://bitcoin-central.net/api/v1/user/addresses" \
   "valid_until": 1402579836
 }
 ```
+
+### Price alerts
+
+##### Description
+
+Register a mobile device for alerts on price movements.
+
+##### Endpoint
+
+| method | path                                | authorization            |
+|--------|-------------------------------------|--------------------------|
+| GET    | /api/v1/user/price_alerts           | oauth2 (scope: activity) |
+| POST   | /api/v1/user/price_alerts           | oauth2 (scope: activity) |
+| DELETE | /api/v1/user/price_alerts/:id       | oauth2 (scope: activity) |
+
+##### Examples
+
+Retrieve currently active price alerts.
+
+```bash
+$ curl "https://paymium.com/api/v1/user/price_alerts" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+[
+  {
+    "id": 42,
+    "token": "0ff2f39d-cd9f-4710-9eb5-3f8385f5e059",
+    "notify_above": 220.5,
+    "notify_below": 180.0,
+    "last_sent_at": 1445610041
+  }
+]
+```
+
+Create a new price alert.
+
+```bash
+$ curl "https://paymium.com/api/v1/user/price_alerts"     \
+     -X POST                                              \
+     --header "Authorization: Bearer ACCESS_TOKEN"        \
+     -d "token=0ff2f39d-cd9f-4710-9eb5-3f8385f5e059"      \
+     -d "notify_below=100"                                \
+     -d "notify_above=110"                                \
+```
+
+If successful, it responds with a `HTTP/1.1 201 Created` status code.
+
 
 ## Merchant API
 
