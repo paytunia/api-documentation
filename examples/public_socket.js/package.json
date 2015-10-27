@@ -1,0 +1,14 @@
+{
+  "name": "bitcoin_central_public_socket_client",
+  "version": "0.0.0",
+  "description": "Bitcoin-Central Public Socket Example",
+  "main": "client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Paymium",
+  "license": "MIT",
+  "dependencies": {
+    "socket.io-client": "1.3.x"
+  }
+}

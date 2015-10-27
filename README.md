@@ -1,213 +1,75 @@
-![Paytuna logo](https://bitcoin-central.net/paytunia.png)
+![Paymium logo](https://raw.githubusercontent.com/Paymium/api-documentation/master/logo.png)
 
-This document describes the API calls available as part of the Paytunia v1 API.
+**NEW: Our sandbox environment is now available, visit [sandbox.paymium.com](https://sandbox.paymium.com) (you may have to add a security exception for the SSL certificate to validate).**
 
-The API is shared by both [Bitcoin-Central.net](https://bitcoin-central.net) and [Paytunia.com](https://paytunia.com). Both apps run against the same database, therefore using the API against one of them is equivalent to using the API against the other.
+The Paymium API allows developers to extend the capabilities of the Paymium platform, from reading the latest ticker to automating trades with bots.
 
-If your language of choice is Ruby we recommend using the [Paytunia gem](https://github.com/paytunia/paytunia) instead of writing your own client.
+**IMPORTANT NOTE**: Your API client must support [SNI](http://en.wikipedia.org/wiki/Server_Name_Indication) in order to not receive certificate name mismatch warnings.
+
+Is is possible to, among other things:
+
+* Access public data (ticker, asks, bids, trades, etc...)
+* Authenticate users with their permission using OAuth2 *
+* Access authenticated user balances, trades, and other data *
+* Automate trading *
+
+_* Authenticating users is only available to developers that have a fully verified and approved Paymium account. On the other hand, public data is available to everyone_
 
 ## Table of contents
 
-- [**General API description**](#general-api-description)
-<p></p> 
-  - [Authentication](#authentication)
-  - [Base URL](#base-url)
-  - [Formats and required HTTP request headers](#formats-and-required-http-request-headers)
-  - [Rate-limiting](#rate-limiting)
-  - [Pagination](#pagination)
-    - [HTTP response header](#http-response-header)
-    - [Controlling pagination](#controlling-pagination)
-  - [Localization](#localization)
-  - [Error handling](#error-handling)
-  - [Successful calls](#successful-calls)
+* [**General information**](#general-information)
+  * [Formats and required HTTP request headers](#formats-and-required-http-request-headers)
+  * [Localization](#localization)
+  * [Error handling](#error-handling)
+  * [Successful calls](#successful-calls)
+  * [Rate-limiting](#rate-limiting)
 
-<p></p>
+* [**Authentication**](#authentication)
+  * [Permissions](#permissions)
+  * [OAuth2 authentication](#oauth2-authentication)
+  * [Token authentication](#token-authentication)
 
-- [**API Calls**](#api-calls)
-<p></p>
-  - [Account](#account)
-     - [Get balances (A)](#get-balances-a)
-<p></p>
-  - [Account operations](#account-operations)
-     - [Get the detail of an account operation (A)](#get-the-details-of-an-account-operation-a)
-     - [Get a list of account operations (A,P)](#get-a-list-of-account-operations-ap)
-<p></p> 
-  - [Send money](#send-money)
-     - [Send Bitcoins (A)](#send-bitcoins-a)
-     - [Send money to an e-mail address (A)](#send-money-to-an-e-mail-address-a)  
-<p></p>
-  - [Quotes](#quotes)
-     - [Create a quote (A)](#create-a-quote-a)
-     - [View a quote (A)](#view-a-quote-a)
-     - [List quotes (A,P)](#list-quotes)
-     - [Pay a quote (A)](#pay-a-quote-a)
-     - [Execute a quote (A)](#execute-a-quote-a)
-<p></p>
-  - [Invoices](#invoices)
-     - [View an invoice (A)](#view-an-invoice-a)
-     - [View an invoice (Public)](#view-an-invoice-public)
-     - [List invoices (A,P)](#list-invoices-ap)
-     - [Create an invoice (A)](#create-an-invoice-a)
-     - [Payment buttons and creation through signed GET request](#payment-buttons-and-creation-through-signed-get-request)
-     - [Payment callbacks](#payment-callbacks)
-<p></p>
-  - [Trading](#trading)
-     - [Place an order (A)](#place-an-order-a)
-     - [Cancel an order (A)](#cancel-an-order-a)
-     - [View trades for an order (A)](#view-trades-for-an-order-a)
-     - [View an order (A)](#view-an-order-a)
-     - [List active orders (A,P)](#list-active-orders-ap)
-     - [List all orders (A,P)](#list-all-orders-ap)
-     - [Read the ticker](#read-the-ticker)
-     - [Read the market depth](#read-the-market-depth)
-     - [Read historical trades](#read-historical-trades-p)     
-<p></p>
-  - [Coupons](#coupons)
-     - [Create a coupon (A)](#create-a-coupon-a)
-     - [View a coupon](#view-a-coupon)
-     - [Redeem a coupon (A)](#redeem-a-coupon-a)
+* [**Public data**](#public-data)
+  * [Ticker](#ticker)
+  * [Latest trades](#latest-trades)
+  * [Market depth](#market-depth)
+  * [Bitcoin-Charts endpoints](#bitcoin-charts-endpoints)
+  * [WebSocket](#websocket)
+  * [FIX streaming API](#fix-streaming-api)
 
-<p></p>
+* [**User data**](#user-data)
+  * [User info](#user-info)
+  * [User activity](#user-activity)
+  * [Order details](#order-details)
+  * [Trading](#trading)
+  * [Withdrawing](#withdrawing)
+  * [Sending money](#sending-money)
+  * [Requesting money by e-mail](#requesting-money-by-e-mail)
+  * [Canceling orders](#canceling-orders)
+  * [Bitcoin addresses](#bitcoin-addresses)
+  * [Device tokens](#device-tokens)
+  * [Price alerts](#price-alerts)
 
- - [**Appendix**](#appendix)
-    - [Codes and types tables](#codes-and-types-tables)
-       - [Currencies](#currencies)
-       - [Operation types](#operation-types)
-       
-       - [States](#states)
-          - [Transfer (Bitcoin transfer, Wire transfers) statuses](#transfer-bitcoin-transfer-wire-transfer-statuses)
-          - [Coupon statuses](#coupon-statuses)
-          - [E-mail transfer statuses](#e-mail-transfer-statuses)
-          - [Invoice statuses](#invoice-statuses)
-          - [Trade order statuses](#trade-order-statuses)
+* [**Merchant API**](#merchant-api)
+  * [Payment creation](#payment-creation)
+  * [Payment callbacks](#payment-callbacks)
+  * [Get payment information](#get-payment-information)
+  * [E-commerce frameworks plugins](#e-commerce-frameworks-plugins)
 
+* [**Appendix**](#appendix)
+  * [Currencies](#currencies)
+  * [Order types](#order-types)
+  * [Order properties](#order-properties)
+  * [Order states](#order-states)
+  * [Payment states](#payment-states)
+  * [Account operation properties](#account-operation-properties)
+  * [Ruby example](#ruby-example)
 
-# General API description
+## General information
 
-## Authentication
-
-Calls that require authentication are marked with "A" in the call description title.
-
-Authentication and authorization may be done with :
-
- - HTTP Basic
- - [OAuth2](http://oauth.net/2/)
-
-OAuth2 is useful when it is not desirable for client apps to handle the user's credentials directly or when it is necessary to have access to an account with limited privileges.
-
-Each API call description mentions the OAuth2 scope required to use it.
-
-The available OAuth2 scopes are : 
-
-| Scope    | Description                                                                        |
-|----------|------------------------------------------------------------------------------------|
-| read     | Read transaction history, balances and profile information                         |
-| withdraw | Perform API calls that result in money being sent or withdrawn from the account    |
-| trade    | Manage trade orders (create, read, cancel)                                         |
-| merchant | Manage invoices, read merchant dashboard and data                                  |
-| devices  | Manage devices                                                                     |
-
-In order to test OAuth2 integration a test app is available.
-
-| Application parameter | Value                                                              |
-|-----------------------|--------------------------------------------------------------------|
-| Application ID        | `6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b` |
-| Application secret    | `55554ecad5627f0465034c4a116e59a38d9c3ab272487a18404078ccc0b64798` |
-| Callback URL          | `urn:ietf:wg:oauth:2.0:oob`                                        |
-
-After authorization the authorization token will be directly displayed in your browser (that's what the special test callback URL is for).
-
-**Example authorization link :** [https://bitcoin-central.net/oauth/authorize?client_id=6...pe=code](https://bitcoin-central.net/oauth/authorize?client_id=6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&response_type=code)
-
-**Full usage example :**
-
-This example uses the OAuth2 Ruby gem.
-
-```
-require 'oauth2'
-
-client = OAuth2::Client.new('6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b', '55554ecad5627f0465034c4a116e59a38d9c3ab272487a18404078ccc0b64798', site: 'https://bitcoin-central.net')
- 
-client.auth_code.authorize_url(redirect_uri: 'urn:ietf:wg:oauth:2.0:oob', scope: 'read trade')
- => "https://bitcoin-central.net/oauth/authorize?response_type=code&client_id=6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=read+trade" 
-
-# Visit this URL in your browser, approve the request and copy the authorization code
-
-authorization_code = '...'
-
-token = client.auth_code.get_token(authorization_code, redirect_uri: 'urn:ietf:wg:oauth:2.0:oob')
-
-token.get('/api/v1/trade_orders/active').body
-
-=> [{"uuid":"148ab996-ab63-45cc-b240-99c78bb18a11","instructed_amount":300.0,"amount":268.70563158,"state":"active","created_at":"2013-02-07T19:09:44+01:00","updated_at":"2013-02-14T13:12:00+01:00","price":15.9199,"type":"buy"}]
-```
-
-If you encounter SSL certificate errors while trying this example it's probably because your Ruby install doesn't know where to find the CA certificates. In development you can use an incredibly ugly hack to temporarily skip SSL certificate validation : `OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE`. You should never do this in production.
-
-## Base URL
-
-The base URL for all calls is `https://bitcoin-central.net`. A complete URL would look like this `https://bitcoin-central.net/api/v1/quotes/3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d`.
-
-## Formats and required HTTP request headers
+### Formats and required HTTP request headers
 
 The API will only answer with JSON or empty responses. It expects parameters to be passed in JSON with the correct `Content-Type: application/json` being set.
-
-## Rate-limiting
-
-API calls are rate-limited by IP to 5000 calls per day. Information about the status of the limit can be found in the `X-RateLimit-Limit` and `X-RateLimit-Remaining` HTTP headers.
-
-**Example response with rate-limit headers**
-
-    HTTP/1.1 200  
-    Content-Type: application/json; charset=utf-8
-    X-Ratelimit-Limit: 5000
-    X-Ratelimit-Remaining: 4982
-    Date: Wed, 30 Jan 2013 12:08:58 GMT
-
-
-## Pagination
-
-Some API calls returning collections may be paginated. In this case the call description title mentions it.
-
-Calls that return paginated data are marked with "P" in the call description title.
-
-### HTTP response header
-
-Calls that return paginated collections will add a `Pagination` HTT header to the response. It will contain a pagination meta-data JSON object.
-
-**Pagination header example**
-
-    {
-      // Whether the current page is the first of the collection
-      "first_page": true,
-
-      // Total amount of available pages
-      "total_pages": 1,
-
-      // Previous page number
-      "previous_page": null,
-
-      // Total number of items in the collection
-      "total": 1,
-
-      // Next page number
-      "next_page": null,
-
-      // Whether the current page is the last available one
-      "last_page": true,
-
-      // Record collection offset
-      "offset": 0
-    }
-
-### Controlling pagination
-
-Optional pagination parameters may be passed in the request URI in order to control the way the collection gets paginated. If parameters are incorrect a HTTP 400 Bad request status is returned along with an empty body.
-
-| Parameter  | Default |	Acceptable values              |
-|-----------|---------|--------------------------------|
-| page      | 1       | Positive integer >0            |
-| per_page  | 20      | Positive integer >=5 and <=100 |
 
 ## Localization
 
@@ -219,1464 +81,1292 @@ Datetime values will be returned as regular JSON format and Unix timestamps, the
 
 ## Error handling
 
-Whenever an error is encountered, the answer to a JSON API call will have :
+Whenever an error is encountered, the answer to a JSON API call will have:
 
- * An HTTP 422 status (Unprocessable entity) or HTTP 400 (Bad request),
- * A JSON array of localized error messages as body
+ * An HTTP 422 status (Unprocessable entity) or HTTP 400 (Bad request)
+ * A JSON array of localized error messages in the `errors` attribute of the response body
+
+##### Example:
+
+```json
+{
+  "errors": [
+    "Operations account operations amount is greater than your available balance (1781.96 EUR)"
+    "Amount can't be greater than your limit (1781.96 EUR)"
+  ]
+}
+```
 
 ## Successful calls
 
-If the API call was successful, the platform will answer with :
+If the API call was successful, the platform will answer with:
 
  * An HTTP 200 status (OK) or HTTP 201 (Created),
  * A JSON representation of the entity being created or updated if relevant
 
+### Rate-limiting
 
-# API Calls
+API calls are rate-limited by IP to 86400 calls per day (one per second on average). Information about the status of the limit can be found in the `X-RateLimit-Limit` and `X-RateLimit-Remaining` HTTP headers.
 
-## Account
+**Example response with rate-limit headers**
 
-### Get balances (A)
+    HTTP/1.1 200  
+    Content-Type: application/json; charset=utf-8
+    X-Ratelimit-Limit: 5000
+    X-Ratelimit-Remaining: 4982
+    Date: Wed, 30 Jan 2013 12:08:58 GMT
 
-This call will return the balances in all currencies.
+## Authentication
 
-This call requires the `read` OAuth2 scope.
+### Permissions
 
-**Request path :** `/api/v1/balances`
+Before you request authorization to access a user's account, you must decide which permissions, or scopes you would like to access.
 
-**Request method :** `GET`
+The following scopes are available:
 
-**Request parameters**
- 
-_None_
+| name           | description                                                                               |
+|----------------|-------------------------------------------------------------------------------------------|
+| basic          | Read account number, language, and balances (default)                                     |
+| activity       | Read trade orders, deposits, withdrawals, and other operations                            |
+| trade          | Create and cancel trade orders                                                            |
+| withdraw       | Request EUR and BTC withdrawals (requires email confirmation from users upon withdrawing) |
+| deposit        | List bitcoin deposit addresses and create a new one if needed                             |
+| merchant       | Create and manage an account's invoices                                                   |
 
-**Response**
+### Token authentication
 
-A JSON object with the following attributes is returned :
+This authentication mechanism is the recommended method if you need to access your own account data and is also referred to as **HMAC authentication**, if you need to access other users accounts on their behalf you'll need to use the OAuth2 authentication method.
 
-| Name | Type     | Description |
-|------|----------|-------------|
-| EUR  | Decimal  | EUR balance |
-| USD  | Decimal  | USD balance |
-| GBP  | Decimal  | GBP balance |
-| BTC  | Decimal  | BTC balance |
- 
-**Example request :** `GET /api/v1/balances`
+##### Generating a token
 
-**Example response :**
-     
+For this authentication method you need to generate a token/secret pair that you will use to make requests against our API. In order to do so visit the "API tokens" menu in your account profile and click on "Create token". You will be presented with the following screen that will enable you to select the desired access permissions for this token. For security reasons you will need to confirm your access credentials.
+
+![Create an API token](https://raw.githubusercontent.com/Paymium/api-documentation/master/create-api-token.png)
+
+Once your token is created you'll be presented **once** with the matching secret key, this secret key is only displayed once, you need to record it carefully. If the secret key is lost the token becomes useless.
+
+##### Making requests
+
+Once you have an API token and its matching secret key you can use them to make requests against our API. In order to do so you must include three HTTP headers that will authenticate your request.
+
+```bash
+$ curl "https://paymium.com/api/v1/user"               \
+     --header "Api-Key: <YOUR API TOKEN>"              \
+     --header "Api-Signature: <THE REQUEST SIGNATURE>" \
+     --header "Api-Nonce: <AN UPDATED NONCE>"          \
+```
+
+ * The **API key** is the token that is displayed when listing your currently active tokens,
+ * The **API signature** is a HMAC-SHA256 hash of the nonce concatenated with the full URL and body of the HTTP request, encoded using your API secret key,
+ * The **nonce** is a positive integer number that must increase with every request you make
+
+### OAuth2 authentication
+
+This authentication mechanism is best suited to cases where a developer publishes an app that requires access its users Paymium accounts.
+
+Many programming languages already have libraries to develop clients that connect to OAuth2 APIs, hence the following steps may not be necessary. For instance, if you are a Ruby developer, you can use [this example to get started](#ruby-example).
+
+The process can be summarized as follows:
+
+1. Send the user to your application's authorization URL
+2. Receive the authorization code if the user accepted the request
+3. Get an access token and a refresh token from the authorization code
+4. Refresh the access token when needed
+
+##### Requesting user authorization
+
+To get user's permission to use his/her account, you must send him/her to your application's redirect URI. You can see this URI by visiting your application's page: [https://paymium.com/page/developers/apps](https://paymium.com/page/developers/apps).
+
+By default, the `basic` scope will be requested.
+
+If your application requires specific access scopes, you must append a scope GET parameter to the authorization URI:
+
+    https://paymium.com/...&scope=basic+activity+trade
+
+The user will then be prompted to authorize your application with the specified scopes.
+
+##### Receiving the authorization code
+
+If you specified the test redirection URI `https://paymium.com/page/oauth/test`, the user will be presented the autorization code upon accepting your request which can be used by the application to fetch access tokens.
+
+Otherwise the code or error will be sent to the redirection URI so that your application can retrieve it (in this case `https://example.com/callback`):
+
+    https://example.com/callback?code=AUTHORIZATION_CODE
+
+Or if the request was denied by the user:
+
+    https://example.com/callback?error=access_denied&error_description=The+resource+owner+or+authorization+server+denied+the+request.
+
+The authorization code is valid 5 minutes.
+
+##### Fetching an access token and a refresh token
+
+Once your application received the authorization code, it can request an access token and a refresh token:
+
+```bash
+$ curl "https://paymium.com/api/oauth/token"                    \
+    -d "client_id=APPLICATION_KEY"                              \
+    -d "client_secret=APPLICATION_SECRET"                       \
+    -d "grant_type=authorization_code"                          \
+    -d "redirect_uri=REDIRECT_URI"                              \
+    -d "code=AUTHORIZATION_CODE"
+```
+
+```json
+{
+  "access_token": "ACCESS_TOKEN",
+  "token_type": "bearer",
+  "expires_in": 1800,
+  "refresh_token": "REFRESH_TOKEN",
+  "scope": "basic"
+}
+```
+
+An access token can be used to authorize user requests for the approved scopes and is valid 30 minutes.
+
+##### Refreshing the access token
+
+Since an access token is only valid 30 minutes, your application may need to fetch a new access token using the refresh token:
+
+```bash
+$ curl "https://paymium.com/api/oauth/token"                    \
+    -d "client_id=APPLICATION_KEY"                              \
+    -d "client_secret=APPLICATION_SECRET"                       \
+    -d "grant_type=refresh_token"                               \
+    -d "redirect_uri=REDIRECT_URI"                              \
+    -d "refresh_token=REFRESH_TOKEN"
+```
+
+```json
+{
+  "access_token": "NEW_ACCESS_TOKEN",
+  "token_type": "bearer",
+  "expires_in": 1800,
+  "refresh_token": "NEW_REFRESH_TOKEN",
+  "scope": "basic"
+}
+```
+
+After refreshing the access token, the previous tokens (access and refresh) are no longer valid.
+
+## Public data
+
+Public data (ticker, asks, bids, trades) can be accessed without registering an application.
+
+### Ticker
+
+##### Description
+
+Read the latest ticker data.
+
+##### Endpoint
+
+| method | path                    | authorization |
+|--------|-------------------------|---------------|
+| GET    | /api/v1/data/eur/ticker | not required  |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/data/eur/ticker"
+```
+
+```json
+{
+  "high": 720.0,
+  "low": 640.0001,
+  "volume": 198.16844745,
+  "bid": 676.01,
+  "ask": 679.9999999,
+  "midpoint": 678.00499995,
+  "at": 1389092410,
+  "price": 680.0,
+  "vwap": 679.87459,
+  "variation": -5.5556,
+  "currency": "EUR"
+}
+```
+
+##### Properties
+
+| name         | description                                  | example value             |
+|--------------|----------------------------------------------|---------------------------|
+| currency     | currency                                     | "EUR"                     |
+| at           | timestamp                                    | 1389092410                |
+| price        | price of latest trade                        | 680.0                     |
+| bid          | bid price                                    | 676.01                    |
+| ask          | ask price                                    | 679.9999999               |
+| midpoint     | midpoint price                               | 678.00499995              |
+| volume       | 24h volume                                   | 198.16844745              |
+| variation    | 24h variation (percentage)                   | -5.5556                   |
+| high         | 24h high price                               | 720.0                     |
+| low          | 24h low price                                | 640.0001                  |
+| vwap         | 24h volume-weighted average price            | 679.87459                 |
+
+### Latest trades
+
+##### Description
+
+Read the latest executed trades.
+
+##### Endpoint
+
+| method | path                    | authorization |
+|--------|-------------------------|---------------|
+| GET    | /api/v1/data/eur/trades | not required  |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/data/eur/trades"
+```
+
+```json
+[
+  {
+    "uuid": "59f9c458-cb22-48d6-9103-0b6e54130e29",
+    "traded_btc": 0.153,
+    "traded_currency": 102.51,
+    "created_at": "2014-01-07T11:30:59Z",
+    "currency": "EUR",
+    "price": 670.0,
+    "created_at_int": 1389094259
+  },
+  {
+    "uuid": "4787c80b-bc90-48d4-87ee-b23fbff2fbb7",
+    "traded_btc": 0.06,
+    "traded_currency": 40.2,
+    "created_at": "2014-01-07T11:31:00Z",
+    "currency": "EUR",
+    "price": 670.0,
+    "created_at_int": 1389094260
+  },
+  {
+    "uuid": "67838a4d-cd2e-47d1-9b3c-0ff7a6d2ea89",
+    "traded_btc": 0.4,
+    "traded_currency": 268.0,
+    "created_at": "2014-01-07T11:31:00Z",
+    "currency": "EUR",
+    "price": 670.0,
+    "created_at_int": 1389094260
+  }
+]
+```
+
+##### Properties
+
+The response is an array of trades.
+
+##### Trade properties
+
+| name            | description                                  | example value                          |
+|-----------------|----------------------------------------------|----------------------------------------|
+| uuid            | unique ID of trade                           | "59f9c458-cb22-48d6-9103-0b6e54130e29" |
+| currency        | currency                                     | "EUR"                                  |
+| created_at      | date created                                 | "2014-01-07T11:30:59Z"                 |
+| created_at_int  | timestamp                                    | 1389094259                             |
+| price           | price per BTC                                | 670.0                                  |
+| traded_btc      | amount of BTC traded                         | 0.153                                  |
+| traded_currency | amount of currency traded                    | 102.51                                 |
+
+### Market depth
+
+##### Description
+
+Read the market depth. Bids and asks are grouped by price.
+
+##### Endpoint
+
+| method | path                    | authorization |
+|--------|-------------------------|---------------|
+| GET    | /api/v1/data/eur/depth  | not required  |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/data/eur/depth"
+```
+
+```json
+{
+  "bids": [
     {
-      "EUR" : 1.0,
-      "BTC" : 1.42,
-      "USD" : 0.0,
-      "GBP" : 0.0
-    }
-    
-## Account operations
-
-An account operation is any ledger operation that changes the account's balance.
-
-These calls require the `read` OAuth2 scope.
-
-### Get the details of an account operation (A)
-   
-This call will return the details of a single account operation, the response contains : the UUID identifying the operation, the amount of this particular operation, its currency, its creation timestamp, its state (if relevant), a string indicating the type of the operation and the account balance that this operation led to (the sum of all transactions in the same currency including this one but not the ones that came after it).
-
-**Request path :** `/api/v1/account_operations/{uuid}`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-| Name | Type | Description                   |
-|------|------|-------------------------------|
-| uuid | UUID | UUID of the account operation |
-
-**Response**
-
-A JSON object with the following attributes is returned :
-
-| Name       | Type     | Description                                       |
-|------------|----------|---------------------------------------------------|
-| uuid       | UUID     | UUID of the account operation                     |
-| amount     | Decimal  | Amount of the operation (1)                       |
-| currency   | String   | Currency of the operation (2)                     |
-| created_at | Datetime | Timestamp of operation creation                   |
-| state      | String   | Operation state if relevant, `null` otherwise (3) |
-| type       | String   | Operation type (4)                                |
-| balance    | Decimal  | Balance this operation led to                     |
-
- 1. Credits are expressed as positive amounts, debits are expressed as negative amounts
- 2. See currencies table
- 3. See states table
- 4. See operation types table
- 
-**Example request :** `GET /api/v1/account_operations/3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d`
-
-**Example response :**
-     
+      "timestamp": 1389087724,
+      "amount": 0.89744,
+      "price": 665.0,
+      "currency": "EUR"
+    },
     {
-      "uuid" : "3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d",
-      "amount" : 50.0,
-      "currency" : "EUR",
-      "created_at" : "2013-01-14T16:28:57Z",
-      "created_at_int" : 1363858355,      
-      "state" : null,
-      "type" : "wire_deposit",
-      "balance" : 550.0
+      "timestamp": 1389082088,
+      "amount": 0.06,
+      "price": 666.0,
+      "currency": "EUR"
     }
-   
-### Get a list of account operations (A,P)
-   
-This call will return a paginated list of account operations relative to the authenticated account.
+  ],
+  "asks": [
+    {
+      "timestamp": 1389094178,
+      "amount": 0.57709999,
+      "price": 679.99,
+      "currency": "EUR"
+    },
+    {
+      "timestamp": 1389092448,
+      "amount": 0.20684181,
+      "price": 680.0,
+      "currency": "EUR"
+    }
+  ]
+}
+```
 
-**Request path :** `/api/v1/account_operations`
+##### Properties
 
-**Request method :** `GET`
+| name            | description                                  |
+|-----------------|----------------------------------------------|
+| bids            | an array of bids                             |
+| asks            | an array of asks                             |
 
-**Request parameters**
+##### Bids / asks properties
 
-_None_
+| name            | description                                  | example value                          |
+|-----------------|----------------------------------------------|----------------------------------------|
+| currency        | currency                                     | "EUR"                                  |
+| timestamp       | timestamp                                    | 1389087724                             |
+| price           | price                                        | 665.0                                  |
+| amount          | amount at price                              | 0.06                                   |
 
-**Response**
 
-A JSON array of account operations is returned. The structure collection elements is detailed at "Get the details of an account operation".
- 
-**Example request :** `GET /api/v1/account_operations`
+### Bitcoin-Charts endpoints
 
-**Example response :**
-    
-	[ 
+Two API endpoints dedicated to [Bitcoin-Charts](http://bitcoincharts.com) are publicly accessible, they are accessible at:
+
+ * `https://paymium.com/api/v1/bitcoin_charts/eur/trades`, and
+ * `https://paymium.com/api/v1/bitcoin_charts/eur/depth`
+
+The data they return is formatted according to the [Bitcoin Charts exchange API specification](http://bitcoincharts.com/about/exchanges/).
+
+### WebSocket
+
+A [socket.io](http://socket.io) endpoint is available to receive public data. This allows you to receive new data without having to poll the server.
+
+The socket.io socket will emit a `stream` event when new data is available. The received JSON data contains one or more of the properties listed below, depending on what was updated.
+
+#### Socket.io configuration
+
+Socket.io must connect to `paymium.com/<public or user>` and the `path` option must be set to `/ws/socket.io`.
+
+#### Message descriptions
+
+The Websocket messages are documented separately: [documentation](https://github.com/Paymium/api-documentation/blob/master/WEBSOCKETS.md).
+
+#### Node.js example
+
+Assuming you have node.js installed, you can install the socket.io client library by running `npm install socket.io-client`.
+
+The code below shows how to connect to the Paymium socket, and outputs any received data to the console.
+
+The example is available in the `examples/public_socket.js` directory of this repository.
+
+```javascript
+var io = require('socket.io-client');
+
+var socket = io.connect('paymium.com/public', {
+  path: '/ws/socket.io'
+});
+
+console.log('CONNECTING');
+
+socket.on('connect', function() {
+  console.log('CONNECTED');
+  console.log('WAITING FOR DATA...');
+});
+
+socket.on('disconnect', function() {
+  console.log('DISCONNECTED');
+});
+
+socket.on('stream', function(data) {
+  console.log('GOT DATA:');
+  console.log(data);
+});
+```
+
+### FIX streaming API
+
+The FIX API is documented separately: [documentation](https://github.com/Paymium/api-documentation/blob/master/FIX-4.4.md).
+
+
+## User data
+
+Before you can access your own data or other users data, you must register an application on Paymium:
+
+1. Verify your account and log in
+2. Visit [https://paymium.com/page/developers/apps](https://paymium.com/page/developers/apps)
+3. Create an application (set redirect URI to `https://paymium.com/page/oauth/test` when testing)
+
+### User info
+
+##### Description
+
+Read the latest user info.
+
+##### Endpoint
+
+| method | path                    | authorization         |
+|--------|-------------------------|-----------------------|
+| GET    | /api/v1/user            | oauth2 (scope: basic) |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/user"                        \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+{
+  "name": "BC-U123456",
+  "locale": "en",
+  "balance_btc": 25.78866278,
+  "locked_btc": 1.0,
+  "balance_eur": 1893.96,
+  "locked_eur": 300.00743886
+}
+```
+
+##### Properties
+
+| name         | description                                  | example value             |
+|--------------|----------------------------------------------|---------------------------|
+| name         | account number / name                        | "BC-U123456"              |
+| locale       | locale code                                  | "en"                      |
+| balance_eur  | available EUR balance                        | 1893.96                   |
+| locked_eur   | EUR balance locked in trading                | 300.00743886              |
+| balance_btc  | available BTC balance                        | 25.78866278               |
+| locked_btc   | BTC balance locked in trading                | 1.0                       |
+
+### User activity
+
+##### Description
+
+Read user activity.
+
+##### Endpoint
+
+| method | path                    | authorization            |
+|--------|-------------------------|--------------------------|
+| GET    | /api/v1/user/orders     | oauth2 (scope: activity) |
+
+##### Parameters
+
+| name         | description                                  | example value             |
+|--------------|----------------------------------------------|---------------------------|
+| offset       | pagination offset (optional)                 | 20                        |
+| limit        | pagination limit (optional)                  | 20                        |
+| types[]      | filter by types (optional)                   | LimitOrder                |
+| active       | only show active orders (optional)           | true                      |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/user/orders?offset=20"                \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+[
+  {
+    "uuid": "968f4580-e26c-4ad8-8bcd-874d23d55296",
+    "amount": 1.0,
+    "state": "executed",
+    "btc_fee": 0.0,
+    "currency_fee": 0.0,
+    "updated_at": "2013-10-24T10:34:37.000Z",
+    "created_at": "2013-10-22T19:12:02.000Z",
+    "currency": "BTC",
+    "type": "Transfer",
+    "account_operations": [
       {
-        "uuid" : "3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d",
-        "amount" : 50.0,
-        "currency" : "EUR",
-        "created_at" : "2013-01-14T16:28:57Z",
-        "created_at_int" : 1363858355,        
-        "state" : null,
-        "type" : "wire_deposit",
-        "balance" : 550.0
-      },
-      {
-        "uuid" : "b3c08962-4dc3-9ffc-4dc3-3a7bc1b2ff4d",
-        "amount" : 500.0,
-        "currency" : "EUR",
-        "created_at" : "2013-01-10T12:45:50Z",
-        "created_at_int" : 1363858355,        
-        "state" : null,
-        "type" : "wire_deposit",
-        "balance" : 500.0
-      }      
-    ]
-
-## Send money
-
-These calls require the `withdraw` OAuth2 scope.
-
-### Send Bitcoins (A)
-
-This call will perform a Bitcoin transaction.
-
-**Request path :** `/api/v1/transfers/send_bitcoins`
-
-**Request method :** `POST`
-
-**Request parameters**
-
-| Name    | Type    | Description                 |
-|---------|---------|-----------------------------|
-| amount  | Decimal | Amount to send              |
-| address | String  | Recipient's Bitcoin address |
-
-**Response**
-
-An `UUID` is returned after the request is queued for execution. It enables the client to make subsequent status check requests.
- 
-**Example request :** `POST /api/v1/transfers/send_bitcoins`
-
-    {
-      "amount" : 10.0,
-      "address" : "1KfNzSKFAmpC4kNYaGLqj8LGPHxGmRG2nZ"
-    }
-
-**Example response :**
-    
-    {
-      "uuid" : "3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d"     
-    }
-
-### Send money to an e-mail address (A)
-
-This call will move money to the account identified with the given e-mail address. If no such account is found an e-mail gets sent inviting its recipient to create an account, or sign-in to one to retrieve the sent funds. If the amount isn't claimed after a week the funds are returned to the sender.
-
-**Request path :** `/api/v1/transfers/send_to_email`
-
-**Request method :** `POST`
-
-**Request parameters**
-
-| Name     | Type    | Description                               |
-|----------|---------|-------------------------------------------|
-| amount   | Decimal | Amount to send                            |
-| currency | String  | Currency in which the amount is expressed |
-| address  | String  | Recipient's e-mail address                |
-
-**Response**
-
-An `UUID` is returned after the request is queued for execution. It enables the client to make subsequent status check requests.
- 
-**Example request :** `POST /api/v1/transfers/send_bitcoins`
-
-    {
-      "amount" : 10.0,
-      "currency" : "EUR",
-      "address" : "david@bitcoin-central.net"
-    }
-
-**Example response :**
-    
-    {
-      "uuid" : "3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d"     
-    }
-
-## Quotes
-
-Quotes are a mechanism for clients to send funds or exchange them to other currencies. They provide clients with a guaranteed fixed-rate at which the system will convert their funds before crediting them to their account or send them out.
-
-The canonical use of a quote is to pay in currency to a Bitcoin invoice, materialized as a QR code :
-
- 1. User scans Bitcoin QR code
- 2. Client app extracts requested Bitcoin amount
- 3. Client app requests a quote for this Bitcoin amount to the API and provides the currency in which debit upon quote payment
- 4. A guaranteed rate is returned by the API
- 5. Client app shows price expressed in the user's currency
- 6. After user confirmation the client app instructs the API to pay the quote to a specific Bitcoin address
- 7. The merchant receives the payment in Bitcoin and the user is debited in his native currency
- 
-These calls require the `trade` OAuth2 scope, the [Pay a quote](#pay-a-quote-a) action requires the `withdraw` scope.
-
-### Create a quote (A)
-
-This call will create a quote. When doing so clients must specify a currency (the other currency is always assumed to be "BTC") an amount they are requesting and a direction. Combining these parameters in various ways will have the system address a wide array of use cases. 
-
-For example a client can request :
-
- 1. How much BTC would need to be sold to get exactly 10 EUR
- 2. How much BTC could be bought with 10 EUR
- 3. How much EUR would the sale of 1 BTC get
- 4. How much EUR would be required to buy 1 BTC
-
-To obtain the relevant quote a client would pass the following parameters :
-
-| Case | Currency | direction | requested\_btc\_amount | requested\_currency\_amount |
-|------|----------|-----------|------------------------|-----------------------------|
-| 1    | EUR      | sell      | N/A                    | 10                          |
-| 2    | EUR      | buy       | N/A                    | 10                          |
-| 3    | EUR      | sell      | 1                      | N/A                         |
-| 4    | EUR      | buy       | 1                      | N/A                         |
-
-**Request path :** `/api/v1/quotes`
-
-**Request method :** `POST`
-
-**Request parameters**
-
-| Name                        | Type    | Description                                                            |
-|-----------------------------|---------|------------------------------------------------------------------------|
-| requested\_currency\_amount | Decimal | Constrain on the currency amount (1)                                   |
-| requested\_btc\_amount      | Decimal | Constrain on the Bitcoin amount  (1)                                   |
-| direction                   | String  | Whether the quote should apply to a sale or a purchase of Bitcoins (2) |
-| currency                    | String  | Currency in which the requested_amount is expressed                    |
-
- 1. Exactly one of the currencies must be constrained, the other parameter may be omitted
- 2. Acceptable values are `buy` and `sell`
-
-**Response**
-
-A JSON object with the following parameters is returned. If the current market depth or volatility does not allow for a quote to be given an error will be returned.
-
-| Name                        | Type     | Description                                           |
-|-----------------------------|----------|-------------------------------------------------------|
-| uuid                        | UUID     | Quote identifier                                      |
-| requested\_currency\_amount | Decimal  | The instructed currency amount or `null`              |
-| requested\_btc\_amount      | Decimal  | The instructed Bitcoin amount or `null`               |
-| direction                   | String   | The direction you provided                            |
-| currency_amount             | Decimal  | The quoted currency amount or `null`                  | 
-| btc_amount                  | Decimal  | The quoted Bitcoin amount or `null`                   | 
-| rate                        | Decimal  | The quoted exchange rate                              |
-| valid_until                 | Datetime | The timestamp at which this quote will be invalidated |
-| created_at                  | Datetime | The creation date timestamp                           |
-| executed                    | Boolean  | Whether this quote has already been settled or paid   |   
-
-
-**Example request :** `POST /api/v1/quotes`
-
-This demonstrates how to obtain a quote as described in the example use case #1.
-
-    {
-      "requested_amount" : 10.0,
-      "currency" : "EUR",
-      "direction" : "sell"
-    }
-
-**Example response :**
-    
-    {
-      "uuid" : "3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d",
-      "currency" : "EUR",
-      "direction" : "sell",
-      "rate" : 10.65
-      "currency_amount" : null,
-      "btc_amount" : 0.93896714
-      "requested_currency_amount" : 10,
-      "requested_btc_amount" : null,
-      "valid_until" : "2013-01-10T13:00:50Z",
-      "created_at" : "2013-01-10T12:45:50Z",
-      "created_at_int" : 1363858355,      
-      "executed" : false
-    }
-
-### View a quote (A)
-
-This call will return a JSON object representing a quote
-
-**Request path :** `/api/v1/quotes/{uuid}`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-| Name | Type | Description      |
-|------|------|------------------|
-| uuid | UUID | Quote identifier |
-
-
-**Response**
-
-A JSON object with the following parameters is returned.
-
-| Name                        | Type     | Description                                           |
-|-----------------------------|----------|-------------------------------------------------------|
-| uuid                        | UUID     | Quote identifier                                      |
-| requested\_currency\_amount | Decimal  | The instructed currency amount or `null`              |
-| requested\_btc\_amount      | Decimal  | The instructed Bitcoin amount or `null`               |
-| direction                   | String   | The direction you provided                            |
-| currency_amount             | Decimal  | The quoted currency amount or `null`                  | 
-| btc_amount                  | Decimal  | The quoted Bitcoin amount or `null`                   | 
-| rate                        | Decimal  | The quoted exchange rate                              |
-| valid_until                 | Datetime | The timestamp at which this quote will be invalidated |
-| created_at                  | Datetime | The creation date timestamp                           |
-| executed                    | Boolean  | Whether this quote has already been settled or paid   |   
-
-
-**Example request :** `GET /api/v1/quotes/3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d`
-
-**Example response :**
-    
-    {
-      "uuid" : "3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d",
-      "currency" : "EUR",
-      "direction" : "sell",
-      "rate" : 10.65
-      "currency_amount" : null,
-      "btc_amount" : 0.93896714
-      "requested_currency_amount" : 10,
-      "requested_btc_amount" : null,
-      "valid_until" : "2013-01-10T13:00:50Z",
-      "created_at" : "2013-01-10T12:45:50Z",
-      "created_at_int" : 1363858355,            
-      "executed" : false
-    }
-
-### List quotes (A,P)
-
-This call will return a paginated list of quotes for the client account.
-
-**Request path :** `/api/v1/quotes`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-N/A
-
-**Response**
-
-A JSON array of quote objects is returned.
-
-**Example request :** `GET /api/v1/quotes`
-
-**Example response :**
-    
-	[
-   	  {
-        "uuid" : "3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d",
-        "currency" : "EUR",
-        "direction" : "sell",
-        "rate" : 10.65
-        "currency_amount" : null,
-        "btc_amount" : 0.93896714
-        "requested_currency_amount" : 10,
-        "requested_btc_amount" : null,
-        "valid_until" : "2013-01-10T13:00:50Z",
-        "created_at" : "2013-01-10T12:45:50Z",
-        "created_at_int" : 1363858355,              
-        "executed" : true
-      },
-      {
-        "uuid" : "4dc33a7bc1b2-9b7e-3a7b-9ffc-b3c08962ff4d",
-        "currency" : "EUR",
-        "direction" : "sell",
-        "rate" : 10.65
-        "currency_amount" : null,
-        "btc_amount" : 0.93896714
-        "requested_currency_amount" : 10,
-        "requested_btc_amount" : null,
-        "valid_until" : "2013-01-10T13:00:50Z",
-        "created_at" : "2013-01-10T12:45:50Z",
-        "created_at_int" : 1363858355,                      
-        "executed" : true
+        "uuid": "94b42d0f-9c2d-43f3-978b-aba28533d1f9",
+        "name": "bitcoin_transfer",
+        "amount": -1.0,
+        "currency": "BTC",
+        "created_at": "2013-10-22T19:12:02.000Z",
+        "created_at_int": 1382469122,
+        "is_trading_account": false
       }
     ]
-
-### Pay a quote (A)
-
-This action applies only to quotes for buying BTC.
-
-It will perform the exchange creating a user account debit of the calculated `currency_amount` or instructed `requested_currency_amount` and send out the calculated `btc_amount` or instructed `requested_btc_amount` to the Bitcoin address in the `address` field.
-
-Calling this method queues the quote for payment if possible. The quote status can later be queried using the [view a quote](#view-a-quote-a) call.
-
-**Request path :** `/api/v1/quotes/{uuid}/pay`
-
-**Request method :** `POST`
-
-**Request parameters**
-
-| Name    | Type   | Description           |
-|---------|--------|-----------------------|
-| uuid    | UUID   | Quote identifier      |
-| address | String | Valid Bitcoin address |
-
-
-**Response**
-
-The quote as it was when the payment was requested is returned.
-
-**Example request :** `GET /api/v1/quotes/3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d/pay`
-
-**Example response :**
-    
-    {
-      "uuid" : "3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d",
-      "currency" : "EUR",
-      "direction" : "sell",
-      "rate" : 10.65
-      "currency_amount" : null,
-      "btc_amount" : 0.93896714
-      "requested_currency_amount" : 10,
-      "requested_btc_amount" : null,
-      "valid_until" : "2013-01-10T13:00:50Z",
-      "created_at" : "2013-01-10T12:45:50Z",
-      "created_at_int" : 1363858355,                    
-      "executed" : false
-    }
-
-### Execute a quote (A)
-
-This action applies to quotes for buying and selling BTC. It will perform the exchange creating user account debit and credit operations depending on the quote requested.
-
-Calling this method queues the quote for execution if possible. The quote status can later be queried using the [view a quote](#view-a-quote-a) call.
-
-**Request path :** `/api/v1/quotes/{uuid}/execute`
-
-**Request method :** `POST`
-
-**Request parameters**
-
-| Name    | Type   | Description           |
-|---------|--------|-----------------------|
-| uuid    | UUID   | Quote identifier      |
-
-
-**Response**
-
-The quote as it was when the execution was requested is returned.
-
-**Example request :** `POST /api/v1/quotes/3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d/execute`
-
-**Example response :**
-    
-    {
-      "uuid" : "3a7bc1b2-9b7e-4dc3-9ffc-b3c08962ff4d",
-      "currency" : "EUR",
-      "direction" : "sell",
-      "rate" : 10.65
-      "currency_amount" : null,
-      "btc_amount" : 0.93896714
-      "requested_currency_amount" : 10,
-      "requested_btc_amount" : null,
-      "valid_until" : "2013-01-10T13:00:50Z",
-      "created_at" : "2013-01-10T12:45:50Z",
-      "created_at_int" : 1363858355,                    
-      "executed" : false
-    }
-
-## Invoices
-
-Invoices are requests for payment. They can be expressed in any arbitrary currency. They all get a unique Bitcoin payment address assigned and a Bitcoin amount calculated from the requested currency amount.
-
-Payment can be made by sending the `btc_amount` amount of Bitcoins to the `payment_address` address or directly in the requested currency from another account. The invoice payment will trigger a `POST`to the `callback_url`.
-
-These calls require the `merchant` OAuth2 scope.
-
-### View an invoice (A)
-
-This call will return a JSON object representing an invoice
-
-**Request path :** `/api/v1/invoices/{uuid}`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-| Name | Type | Description      |
-|------|------|------------------|
-| uuid | UUID | Quote identifier |
-
-
-**Response**
-
-A JSON object with the following parameters is returned.
-
-| Name                      | Type     | Description                                                     |
-|---------------------------|----------|-----------------------------------------------------------------|
-| uuid                      | UUID     | Invoice identifier                                              |
-| state                     | String   | Invoice state _(see appendix)_                                  | 
-| payment\_address          | String   | Bitcoin payment address                                         | 
-| payment\_bitcoin_\uri     | String   | Payment URI, should be used to generate QR codes                |
-| amount                    | Decimal  | Requested amount to be credited upon payment                    | 
-| btc_amount                | Decimal  | Payable amount expressed in BTC                                 |
-| amount\_to\_pay           | Decimal  | Amount left to pay                                              |
-| btc\_amount\_to\_pay      | Decimal  | Bitcoin amount amount left to pay                               |
-| currency                  | String   | Currency in which the amount is expressed                       |
-| merchant\_reference       | String   | Merchant reference                                              |
-| merchant\_memo            | String   | Merchant memo                                                   |
-| callback\_url             | String   | URL to which a callback should be made when the invoice is paid |
-| item\_url                 | String   | Order-related URL                                               |
-| paid\_at                  | Datetime | Payment timestamp                                               |
-| created\_at               | Datetime | Creation timestamp                                              |
-| updated\_at               | Datetime | Update timestamp                                                |
-| expires\_at               | Datetime | Expiration timestamp                                            |
-| settled                   | Boolean  | Has this invoice already been credited ?                        |
-| notification\_email\_sent | Boolean  | Has the notification e-mail already been sent ?                 |
-| public\_url               | String   | The URL at which this invoice is publicly visible and payable   |
-
-
-**Example request :** `GET /api/v1/invoices/70c7936b-f8ce-443a-8338-3762de0a1e92`
-
-**Example response :**
-    
-    {
-      "uuid": "70c7936b-f8ce-443a-8338-3762de0a1e92",    
-      "amount": 10.0, 
-      "amount_to_pay": 10.0,
-      "btc_amount": 1.021732,
-      "btc_amount_to_pay": 1.021732, 
-      "notification_email_sent": false, 
-      "callback_url": null, 
-      "created_at": "2013-01-21T10:20:07Z", 
-      "created_at_int" : 1363858355,                    
-      "currency": "EUR", 
-      "expires_at": "2013-01-21T10:40:07Z", 
-      "item_url": null, 
-      "merchant_memo": null, 
-      "merchant_reference": null, 
-      "paid_at": null, 
-      "payment_address": "1JnjJNhdKSgvMKr6xMbqVEudB3eACsGJSz", 
-      "payment_bitcoin_uri" : "bitcoin:1JnjJNhdKSgvMKr6xMbqVEudB3eACsGJSz?amount=100.0&label=&x-pay-curamt=100.0&x-pay-cur=BTC&x-pay-id=7653453d-6372-4ffa-bc56-1e3182ef7f35",       
-      "settled": false, 
-      "state": "pending", 
-      "updated_at": "2013-01-21T10:20:07Z",
-      "public_url": "https://paytunia.com/invoices/70c7936b-f8ce-443a-8338-3762de0a1e92"
-    }
-
-### View an invoice (Public)
-
-It is the same call as the above one, except this call will return a subset of the JSON object representing an invoice. 
-
-**Request path :** `/api/v1/invoices/{uuid}`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-| Name | Type | Description      |
-|------|------|------------------|
-| uuid | UUID | Quote identifier |
-
-
-**Response**
-
-A JSON object with the following parameters is returned.
-
-| Name                | Type     | Description                                                     |
-|---------------------|----------|-----------------------------------------------------------------|
-| uuid                | UUID     | Invoice identifier                                              |
-| state               | String   | Invoice state _(see appendix)_                                  | 
-| payment\_address    | String   | Bitcoin payment address                                         |                    
-| amount              | Decimal  | Requested amount to be credited upon payment                    | 
-| btc_amount          | Decimal  | Payable amount expressed in BTC                                 |
-| currency            | String   | Currency in which the amount is expressed                       |
-| merchant\_reference | String   | Merchant reference                                              |
-| merchant\_memo      | String   | Merchant memo                                                   |
-| item\_url           | String   | Order-related URL                                               |
-| paid\_at            | Datetime | Payment timestamp                                               |
-| created\_at         | Datetime | Creation timestamp                                              |
-| updated\_at         | Datetime | Update timestamp                                                |
-| expires\_at         | Datetime | Expiration timestamp                                            |
-
-
-**Example request :** `GET /api/v1/invoices/70c7936b-f8ce-443a-8338-3762de0a1e92`
-
-**Example response :**
-    
-    {
-      "uuid": "70c7936b-f8ce-443a-8338-3762de0a1e92",    
-      "amount": 10.0, 
-      "btc_amount": 1.021732, 
-      "callback_fired": false, 
-      "callback_url": null, 
-      "created_at": "2013-01-21T10:20:07Z",
-      "created_at_int" : 1363858355,                     
-      "currency": "EUR", 
-      "expires_at": "2013-01-21T10:40:07Z", 
-      "item_url": null, 
-      "merchant_memo": null, 
-      "merchant_reference": null, 
-      "paid_at": null, 
-      "payment_address": "1JnjJNhdKSgvMKr6xMbqVEudB3eACsGJSz",
-      "payment_bitcoin_uri" : "bitcoin:1JnjJNhdKSgvMKr6xMbqVEudB3eACsGJSz?amount=100.0&label=&x-pay-curamt=100.0&x-pay-cur=BTC&x-pay-id=7653453d-6372-4ffa-bc56-1e3182ef7f35", 
-      "settled": false, 
-      "state": "pending", 
-      "updated_at": "2013-01-21T10:20:07Z"
-    }
-
-### List invoices (A,P)
-
-This call will return a paginated list of invoices for the client account.
-
-**Request path :** `/api/v1/invoices`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-N/A
-
-**Response**
-
-A JSON array of invoice objects is returned.
-
-**Example request :** `GET /api/v1/quotes`
-
-**Example response :**
-    
-	[
+  },
+  {
+    "uuid": "1953cd1b-3903-4812-9590-42c3ebcc08c2",
+    "amount": 49.38727114,
+    "state": "executed",
+    "btc_fee": 0.0,
+    "currency_fee": 0.0,
+    "updated_at": "2013-10-22T14:30:06.000Z",
+    "created_at": "2013-10-22T14:30:06.000Z",
+    "currency": "BTC",
+    "type": "AdminOrder",
+    "account_operations": [
       {
-        "uuid": "8338936b-f8ce-443a-70c7-3762de0a1e92",    
-        "amount": 10.0, 
-        "btc_amount": 1.021732, 
-        "callback_fired": false, 
-        "callback_url": null, 
-        "created_at": "2013-01-21T10:20:07Z", 
-        "created_at_int" : 1363858355,                      
-        "currency": "EUR", 
-        "expires_at": "2013-01-21T10:40:07Z", 
-        "item_url": null, 
-        "merchant_memo": null, 
-        "merchant_reference": null, 
-        "paid_at": null, 
-        "payment_address": "1JnjJNhdKSgvMKr6xMbqVEudB3eACsGJSz", 
-        "settled": false, 
-        "state": "pending", 
-        "updated_at": "2013-01-21T10:20:07Z"
-      },
-      {
-        "uuid": "70c7936b-f8ce-443a-8338-3762de0a1e92",    
-        "amount": 10.0, 
-        "btc_amount": 1.021732, 
-        "callback_fired": false, 
-        "callback_url": null, 
-        "created_at": "2013-01-21T10:20:07Z", 
-        "created_at_int" : 1363858355,                      
-        "currency": "EUR", 
-        "expires_at": "2013-01-21T10:40:07Z", 
-        "item_url": null, 
-        "merchant_memo": null, 
-        "merchant_reference": null, 
-        "paid_at": null, 
-        "payment_address": "1JnjJNhdKSgvMKr6xMbqVEudB3eACsGJSz", 
-        "settled": false, 
-        "state": "pending", 
-        "updated_at": "2013-01-21T10:20:07Z"
+        "uuid": "a940393b-4d2f-4a5a-8a0a-3470d7419bad",
+        "name": "account_operation",
+        "amount": 49.38727114,
+        "currency": "BTC",
+        "created_at": "2013-10-22T14:30:06.000Z",
+        "created_at_int": 1382452206,
+        "is_trading_account": false
       }
     ]
+  }
+]
+```
 
-### Create an invoice (A)
+##### Properties
 
-This call creates an invoice
+The response is an array of orders. See [order properties](#order-properties).
 
-**Request path :** `/api/v1/invoices`
+### Order details
 
-**Request method :** `POST`
+##### Description
 
-**Request parameters**
+Read details from a specific order.
 
-| Name                | Type    | Description                                                                  |
-|---------------------|---------|------------------------------------------------------------------------------|
-| amount              | Decimal | Requested amount to be credited upon payment                                 |
-| currency            | String  | Currency in which the amount is expressed                                    |
-| merchant\_reference | String  | Merchant reference _(optional)_                                              |
-| merchant\_memo      | String  | Merchant memo _(optional)_                                                   |
-| callback\_url       | String  | URL to which a callback should be made when the invoice is paid _(optional)_ |
-| item\_url           | String  | Order-related URL _(optional)_                                               |
+##### Endpoint
 
-**Response**
+| method | path                       | authorization            |
+|--------|----------------------------|--------------------------|
+| GET    | /api/v1/user/orders/{UUID} | oauth2 (scope: activity) |
 
-An invoice JSON object is returned.
+##### Example
 
-**Example request :** `POST /api/v1/invoices`
+```bash
+$ curl "https://paymium.com/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296"         \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
 
+```json
+{
+  "uuid": "968f4580-e26c-4ad8-8bcd-874d23d55296",
+  "amount": 1.0,
+  "state": "executed",
+  "btc_fee": 0.0,
+  "currency_fee": 0.0,
+  "updated_at": "2013-10-24T10:34:37.000Z",
+  "created_at": "2013-10-22T19:12:02.000Z",
+  "currency": "BTC",
+  "type": "Transfer",
+  "account_operations": [
     {
-      "amount" : 10.0, 
-      "currency" : "EUR"
+      "uuid": "94b42d0f-9c2d-43f3-978b-aba28533d1f9",
+      "name": "bitcoin_transfer",
+      "amount": -1.0,
+      "currency": "BTC",
+      "created_at": "2013-10-22T19:12:02.000Z",
+      "created_at_int": 1382469122,
+      "is_trading_account": false
     }
+  ]
+}
+```
 
-**Example response :**
-    
+##### Properties
+
+See [order properties](#order-properties).
+
+### Trading
+
+##### Description
+
+Create trade orders.
+
+Limit and market orders are supported, the `price` parameter must be omitted for market orders.
+
+Either one of `amount` or `currency_amount` must be specified. When the `amount` is specified, the
+engine will buy or sell this amount of Bitcoins. When the `currency_amount` is specified, the engine
+will buy as much Bitcoins as possible for `currency_amount` or sell as much Bitcoins as necessary to
+obtain `currency_amount`.
+
+
+##### Endpoint
+
+| method | path                       | authorization            |
+|--------|----------------------------|--------------------------|
+| POST   | /api/v1/user/orders        | oauth2 (scope: trade)    |
+
+##### Payload
+
+| name               | description                                                   | example value |
+|--------------------|---------------------------------------------------------------|---------------|
+| type               | must be "LimitOrder" or "MarketOrder"                         | "LimitOrder"  |
+| currency           | must be "EUR"                                                 | "EUR"         |
+| direction          | trade direction, must be "buy" or "sell"                      | "buy"         |
+| price              | price per BTC, must be omitted for market orders              | 300.0         |
+| amount             | BTC amount to trade (only if no currency_amount is specified) | 1.0           |
+| currency_amount    | Currency amount to trade (only if no amount is specified)     | 1.0           |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/user/orders"                     \
+     --header "Authorization: Bearer ACCESS_TOKEN"                  \
+     -d "type=LimitOrder"                                           \
+     -d "currency=EUR"                                              \
+     -d "direction=buy"                                             \
+     -d "price=300.0"                                               \
+     -d "amount=1.0"
+```
+
+Would return:
+
+```json
+{
+  "uuid": "4924ee0f-f60e-40b4-b63e-61637ef253ac",
+  "amount": 1.0,
+  "state": "pending_execution",
+  "btc_fee": 0.0,
+  "currency_fee": 0.0,
+  "updated_at": "2013-11-21T15:27:04.000Z",
+  "created_at": "2013-11-21T15:27:04.000Z",
+  "currency": "EUR",
+  "type": "LimitOrder",
+  "traded_btc": 0.0,
+  "traded_currency": 0.0,
+  "direction": "buy",
+  "price": 300.0,
+  "account_operations": [
     {
-      "uuid": "70c7936b-f8ce-443a-8338-3762de0a1e92",    
-      "amount": 10.0, 
-      "btc_amount": 1.021732, 
-      "callback_fired": false, 
-      "callback_url": null, 
-      "created_at": "2013-01-21T10:20:07Z", 
-      "created_at_int" : 1363858355,                    
-      "currency": "EUR", 
-      "expires_at": "2013-01-21T10:40:07Z", 
-      "item_url": null, 
-      "merchant_memo": null, 
-      "merchant_reference": null, 
-      "paid_at": null, 
-      "payment_address": "1JnjJNhdKSgvMKr6xMbqVEudB3eACsGJSz", 
-      "settled": false, 
-      "state": "pending", 
-      "updated_at": "2013-01-21T10:20:07Z"
+      "uuid": "63e1d9c4-dff2-42bc-910b-c5b585b625cc",
+      "name": "lock",
+      "amount": -300.0,
+      "currency": "EUR",
+      "created_at": "2013-11-21T15:27:04.000Z",
+      "created_at_int": 1385047624,
+      "is_trading_account": false
+    },
+    {
+      "uuid": "c9d3e824-b29a-4630-8396-3864a0704336",
+      "name": "lock",
+      "amount": 300.0,
+      "currency": "EUR",
+      "created_at": "2013-11-21T15:27:04.000Z",
+      "created_at_int": 1385047624,
+      "is_trading_account": true
     }
+  ]
+}
+```
 
-### Payment buttons and creation through signed GET request
+##### Properties
 
-This approach can be used when it is not desirable to create invoices before presenting them to the user, to create payment buttons, or when the previous flow is not practical.
+See [order properties](#order-properties).
 
-The approach will let a merchant securely redirect a customer to a the payment page that will generate an invoice on the fly for this particular request.
+### Withdrawing
 
-The URL includes :
+Request BTC or fiat withdrawals. A confirmation is sent by email to the user before it can be executed.
 
- - The merchant's account number,
- - A `query` parameter describing the payment,
- - A unique token used to make these invoice creations non-replayable,
- - A signature string created by hashing a shared secret along with the invoice data
- 
-The current value of the shared secret for each account is available on the account details page.
- 
-All parameters are passed in the query-string.
+##### Endpoint
 
-**Request path :** `/api/v1/invoices/create_unauthenticated`
+| method | path                       | authorization            |
+|--------|----------------------------|--------------------------|
+| POST   | /api/v1/user/orders        | oauth2 (scope: withdraw) |
 
-**Request method :** `GET`
+##### Payload
 
-**Request parameters**
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| type               | must be "Transfer"                      | "Transfer"                             |
+| currency           | currency code                           | "BTC"                                  |
+| amount             | amount to transfer                      | 0.5                                    |
+| address            | BTC address if withdrawing BTC          | "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"   |
 
-| Name      | Value                                                         |
-|-----------|---------------------------------------------------------------|
-| merchant  | Merchant account number                                       |
-| token     | A globally unique token, a random UUID is recommended         |
-| query     | The invoice parameters                                        |
-| signature | The SHA256 hash of `merchant + shared_secret + token + query` |
+##### Example
 
-**Building the query parameter**
+```bash
+$ curl "https://paymium.com/api/v1/user/orders"                     \
+     --header "Authorization: Bearer ACCESS_TOKEN"                  \
+     -d "type=Transfer"                                             \
+     -d "currency=BTC"                                              \
+     -d "amount=0.5"                                                \
+     -d "address=1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"
+```
 
-The `query` parameter is created by building a string with parameters separated with the pipe character "|". Optional parameters may use a blank value.
+Would return:
 
-The parameters should be concatenated according to the following model :
+```json
+{
+  "uuid": "9229fd6e-0aad-45d6-8090-a400f37a0129",
+  "amount": 0.5,
+  "state": "pending",
+  "btc_fee": 0.0,
+  "currency_fee": 0.0,
+  "updated_at": "2014-01-09T10:22:00.858Z",
+  "created_at": "2014-01-09T10:22:00.858Z",
+  "currency": "BTC",
+  "type": "Transfer",
+  "account_operations": [
+    {
+      "uuid": "4c4f4682-354f-46d1-a916-72d88d5584e3",
+      "name": "bitcoin_transfer",
+      "amount": -0.5,
+      "currency": "BTC",
+      "created_at": "2014-01-09T10:22:02.171Z",
+      "created_at_int": 1389262922,
+      "is_trading_account": false
+    }
+  ]
+}
+```
 
-    AMOUNT_IN_CENTS|CURRENCY|MERCHANT_REFERENCE|MERCHANT_MEMO|CALLBACK_URL|ITEM_URL
-    
-For example, to create a payment for 12.58 EUR with the "123456" reference and `https://example.com/callback` callback URL the query should look like this :
+##### Properties
 
-    1258|EUR|123456||https://example.com/callback|
+See [order properties](#order-properties).
+
+### Sending money
+
+##### Description
+
+Initiate a money transfer to an e-mail address.
+
+The transfer is immediately executed if the user have a valid account. Otherwise, an e-mail is sent with a registration invitation.
+
+This transfer expire after 1 month if it is not collected. In this case, the order is cancelled and the sender re-credited.
+
+#### Endpoint
+
+| method | path                       | authorization            |
+|--------|----------------------------|--------------------------|
+| POST   | /api/v1/user/orders        | oauth2 (scope: send)     |
+
+##### Payload
+
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| type               | must be "EmailTransfer"                 | "EmailTransfer"                        |
+| currency           | currency code                           | "BTC"                                  |
+| amount             | amount to transfer                      | 0.5                                    |
+| email              | an e-mail address                       | "user@example.com"                     |
+| comment            | a small note explaining the transfer    | "Hi, refund for that thing"            |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/user/orders"                     \
+     --header "Authorization: Bearer ACCESS_TOKEN"                  \
+     -d "type=EmailTransfer"                                        \
+     -d "currency=BTC"                                              \
+     -d "amount=0.5"                                                \
+     -d "email=user@example.com"                                    \
+     -d "comment=Hi, refund for that thing"
+```
+
+Would return:
+
+```json
+{
+  "uuid": "9229fd6e-0aad-45d6-8090-a400f37a0129",
+  "amount": 0.5,
+  "state": "pending",
+  "btc_fee": 0.0,
+  "currency_fee": 0.0,
+  "updated_at": "2014-01-09T10:22:00.858Z",
+  "created_at": "2014-01-09T10:22:00.858Z",
+  "currency": "BTC",
+  "type": "EmailTransfer",
+  "account_operations": [
+    {
+      "uuid": "4c4f4682-354f-46d1-a916-72d88d5584e3",
+      "name": "email_transfer",
+      "amount": -0.5,
+      "currency": "BTC",
+      "created_at": "2014-01-09T10:22:02.171Z",
+      "created_at_int": 1389262922,
+      "is_trading_account": false
+    }
+  ]
+}
+```
+
+### Requesting money by e-mail
+
+##### Description
+
+This functionality allows one to create a payment request that is sent by e-mail to the designated recipient, when the link contained in the e-mail is clicked,
+the recipient is presented with a Bitcoin address to which he is instructed to direct his payment.
+
+Once the Bitcoin payment is confirmed, the payee is credited in the originally requested currency.
+
+#### Endpoint
+
+| method | path                          | authorization           |
+|--------|-------------------------------|-------------------------|
+| POST   | /api/v1/user/payment_requests | oauth2 (scope: receive) |
+
+##### Payload
+
+| name          | description                             | example value               |
+|-------------- |-----------------------------------------|-----------------------------|
+| type          | must be "PaymentRequest"                | "PaymentRequest"            |
+| currency      | currency code                           | "BTC"                       |
+| amount        | amount to transfer                      | 0.5                         |
+| email         | an e-mail address                       | "user@example.com"          |
+| payment_split | Percentage of the payment the _merchant_ will get in `currency` expressed as a two-decimal places float between 0 and 1 (required) | 1.0 |
+| comment       | a small note explaining the transfer    | "Hi, refund for that thing" |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/user/payment_requests" \
+     --header "Authorization: Bearer ACCESS_TOKEN"        \
+     -d "type=PaymentRequest"                             \
+     -d "currency=BTC"                                    \
+     -d "amount=0.5"                                      \
+     -d "email=user@example.com"                          \
+     -d "payment_split=1"                                 \
+     -d "comment=Hi, refund for that thing"
+```
+
+If successful, responds with a `HTTP/1.1 201 Created` status code.
+
+### Canceling orders
+
+##### Description
+
+Cancel an order. Only active trade orders and email tranfers may be canceled.
+
+##### Endpoint
+
+| method | path                              | authorization            |
+|--------|-----------------------------------|--------------------------|
+| DELETE | /api/v1/user/orders/{UUID}/cancel | oauth2 (scope: trading)  |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/user/orders/968f4580-e26c-4ad8-8bcd-874d23d55296"         \
+     -X DELETE --header "Authorization: Bearer ACCESS_TOKEN"
+```
+### Bitcoin addresses
+
+##### Description
+
+List and create bitcoin deposit addresses
+
+##### Endpoint
+
+| method | path                                | authorization            |
+|--------|-------------------------------------|--------------------------|
+| GET    | /api/v1/user/addresses              | oauth2 (scope: deposit)  |
+| GET    | /api/v1/user/addresses/:btc_address | oauth2 (scope: deposit)  |
+| POST   | /api/v1/user/addresses              | oauth2 (scope: deposit)  |
+
+##### Examples
+
+Retrieve your Bitcoin deposit addresses along with their expiration timestamp.
+
+```bash
+$ curl "https://paymium.com/api/v1/user/addresses"         \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+[
+  {
+    "address": "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+    "valid_until": 1402579836
+  }
+]
+```
+
+Retrieve details for a single address.
+
+```bash
+$ curl "https://paymium.com/api/v1/user/addresses/1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn"         \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+{
+  "address": "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+  "valid_until": 1402579836
+}
+```
+
+Create a new Bitcoin deposit address unless another one is already active.
+
+```bash
+$ curl -X POST "https://bitcoin-central.net/api/v1/user/addresses" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+{
+  "address": "1PzU1ERAnHJmtU8J3qq3wwJhyLepwUYzHn",
+  "valid_until": 1402579836
+}
+```
+
+### Price alerts
+
+##### Description
+
+Register a mobile device for alerts.
+
+##### Endpoint
+
+| method | path                                | authorization            |
+|--------|-------------------------------------|--------------------------|
+| GET    | /api/v1/user/device_tokens           | oauth2 (scope: activity) |
+| POST   | /api/v1/user/device_tokens           | oauth2 (scope: activity) |
+| DELETE | /api/v1/user/device_tokens/:id       | oauth2 (scope: activity) |
+
+##### Examples
+
+List currently active device tokens.
+
+```bash
+$ curl "https://paymium.com/api/v1/user/device_tokens" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+[
+  {
+    "id": 42,
+    "token": "0ff2f39d-cd9f-4710-9eb5-3f8385f5e059",
+    "description": "My personal iPhone 6.",
+    "created_at": 1445610041
+  }
+]
+```
+
+Add a new phone.
+
+```bash
+$ curl "https://paymium.com/api/v1/user/device_tokens"  \
+     -X POST                                            \
+     --header "Authorization: Bearer ACCESS_TOKEN"      \
+     -d "token=0ff2f39d-cd9f-4710-9eb5-3f8385f5e059"    \
+     -d "description=foo"                               \
+```
+
+If successful, it responds with a `HTTP/1.1 204 No Content` status code, and no content.
+
+### Price alerts
+
+##### Description
+
+Register an alerts on price movements.  This alert will be pushed to each device token.
+
+##### Endpoint
+
+| method | path                                | authorization            |
+|--------|-------------------------------------|--------------------------|
+| GET    | /api/v1/user/price_alerts           | oauth2 (scope: activity) |
+| POST   | /api/v1/user/price_alerts           | oauth2 (scope: activity) |
+| DELETE | /api/v1/user/price_alerts/:id       | oauth2 (scope: activity) |
+
+##### Examples
+
+Retrieve currently active price alerts.
+
+```bash
+$ curl "https://paymium.com/api/v1/user/price_alerts" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+[
+  {
+    "id": 42,
+    "notify_above": 220.5,
+    "notify_below": 180.0,
+    "last_sent_at": 1445610041
+  }
+]
+```
+
+Create a new price alert.
+
+```bash
+$ curl "https://paymium.com/api/v1/user/price_alerts"     \
+     -X POST                                              \
+     --header "Authorization: Bearer ACCESS_TOKEN"        \
+     -d "notify_below=100"                                \
+     -d "notify_above=110"                                \
+```
+
+If successful, it responds with a `HTTP/1.1 201 Created` status code.
 
 
-#### Full example
+## Merchant API
 
-A merchant wishes to display a link redirecting to a Paytunia payment page, his shared secret is `792fae4f81c12764c4e4f570920fbe89`, he wishes to create an invoice for 10 EUR with the reference "SALE-42" and a "Hello world" merchant memo, his account number is "PY-123456". The URLs are `https://example.com/callback` and `https://merchant.com/orders/SALE-42`
+The Merchant API enables merchants to securely sell goods and services and get paid in Bitcoin. The API makes it possible for the merchant to completely eliminate the risk of market fluctuations when requesting to receive fiat currency in their account. It is also possible to keep a part of the payment in Bitcoin without having it converted at a guaranteed rate.
 
-First, the `query` parameter must be constructed, it should look like :
- 
-    1000|EUR|SALE-42|Hello world|https://example.com/callback|https://merchant.com/orders/SALE-42
-    
-Then a unique token should be generated, a random UUID is perfect, we'll use `46113b61-1590-447a-9bab-ceb4a5586aa9`
+The API allows developers to integrate Bitcoin payments very tightly into their platforms, pre-packaged plugins are also available for a growing list of popular e-commerce frameworks.
 
-The signature should then be generated by hashing the following string with SHA256 :
+For merchants that have very simple needs payment buttons are also available, these buttons remove the integration completely by allowing merchants to simply include a code snippet on a static HTML page, or on a blog to receive fixed-amount payments.
 
-    # Hashed string
-    PY-123456792fae4f81c12764c4e4f570920fbe8946113b61-1590-447a-9bab-ceb4a5586aa91000|EUR|SALE-42|Hello world|https://example.com/callback|https://merchant.com/orders/SALE-42
-    
-    # Signature generated in command-line
-    $ echo -n "PY-123456792fae4f81c12764c4e4f570920fbe8946113b61-1590-447a-9bab-ceb4a5586aa91000|EUR|SALE-42|Hello world|https://example.com/callback|https://merchant.com/orders/SALE-42" | sha256sum
-    
-    -> 8e26068a13cbf81dac5ddca203897bbafc5a227411b36771cebcf7aad693d0ab
+### Payment creation
 
-Finally, the full URL can be generated by appending the URL-encoded parameters as following :
+##### Authentication
 
-    https://bitcoin-central.net/api/v1/invoices/create_unauthenticated?merchant=PY-123456&token=46113b61-1590-447a-9bab-ceb4a5586aa9&signature=8e26068a13cbf81dac5ddca203897bbafc5a227411b36771cebcf7aad693d0ab&query=PY-123456792fae4f81c12764c4e4f570920fbe8946113b61-1590-447a-9bab-ceb4a5586aa91000%7CEUR%7CSALE-42%7CHello+world%7Chttps%3A%2F%2Fexample.com%2Fcallback%7Chttps%3A%2F%2Fmerchant.com%2Forders%2FSALE-42
+_The "merchant token" authentication mechanism has been removed please use an [API token](#token-authentication) or an [OAuth2 token](#oauth2-authentication) instead with the "merchant" scope._
+
+##### Description
+
+A payment is created by a merchant platform when the customer chooses Bitcoin as his desired checkout option.
+
+The merchant platform can then :
+* display the payment Bitcoin address on his own web interface,
+* include the Paymium web interface url in an iframe in order to display a payment pop-up as an overlay,
+* redirect the buyer to the payement's URL (see below), in this case the payment is displayed on a separate screen
+
+To display the payment request to the user, the `https://paymium.com/invoice/{UUID}` can be used, this is used by the e-commerce framework plugins.
+
+Once the payment request is displayed, the customer has 15 minutes to send the appropriate amount.
+
+Paymium notifies the merchant of the completion of his payment via the associated callback (for which an URL may be provided when creating the payment request), once one Bitcoin confirmation for the payment is received the funds are credited to the merchant's account, a callback notification is then made.
+
+
+##### Endpoint
+
+| method | path |
+|--------|------|
+| POST   | /api/v1/merchant/create_payment |
+
+
+##### Parameters
+
+| name         | description                                  | example value             |
+|--------------|----------------------------------------------|--------------------|
+| amount              | Amount requested for the payment (required) | 20  |
+| payment_split       | Percentage of the payment the _merchant_ will get in `currency` expressed as a two-decimal places float between 0 and 1 (required) | 1.0 |
+| currency            | Currency in which the merchant wishes to be credited and in which the `amount` is expressed (required) | EUR |
+| callback_url        | Merchant callback URL, it is called when the state of the payment changes (optional)        | http://myonlineshop/payments/order-987978/callback |
+| redirect_url        | URL to which the customer should be redirected at upon payment (optional) | http://myonlineshop/payments/order-987978/success  |
+| merchant_reference  | Arbitrary merchant data associated to the payment (optional) | order-987978 |
+
+##### Response
+
+See [Payment properties](#returned-json-object-properties)
 
 ### Payment callbacks
 
-When a payment is received for an invoice the backend will perform an HTTP POST to the URL given as `callback_url`. The content-type for the request will be `application/x-www-form-urlencoded`.
+When a payment is created or updated, and if a callback URL was provided, a notification is made.
 
-The parameters sent are the exact same as the ones returned by a [view invoice](#view-an-invoice-a).
+When the notification is made a `POST` request is made to the callback URL, it contains the JSON representation of the payment (see the [payment properties](#get-payment-information)).
 
-The callback is not guaranteed to be fired and may be fired multiple times, the receiver must take it into account when designing a proper handling logic.
+The merchant should ensure the callback is legitimate by requesting confirmation from the Paymium API for the invoice data.
 
-#### Signature headers
+**Note :** The callback notifications are not guaranteed to be unique, it must have idempotent results on the merchant side if the payment has not actually changed.
 
-A `X-Paytunia-Signature` header is added to all callback requests. Its purpose is to authenticate the call from the backend to the callback URL, this signature **must** be properly checked by the receiving server in order to ensure that the request is legitimate and hasn't been tampered with.
 
-The signature is computed by concatenating the raw request body with the client's shared secret and applying a SHA256 hash function to it.
+### Get payment information
 
-**Example signed callback request :**
+This endpoint returns the payment request as a JSON object given a payment UUID
 
-In this example the client secret is `792fae4f81c12764c4e4f570920fbe89`.
 
-    POST / HTTP/1.1
-    Accept: */*
-    User-Agent: Ruby
-    Content-Type: application/x-www-form-urlencoded
-    X-Paytunia-Signature: ab9c3b33631e40d2880b2c4cf5bdf894bf42d6ea115dd2de71277e4382aaaeab
-    Connection: close
-    Host: lvh.me:3000
-    Content-Length: 642
+##### Endpoint
 
-    uuid=cbfb237f-dd9e-47bd-b18b-73b2f4ccdb51&state=paid&btc_amount=100.0&payment_address=1FXWhKPChEcUnSEoFQ3DGzxKe44MDbat0.42903373550437307&payment_bitcoin_uri=bitcoin%3A1FXWhKPChEcUnSEoFQ3DGzxKe44MDbatz%3Famount%3D0.0%26label%3D%26x-pay-cur%3DBTC%26x-pay-id%3Dcbfb237f-dd9e-47bd-b18b-73b2f4ccdb51&callback_url=http%3A%2F%2Flvh.me%3A3000%2F&paid_at=2013-02-08+12%3A22%3A39+UTC&created_at=2013-02-08+12%3A22%3A39+UTC&updated_at=2013-02-08+12%3A22%3A39+UTC&merchant_reference&merchant_memo&item_url&notification_email_sent=true&currency=BTC&amount=100.0&settled=false&expires_at=2013-02-08+12%3A42%3A39+UTC&amount_to_pay=0.0&btc_amount_to_pay=0.0
-    
-In Ruby this signature can be easily checked by doing `Digest::SHA2.hexdigest(data + secret)` where `data` is the raw request body and `secret` is the client's shared secret.
+| Method | Path                                |
+|--------|-------------------------------------|
+| GET    | /api/v1/merchant/get_payment/{UUID} |
 
-## Trading
 
-Account specific calls require the `trade` OAuth2 scope.
+##### Returned JSON object properties
 
-### Place an order (A)
+| Name               | Description                                                           |
+|--------------------|-----------------------------------------------------------------------|
+| uuid               | Payment UUID                                                          |
+| currency           | Currency in which the `currency_amount` is expressed                  |
+| payment_split      | Percentage of the payment the merchant will get in `currency`         |
+| state              | See [payment states](#payment-states)                                 |
+| callback_url       | Merchant notification URL                                             |
+| redirect_url       | Redirection url to which the customer is redirected on success        |
+| merchant_name      | Name of the merchant that is displayed to the customer                |
+| expires_at         | Expiration timestamp                                                  |
+| merchant_reference | Reference string associated to the payment                            |
+| amount             | Amount associated to the payment                                      |
+| btc_amount         | BTC amount to pay                                                     |
+| payment_address    | Payment address                                                       |
+| created_at         | Creation timestamp                                                    |
+| updated_at         | Last update timestamp                                                 |
+| account_operations | Account operations made against the merchant account                  |
 
-This call will place a trade order and queue it for execution.
 
-**Request path :** `/api/v1/trade_orders`
-
-**Request method :** `POST`
-
-**Request parameters**
-
-| Name     | Type    | Description                                      |
-|----------|---------|--------------------------------------------------|
-| amount   | Decimal | Amount of Bitcoins to trade                      |
-| currency | String  | Currency to trade against                        |
-| price    | Decimal | Price _(may be omitted to place a market order)_ |
-| type     | String  | Must be `buy` (bid) or `sell` (ask)              |
-
-**Response**
-
-An trade order JSON object is returned with the following parameters
-
-| Name              | Type     | Description                       |
-|-------------------|----------|-----------------------------------|
-| uuid              | UUID     | Trade order identifier            |
-| amount            | Decimal  | Remaining Bitcoin amount to trade |
-| instructed_amount | Decimal  | Amount of Bitcoins to trade       |
-| currency          | String   | Currency to trade against         |
-| price             | Decimal  | Price _(null for a market order)_ |
-| type              | String   | Either `buy` or `sell`            |
-| created_at        | Datetime | Creation timestamp                |
-| updated_at        | Datetime | Update timestamp                  |
-
-**Example request :** `POST /api/v1/trade_orders`
-
-    {
-      "amount" : 10.0, 
-      "type" : "buy",
-      "currency" : "EUR"
-    }
-
-**Example response :**
-    
-    {
-      "amount": 10.0,
-      "currency": "EUR",        
-      "type": "buy", 
-      "created_at": "2013-01-21T22:07:15Z", 
-      "created_at_int" : 1363858355,                    
-      "instructed_amount": 10.0, 
-      "price": null,
-      "currency": "EUR", 
-      "state": "pending_execution", 
-      "updated_at": "2013-01-21T22:07:15Z", 
-      "uuid": "8b3c3446-9c5d-48a8-8044-08622cd4607b"
-    }
-
-### Cancel an order (A)
-
-This call will enqueue a cancel order job to remove it from the order book.
-
-**Request path :** `/api/v1/trade_orders/{uuid}`
-
-**Request method :** `DELETE`
-
-**Request parameters**
-
-| Name | Type | Description            |
-|------|------|------------------------|
-| uuid | UUID | Trade order identifier |
-
-**Example request :** `DELETE /api/v1/trade_orders/8b3c3446-9c5d-48a8-8044-08622cd4607b`
-
-**Example response :**
-
-N/A
-
-### View trades for an order (A)
-
-This call will return a collection of trades that were executed for a particular order.
-
-**Request path :** `/api/v1/trade_orders/{uuid}/trades`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-| Name | Type | Description            |
-|------|------|------------------------|
-| uuid | UUID | Trade order identifier |
-
-**Response**
-
-An array of trade JSON objects is returned.
-
-| Name            | Type     | Description                                      |
-|-----------------|----------|--------------------------------------------------|
-| uuid            | UUID     | Trade identifier                                 |
-| traded_currency | Decimal  | Amount traded, expressed in `currency`           |
-| traded_btc      | Decimal  | Amount of Bitcoins traded                        |
-| currency        | String   | Currency in which `traded_currency` is expressed |
-| price           | Decimal  | Price at which the exchange was made             |
-| created_at      | Datetime | Creation timestamp                               |
-
-
-
-**Example request :** `GET /api/v1/trade_orders/8b32ddf1-1675-4ed3-b1bb-b4efc4ecd98c/trades`
-
-**Example response :**
-
-    [
-      {
-        "created_at": "2013-01-22T08:19:41Z", 
-        "created_at_int" : 1363858355,                      
-        "currency": "EUR", 
-        "price": 5.0, 
-        "traded_btc": 980.0, 
-        "traded_currency": 4940.0, 
-        "uuid": "1c86abf0-170a-4101-84d1-cdad913c95dd"
-      },
-      {
-        "created_at": "2013-01-22T08:19:41Z", 
-        "created_at_int" : 1363858355,                      
-        "currency": "EUR", 
-        "price": 6.0, 
-        "traded_btc": 10.0, 
-        "traded_currency": 60.0, 
-        "uuid": "170aabf0-1c86-4101-84d1-cdad913c95dd"
-      }      
-    ]
-
-### View an order (A)
-
-This call will return a trade order JSON object. 
-
-**Request path :** `/api/v1/trade_orders/{uuid}`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-| Name | Type | Description      |
-|------|------|------------------|
-| uuid | UUID | Order identifier |
-
-**Response**
-
-A JSON object with the following parameters is returned.
-
-| Name              | Type     | Description                       |
-|-------------------|----------|-----------------------------------|
-| uuid              | UUID     | Trade order identifier            |
-| amount            | Decimal  | Remaining Bitcoin amount to trade |
-| instructed_amount | Decimal  | Amount of Bitcoins to trade       |
-| currency          | String   | Currency to trade against         |
-| price             | Decimal  | Price _(null for a market order)_ |
-| type              | String   | Either `buy` or `sell`            |
-| created_at        | Datetime | Creation timestamp                |
-| updated_at        | Datetime | Update timestamp                  |
-
-**Example request :** `GET /api/v1/trade_orders/8b32ddf1-1675-4ed3-b1bb-b4efc4ecd98c`
-
-**Example response :**
-    
-    {
-      "amount": 10.0, 
-      "type": "buy", 
-      "created_at": "2013-01-22T08:19:37Z", 
-      "created_at_int" : 1363858355,                    
-      "instructed_amount": 1000.0, 
-      "currency": "EUR",       
-      "price": 11.0, 
-      "state": "active", 
-      "updated_at": "2013-01-22T08:19:41Z", 
-      "uuid": "8b32ddf1-1675-4ed3-b1bb-b4efc4ecd98c"
-    }
-
-### List active orders (A,P)
-
-This call will return a paginated list of the client's executable trade orders (`pending_execution`, `active` or `insufficient_funds` states).
-
-**Request path :** `/api/v1/trade_orders/active`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-N/A
-
-**Example request :** `GET /api/v1/trade_orders/active`
-
-**Example response :**
-
-    [  
-      {
-        "amount": 10.0,
-        "currency": "EUR",          
-        "type": "buy", 
-        "created_at": "2013-01-21T22:15:38Z", 
-        "created_at_int" : 1363858355,                      
-        "instructed_amount": 10.0, 
-        "price": null, 
-        "state": "pending_execution", 
-        "updated_at": "2013-01-21T22:15:38Z", 
-        "uuid": "52823408-972f-4551-acc5-e7d3f032c6d5"
-      }
-    ]
-
-### List all orders (A,P)
-
-This call will return a paginated list of the client's trade orders.
-
-**Request path :** `/api/v1/trade_orders`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-N/A
-
-**Example request :** `GET /api/v1/trade_orders`
-
-**Example response :**
-
-    [  
-      {
-        "amount": 10.0, 
-        "currency": "EUR",         
-        "type": "buy", 
-        "created_at": "2013-01-21T22:15:38Z",        
-        "created_at_int" : 1363858355, 
-        "instructed_amount": 10.0, 
-        "price": null, 
-        "state": "pending_execution", 
-        "updated_at": "2013-01-21T22:15:38Z", 
-        "uuid": "52823408-972f-4551-acc5-e7d3f032c6d5"
-      }, 
-      {
-        "amount": 10.0, 
-        "currency": "EUR",         
-        "type": "buy", 
-        "created_at": "2013-01-21T22:15:40Z", 
-        "created_at_int" : 1363858355,        
-        "instructed_amount": 10.0, 
-        "price": null, 
-        "state": "canceled", 
-        "updated_at": "2013-01-21T22:15:40Z", 
-        "uuid": "6e3ea778-9ef7-4e4f-9910-85e735f7b42a"
-      }
-    ]
-
-### Read the ticker
-
-This call will return the ticker.
-
-**Request path :** `/api/v1/ticker/{currency}`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-| Name     | Type   | Description                                                          |
-|----------|--------|----------------------------------------------------------------------|
-| currency | String | Show the ticker for the given currency, default to `EUR`if ommitted  |
-
-**Example request :** `GET /api/v1/ticker/eur`
-
-**Alternate example :** `GET /api/v1/ticker`
-
-**Example response :**
-
-    {
-      "ask": 20.4, 
-      "at": 1361056527, 
-      "bid": 20.1, 
-      "currency": "EUR", 
-      "high": 20.74, 
-      "low": 20.2, 
-      "midpoint": 20.25, 
-      "price": 20.2, 
-      "variation": -1.4634, 
-      "volume": 148.80193218
-    }
-
-### Read the market depth
-
-This call will return the full sorted market depth. If the `currency` parameter is omitted, the currency defaults to EUR.
-
-The asks are sorted by ascending price and the bids by descending price.
-
-**Request path :** `/api/v1/depth` or `/api/v1/depth/{currency}` 
-
-**Request method :** `GET`
-
-**Request parameters**
-
-N/A
-
-**Example request :** `GET /api/v1/depth/eur`
-
-**Example response :**
-
-    {
-      "asks": [
+**Example**
+```json
+{
+    "account_operations": [
         {
-          "amount": 0.48762, 
-          "currency": "EUR", 
-          "price": 24.48996, 
-          "timestamp": 1361925287
-        }, 
-        {
-          "amount": 12.96657232, 
-          "currency": "EUR", 
-          "price": 24.49, 
-          "timestamp": 1361924964
+            "amount": 25.0,
+            "created_at": "2014-05-15T10:19:21.000Z",
+            "created_at_int": 1400149161,
+            "currency": "EUR",
+            "is_trading_account": false,
+            "name": "merchant_currency_payment",
+            "uuid": "afca953b-dfa6-40b6-b856-c04d548baefb"
         }
-      ],
-      "bids": [
-        {
-          "amount": 0.77372456, 
-          "currency": "EUR", 
-          "price": 24.05, 
-          "timestamp": 1361902889
-        }, 
-        {
-          "amount": 0.40491093, 
-          "currency": "EUR", 
-          "price": 24.001, 
-          "timestamp": 1361887469
-        }
-      ]
-    }
+    ],
+    "amount": 25.0,
+    "btc_amount": 0.079945,
+    "callback_url": "http://mysite.com/wc-api/WC_Paymium/",
+    "cancel_url": "http://mysite.com/commande/panier/",
+    "comment": null,
+    "created_at": 1400147834,
+    "currency": "EUR",
+    "expires_at": 1400148734,
+    "merchant_name": "Demo SAS",
+    "merchant_reference": "888",
+    "payment_address": "1NHRnMn1831D84owh7powxtAbqfzA9aaL5",
+    "payment_split": 1.0,
+    "redirect_url": "http://mysite.com/order/checkout/order-received/888?key=wc_order_53784&order=888",
+    "state": "paid",
+    "updated_at": 1400149161,
+    "uuid": "f8e7c539-7b7b-4b63-9ccf-5fc2ca91bf0b"
+}
+```
 
-### Read historical trades (P)
+### E-commerce frameworks plugins
 
-This call will return the most recent trades
+The currently available plugins are available
 
-**Request path :** `/api/v1/trades/{currency}`
+| Framework      | Plugin URL                             |
+|----------------|----------------------------------------|
+| PrestaShop 1.6 | https://github.com/Paymium/prestashop  |
+| WooCommerce    | https://github.com/Paymium/woocommerce |
 
-**Request method :** `GET`
-
-**Request parameters**
-
-| Name     | Type   | Description                                   |
-|----------|--------|-----------------------------------------------|
-| currency | String | Currency filter, defaults to `EUR` if omitted |
-
-**Response**
-
-An array of trade JSON objects is returned.
-
-| Name            | Type     | Description                                      |
-|-----------------|----------|--------------------------------------------------|
-| uuid            | UUID     | Trade identifier                                 |
-| traded_currency | Decimal  | Amount traded, expressed in `currency`           |
-| traded_btc      | Decimal  | Amount of Bitcoins traded                        |
-| currency        | String   | Currency in which `traded_currency` is expressed |
-| price           | Decimal  | Price at which the exchange was made             |
-| created_at      | Datetime | Creation timestamp                               |
-
-**Example request :** `GET /api/v1/trades/eur`
-
-**Example response :**
-
-    [
-      {
-        "created_at": "2013-01-22T08:19:41Z", 
-        "created_at_int" : 1363858355,                      
-        "currency": "EUR", 
-        "price": 5.0, 
-        "traded_btc": 980.0, 
-        "traded_currency": 4940.0, 
-        "uuid": "1c86abf0-170a-4101-84d1-cdad913c95dd"
-      },
-      {
-        "created_at": "2013-01-22T08:19:41Z", 
-        "created_at_int" : 1363858355,                      
-        "currency": "EUR", 
-        "price": 6.0, 
-        "traded_btc": 10.0, 
-        "traded_currency": 60.0, 
-        "uuid": "170aabf0-1c86-4101-84d1-cdad913c95dd"
-      }      
-    ]
-
-## Coupons
-
-Coupons are a way to easily move money between accounts, they are debited from the issuer's account upon creation and may be redeemed at anytime against any account (including the issuer).
-
-They are materialized by a unique redemption code. This code should be kept private as anyone having knowledge of it can redeem the funds.
-
-Creating a coupon requires the `withdraw` OAuth2 scope, other actions require the `read` scope.
-
-### Create a coupon (A)
-
-This call issues a coupon
-
-**Request path :** `/api/v1/coupons`
-
-**Request method :** `POST`
-
-**Request parameters**
-
-| Name                | Type    | Description                               |
-|---------------------|---------|-------------------------------------------|
-| amount              | Decimal | Currency value for the issued coupon      |
-| currency            | String  | Currency in which the amount is expressed |
-
-**Response**
-
-A coupon code is returned
-
-**Example request :** `POST /api/v1/coupons`
-
-    {
-      "amount" : 12.0, 
-      "currency" : "EUR"
-    }
-
-**Example response :**
-    
-    {
-      "code": "BP-EUR-9660407B43799CCED320"
-    }
-
-### View a coupon
-
-This call will return a JSON object representing a coupon
-
-**Request path :** `/api/v1/coupons/{code}`
-
-**Request method :** `GET`
-
-**Request parameters**
-
-| Name | Type   | Description      |
-|------|--------|------------------|
-| code | String | Coupon code      |
-
-
-**Response**
-
-A JSON object with the following parameters is returned.
-
-| Name                  | Type     | Description                               |
-|-----------------------|----------|-------------------------------------------|
-| uuid                  | UUID     | Coupon account operation identifier       |
-| code                  | String   | Coupon code                               |
-| state                 | String   | Coupon state _(see appendix)_             | 
-| amount                | Decimal  | Coupon value                              | 
-| currency              | String   | Currency in which the amount is expressed |
-| created\_at           | Datetime | Creation timestamp                        |
-
-
-**Example request :** `GET /api/v1/coupons/BP-EUR-9660407B43799CCED320`
-
-**Example response :**
-    
-    {
-      "amount": -12.0, 
-      "code": "BP-EUR-9660407B43799CCED320", 
-      "created_at": "2013-01-30T11:52:36Z", 
-      "created_at_int" : 1363858355,                    
-      "currency": "EUR", 
-      "state": "pending", 
-      "uuid": "c21adaf6-f5a2-4d93-a762-a63b89b52265"
-    }
-
-### Redeem a coupon (A)
-
-This call will a redeem a coupon to the client's account. It returns an `UUID`, this identifier can be used to request details about the account operation created for the client's account by the redemption of the coupon (credit of the coupon value).
-
-This call may be used to void a coupon by redeeming it against the account that issued it.
-
-**Request path :** `/api/v1/coupons/redeem`
-
-**Request method :** `POST`
-
-**Request parameters**
-
-| Name | Type   | Description      |
-|------|--------|------------------|
-| code | String | Coupon code      |
-
-**Response**
-
-A JSON object with the following parameters is returned.
-
-| Name                  | Type     | Description                               |
-|-----------------------|----------|-------------------------------------------|
-| uuid                  | UUID     | Redemption account operation identifier   |
-
-**Example request :** `POST /api/v1/coupons`
-
-    {
-      "code": "BP-EUR-9660407B43799CCED320"
-    }
-
-**Example response :**
-    
-    {
-      "uuid": "3e0004cd-158c-40d6-b8f9-f4b672e86308"
-    }
-
-# Appendix
-
-## Codes and types tables
+## Appendix
 
 ### Currencies
 
-The following currencies are available :
+The following currencies are available:
 
-| Symbol | Currency       |
-|--------|----------------|
-| BTC    | Bitcoin        |
-| EUR    | Euro           |
-| GBP    | Pound Sterling |
-| USD    | US Dollar      |
+| symbol | currency |
+|--------|----------|
+| EUR    | Euro     |
+| BTC    | Bitcoin  |
+
+### Order types
+
+Orders can have the following types:
+
+| type           | description                        |
+|----------------|------------------------------------|
+| WireDeposit    | wire (fiat) deposit                |
+| BitcoinDeposit | BTC deposit                        |
+| LimitOrder     | limit trade order                  |
+| Transfer       | BTC or fiat transfer or withdraw   |
+| EmailTransfer  | BTC or fiat transfer by e-mail     |
+| AdminOrder     | special order executed by an admin |
+
+### Order properties
+
+All order types share generic properties.
+
+Each type may have additional properties as described below.
+
+##### Generic order properties
+
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| uuid               | unique id                               | "968f4580-e26c-4ad8-8bcd-874d23d55296" |
+| type               | order type                              | "Transfer"                             |
+| currency           | currency                                | "BTC"                                  |
+| created_at         | date created                            | "2013-10-24T10:34:37.000Z"             |
+| updated_at         | date updated                            | "2013-10-22T19:12:02.000Z"             |
+| amount             | currency amount                         | 1.0                                    |
+| state              | order state                             | "executed"                             |
+| currency_fee       | currency fee collected                  | 0.0                                    |
+| btc_fee            | BTC fee collected                       | 0.0                                    |
+| comment            | optional comment                        |                                        |
+| account_operations | an array of account operations executed |                                        |
+
+##### Market order specific properties
+
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| direction          | trade direction ("buy" or "sell")       | "buy"                                  |
+| price              | price per BTC                           | 620.0                                  |
+| traded_currency    | currency exchanged                      | 310.0                                  |
+| traded_btc         | BTC echanged                            | 0.5                                    |
+
+##### EmailTransfer specific properties
+
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| email_address      | email address of the receiver           | "user@example.com"                     |
 
 
-### Operation types
+### Order states
 
-| Type                        | Description                                             |
-|-----------------------------|---------------------------------------------------------|
-| fee                         | Trading fee                                             |
-| coupon                      | Issue of a redeemable code                              |
-| bitcoin_transfer            | Bitcoin withdrawal                                      |
-| wire_transfer               | Wire transfer withdrawal                                |
-| email_transfer              | Transfer of funds to an e-mail address                  |
-| coupon_redemption           | Redemption of a redeemable code                         |
-| email\_transfer\_redemption | Redemption of an e-mail transfer                        |
-| charge                      | Generic charge                                          |
-| bank_charge                 | Bank charge                                             |
-| invoice_credit              | Payment of an invoice you issued (credits your account) |
-| invoice_payment             | Payment for an invoice (debits your account)            |
-| wire_deposit                | Deposit by bank wire                                    |
-| trade                       | Trade                                                   |
-| reversal                    | Reversal                                                |
+| name               | description                                                                      |
+|--------------------|----------------------------------------------------------------------------------|
+| pending_execution  | order is queued and pending execution                                            |
+| pending            | order is pending, such as an unconfirmed withdrawal                              |
+| processing         | order is processing                                                              |
+| authorized         | order has been authorized, such as a confirmed withdrawal                        |
+| active             | order is active, such as a trade order in the order book                         |
+| filled             | order has been completely filled                                                 |
+| executed           | order has been executed                                                          |
+| canceled           | order has been canceled                                                          |
 
-### States
+### Email Transfer states
 
-#### Transfer (Bitcoin transfer, Wire transfer) statuses
+| Name               | Description                                                                            |
+|--------------------|----------------------------------------------------------------------------------------|
+| pending            | Email Transfer is pending the email confirmation                                       |
+| pending_collection | Email Transfer queued and pending for the receiver registration and profile completion |
+| executed           | Email Transfer has been executed                                                       |
+| expired            | Email Transfer has expired                                                             |
+| canceled           | Email Transfer has been canceled                                                       |
 
-The state of a transfer lets you check whether it has been sent out to the underlying network (banking network or Bitcoin network).
+### Payment states
 
-| State     | Description                           |
-|-----------|---------------------------------------|
-| pending   | The transfer hasn't been sent out yet |
-| processed | The transfer has been sent out        |
+| Name           | Description                                                                        |
+|----------------|------------------------------------------------------------------------------------|
+| pending_payment| Waiting for payment                                                                |
+| processing     | The correct amount has been received, waiting for a Bitcoin network confirmation   |
+| paid           | Payment completed, the requested amount has been credited to the merchant account  |
+| error          | An error has occurred, the merchant must get in touch with the support             |
+| expired        | Payment expired, no Bitcoins were received                                         |
 
-#### Coupon statuses
+### Account operation properties
 
-| State    | Description                             |
-|----------|-----------------------------------------|
-| pending  | The coupon is valid and may be redeemed |
-| redeemed | The coupon has already been redeemed    |
-| canceled | The coupon was redeemed to the issuer   |
+| name               | description                             | example value                          |
+|--------------------|-----------------------------------------|----------------------------------------|
+| uuid               | unique id                               | "a940393b-4d2f-4a5a-8a0a-3470d7419bad" |
+| currency           | currency                                | "BTC"                                  |
+| name               | name of operation                       | "account_operation"                    |
+| created_at         | date created                            | "2013-10-22T14:30:06.000Z"             |
+| created_at_int     | timestamp                               | 1382452206                             |
+| amount             | currency amount                         | 49.38727114                            |
+| address            | bitcoin address if any                  | "1FPDBXNqSkZMsw1kSkkajcj8berxDQkUoc"   |
+| tx_hash            | bitcoin transaction hash if any         | "86e6e72aa559428524e035cd6b2997004..." |
+| is_trading_account | whether the trading account is targeted | false                                  |
 
-#### E-mail transfer statuses
+### Ruby example
 
-| State                | Description                                                              |
-|----------------------|--------------------------------------------------------------------------|
-| pending_collection   | The recipient hasn't claimed the e-mail transfer amount yet              |
-| canceled             | The e-mail transfer was canceled                                         |
-| expired              | The transfer has expired                                                 |
-| unreachable_receiver | An error occurred while sending the e-mail notification to its recipient |
-| processed            | The recipient has collected the sent amount                              |
+This example uses the OAuth2 Ruby gem.
 
-#### Invoice statuses
+The [`AutoRefreshToken`](https://gist.github.com/davout/edb4db0315dc417fa78d) class encapsulates this logic, it is available as a [Gist](https://gist.github.com/davout/edb4db0315dc417fa78d).
 
-| State          | Description                                     |
-|----------------|-------------------------------------------------|
-| pending        | The invoice is pending payment                  |
-| partially_paid | The invoice has a partially confirmed payment   |       
-| confirming     | A full or over-payment is confirming            |
-| paid           | The invoice has a confirmed payment             |
-| overpaid       | The invoice has a confirmed over-payment        |
-| error          | The payment could not be converted as requested |
+```ruby
+require 'oauth2'
 
-#### Trade order statuses
+client = OAuth2::Client.new('6fcf1c32f6e14cd773a7a6640832bdbf83a5b2b8d4382e839c6aff83a8f1bb3b', '55554ecad5627f0465034c4a116e59a38d9c3ab272487a18404078ccc0b64798', site: 'https://paymium.com', authorize_url: '/api/oauth/authorize', token_url: '/api/oauth/token')
 
-| State              | Description                                                                    |
-|--------------------|--------------------------------------------------------------------------------|
-| pending_execution  | The order has been queued for execution                                        |
-| active             | The order has been executed but not filled it is visible in the order book (1) |
-| filled             | The order has been filled                                                      |
-| canceled           | The order has been canceled                                                    |
-| insufficient_funds | The order cannot execute further due to lack of funds (2)                      |
+client.auth_code.authorize_url(redirect_uri: 'https://paymium.com/page/oauth/test', scope: 'basic activity trade withdraw')
+ => "https://staging.paymium.com/api/oauth/authorize?response_type=code&client_id=71a28131e16a0d6756a41aa391f1aa28b2f5a2ed4a6b911cf2bf640c8a0cc2cd&redirect_uri=https%3A%2F%2Fstaging.paymium.com%2Fpage%2Foauth%2Ftest&scope=basic+activity+trade+withdraw"
 
- 1. The amount shown in the order book is the amount that is actually executable given your balance, not necessarily the instructed amount
- 2. Order execution resumes as soon as more funds are available
+# Visit this URL in your browser, approve the request and copy the authorization code
 
-# Left TODO
+authorization_code = '9b55e27c840f59d927284fdc438ee3d8fac94b00e24d331162ddff76c1a6bcc0'
 
-## Websockets
+token = client.auth_code.get_token(authorization_code, redirect_uri: 'https://paymium.com/page/oauth/test')
 
- * Document the socket.io API
- 
-## Misc
-
- * Get an estimate (unsaved quote)
- * Add a `/me` API call
- * Add a call for account balances
- * Add order lag
+token.get('/api/v1/user').body
+=> {"name":"BC-U123456","locale":"en","balance_btc":117.56672217,"locked_btc":0.0,"balance_eur":0.0,"locked_eur":0.00995186}
+```
