@@ -1,6 +1,5 @@
 ![Paymium logo](https://raw.githubusercontent.com/Paymium/api-documentation/master/logo.png)
 
-
 **NEW: Our sandbox environment is now available, visit [sandbox.paymium.com](https://sandbox.paymium.com) (you may have to add a security exception for the SSL certificate to validate).**
 
 The Paymium API allows developers to extend the capabilities of the Paymium platform, from reading the latest ticker to automating trades with bots.
@@ -48,6 +47,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Requesting money by e-mail](#requesting-money-by-e-mail)
   * [Canceling orders](#canceling-orders)
   * [Bitcoin addresses](#bitcoin-addresses)
+  * [Device tokens](#device-tokens)
   * [Price alerts](#price-alerts)
 
 * [**Merchant API**](#merchant-api)
@@ -1011,7 +1011,53 @@ $ curl -X POST "https://bitcoin-central.net/api/v1/user/addresses" \
 
 ##### Description
 
-Register a mobile device for alerts on price movements.
+Register a mobile device for alerts.
+
+##### Endpoint
+
+| method | path                                | authorization            |
+|--------|-------------------------------------|--------------------------|
+| GET    | /api/v1/user/device_tokens           | oauth2 (scope: activity) |
+| POST   | /api/v1/user/device_tokens           | oauth2 (scope: activity) |
+| DELETE | /api/v1/user/device_tokens/:id       | oauth2 (scope: activity) |
+
+##### Examples
+
+List currently active device tokens.
+
+```bash
+$ curl "https://paymium.com/api/v1/user/device_tokens" \
+     --header "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json
+[
+  {
+    "id": 42,
+    "token": "0ff2f39d-cd9f-4710-9eb5-3f8385f5e059",
+    "description": "My personal iPhone 6.",
+    "created_at": 1445610041
+  }
+]
+```
+
+Add a new phone.
+
+```bash
+$ curl "https://paymium.com/api/v1/user/device_tokens"  \
+     -X POST                                            \
+     --header "Authorization: Bearer ACCESS_TOKEN"      \
+     -d "token=0ff2f39d-cd9f-4710-9eb5-3f8385f5e059"    \
+     -d "description=foo"                               \
+```
+
+If successful, it responds with a `HTTP/1.1 204 No Content` status code, and no content.
+
+### Price alerts
+
+##### Description
+
+Register an alerts on price movements.  This alert will be pushed to each device token.
 
 ##### Endpoint
 
@@ -1034,7 +1080,6 @@ $ curl "https://paymium.com/api/v1/user/price_alerts" \
 [
   {
     "id": 42,
-    "token": "0ff2f39d-cd9f-4710-9eb5-3f8385f5e059",
     "notify_above": 220.5,
     "notify_below": 180.0,
     "last_sent_at": 1445610041
@@ -1048,7 +1093,6 @@ Create a new price alert.
 $ curl "https://paymium.com/api/v1/user/price_alerts"     \
      -X POST                                              \
      --header "Authorization: Bearer ACCESS_TOKEN"        \
-     -d "token=0ff2f39d-cd9f-4710-9eb5-3f8385f5e059"      \
      -d "notify_below=100"                                \
      -d "notify_above=110"                                \
 ```
