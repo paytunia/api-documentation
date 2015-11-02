@@ -1,164 +1,34 @@
 # WebSocket API
 
-* [Private messages](#private-messages)
- * [Channel subscribtion](#channel-subscribtion)
- * [Balance changes](#balance-changes)   
- * [Order update & creation](#order-update--creation)
- * [User state update](#user-state-update)
- * [Payments updates](#payments-updates)
+* [Public socket](#public-socket)
+  * [Subscribing](#subscribing)
+  * [NodeJS example](#nodejs-example)   
+  * [Public Data](#public-data)
+    * [publicData.ticker](#publicdataticker)
+    * [publicData.trades](#publicdatatrades)
+    * [publicData.bids](#publicdatabids)
+    * [publicData.asks](#publicdataasks)
+* [User socket](#user-socket)
+  * [Subscribing](#subscribing-1)
+  * [NodeJS example](#nodejs-example-1)   
+  * [User Data](#user-data)
+    * [userData.balance_eur](#userdatabalance_eur)
+    * [userData.locked_eur](#userdatalocked_eur)
+    * [userData.balance_btc](#userdatabalance_btc)
+    * [userData.locked_btc](#userdatalocked_btc)
+    * [userData.orders](#userdataorders)
 
-* [Public messages](#public-messages)
- * [Trades](#trades)
- * [Ticker updates](#ticker-updates) 
- * [Market depth updates](#market-depth-updates)
- * [Text notifications](#text-notifications)  
+Websockets are implemented using **socket.io v1.3**.
 
-* [Connection examples](#connection-examples)
- * [Public socket](#public-socket)
- * [User socket](#user-socket)
+## Public socket
 
+### Subscribing
 
-## Private messages
+You must connect your socket.io client to `paymium.com/public`, setting the path
+option to `/ws/socket.io`. When new data is available, a `stream` event is
+triggered.
 
-### Channel subscribtion
-
-These messages are broadcast on specific channels, and not publicly. Knowledge of the channel identifier is required in order to subscribe to these messages.
-
-There are two types of channels:
- * User channels: they broadcast messages relevant to a particular user
- * Payment channels: they broadcast messages relevant to a specific payment
-
-Clients will typically subscribe to the relevant user channel if authenticated, and to every payment-specific channel of interest to them.
-
-The user channel ID is returned in the "channel" key in response to sign-in POSTs or user GETs. The payment channel ID is the payment's UUID, as returned by the REST API calls.
-
-All the messages in the "Private messages" section are sent on user channels, with the exception of payment updates, which are sent on the specific payment's channel.
-
-
-### Balance changes
-
-These messages are emitted when an account balance is updated, when the updated balance is the locked for trading balance, the "trading" key is set to true.
-
-**Message structure**
-````json
-{
-  "event": "balance",
-  "payload": {
-    "balance": 10.0,
-    "currency": "<EUR|BTC>",
-    "trading":  "<true|false>"
-}
-````
-
-
-### Order update & creation
-
-Emitted whenever an order is persisted. See the REST API documentation for details on order serialization.
-
-**Message structure**
-````json
-{
-  "event": "order",
-  "payload": "<JSON-serialized order>"
-}
-````
-
-### User state update
-
-Emitted whenever the user state is updated (for example due to KYC steps being completed). See the REST API documentation for details on the different possible states.
-
-**Message structure**
-````json
-{
-  "event": "state",
-  "payload": {
-    "state": "<new state>"
-  }
-}
-````
-
-### Payments updates
-
-Emitted whenever a payment is updated. See the REST API documentation for details on payment serialization. These messages are only emitted on the specific payment channels.
-
-**Message structure**
-````json
-{
-  "event": "payment",
-  "payload": "<JSON-serialized payment>"
-}
-````
-
-
-## Public messages
-
-These messages are publicly broadcast, each type is broadcast on a separate channel and requires a separate subscribtion.
-
-### Trades
-
-These messages are broadcast on the "trade" channel. Its timestamp is expressed in milliseconds.
-
-**Message structure**
-````json
-{
-  "event": "new-trade",
-  "payload": {
-    "price": 201.28,
-    "traded_btc": 12.4,
-    "timestamp": 1445348298584,
-    "currency": "EUR"
-  }
-}
-````
-
-
-### Ticker updates
-
-These messages are broadcast on the "ticker" channel.
-
-**Message structure**
-````json
-{
-  "event": "tick",
-  "payload": "<JSON ticker>"
-}
-````
-
-### Market depth updates
-
-These messages are broadcast on the "market-depth" channel.
-
-**Message structure**
-````json
-{
-  "event": "update-market-depth",
-  "payload": {
-    "category": "<buy|sell>",
-    "timestamp": 1445348298,
-    "amount": 4.8,
-    "price": 201.87,
-    "currency": "EUR"
-  }
-}
-````
-
-### Text notifications
-
-Emitted whenever a text notification is issued to all users.
-
-**Message structure**
-````json
-{
-  "event": "notice",
-  "payload": {
-    "message": "<message>"
-  }
-}
-````
-
-## Connection examples
-
-### Public socket
+### NodeJS example
 
 ```javascript
 var io = require('socket.io-client');
@@ -178,14 +48,122 @@ socket.on('disconnect', function() {
   console.log('DISCONNECTED');
 });
 
-socket.on('stream', function(data) {
+socket.on('stream', function(publicData) {
   console.log('GOT DATA:');
-  console.log(data);
+  console.log(publicData);
 });
 ```
 
-### User socket
+### Public data
 
+The `stream` event will emit an object when new data is available. The object
+will have properties **only for the data that changed**.
+
+#### publicData.ticker
+
+If the ticker changed, `publicData.ticker` will contains the new ticker
+information.
+
+Example:
+
+```javascript
+{
+  ticker: {
+    high: 275,
+    low: 275,
+    volume: 0.10909089,
+    bid: 205,
+    ask: 275,
+    midpoint: 240,
+    vwap: 275,
+    at: 1446464202,
+    price: 275,
+    open: 270,
+    variation: 1.8519,
+    currency: 'EUR',
+    trade_id: '460aff60-8fff-4fb0-8be5-2f8dc67758c2',
+    size: 0.03636363
+  }
+}
+```
+
+#### publicData.trades
+
+If new trades are executed, `publicData.trades` will be an array containing the
+new trades.
+
+Example:
+
+```javascript
+{
+  trades: [
+    {
+      price: 275,
+      traded_btc: 0.03636363,
+      timestamp: 1446464202000,
+      currency: 'EUR'
+    }
+  ]
+}
+```
+
+#### publicData.bids
+
+If buy orders have changed (created, changed, or deleted), `publicData.bids`
+will be an array containing the modified orders. Orders are aggregated by price.
+If `amount` is `0`, there are no more orders at this price.
+
+Example:
+
+```javascript
+{
+  bids: [
+    {
+      timestamp: 1424208720,
+      amount: 17.43992373,
+      price: 265,
+      currency: 'EUR',
+      category: 'buy'
+    }
+  ]
+}
+```
+
+#### publicData.asks
+
+If sell orders have changed (created, changed, or deleted), `publicData.asks`
+will be an array containing the modified orders. Orders are aggregated by price.
+If `amount` is `0`, there are no more orders at this price.
+
+Example:
+
+```javascript
+{
+  asks: [
+    {
+      timestamp: 1424208720,
+      amount: 17.43992373,
+      price: 275,
+      currency: 'EUR',
+      category: 'sell'
+    }
+  ]
+}
+```
+
+## User socket
+
+### Subscribing
+
+You must connect your socket.io client to `paymium.com/user`, setting the path
+option to `/ws/socket.io`.
+
+You must emit a `channel` event with the user channel id. This channel id is
+available in the user's json (`/api/v1/user`).
+
+When new data is available, a `stream` event is triggered.
+
+### NodeJS example
 ```javascript
 var io = require('socket.io-client');
 
@@ -207,8 +185,90 @@ socket.on('disconnect', function() {
   console.log('DISCONNECTED');
 });
 
-socket.on('stream', function(data) {
+socket.on('stream', function(userData) {
   console.log('GOT DATA:');
-  console.log(data);
+  console.log(userData);
 });
+```
+
+### User data
+
+The `stream` event will emit an object when new data is available. The object
+will have properties **only for the data that changed**.
+
+#### userData.balance_eur
+
+If the available EUR balance changed, `userData.balance_eur` will contain the
+new balance.
+
+```javascript
+{
+  balance_eur: 410.04
+}
+```
+
+#### userData.locked_eur
+
+If the locked EUR balance changed, `userData.locked_eur` will contain the
+new balance.
+
+```javascript
+{
+  locked_eur: 20.24
+}
+```
+
+#### userData.balance_btc
+
+If the available BTC balance changed, `userData.balance_btc` will contain the
+new balance.
+
+```javascript
+{
+  balance_btc: 53.29811458
+}
+```
+
+#### userData.locked_btc
+
+If the locked BTC balance changed, `userData.locked_btc` will contain the
+new balance.
+
+```javascript
+{
+  locked_btc: 0
+}
+```
+
+#### userData.orders
+
+If user orders have changed (created, filled, cancelled, etc...),
+`userData.orders` will be an array containing the modified orders. You can check
+the state of the orders to handle them properly.
+
+Example:
+
+```javascript
+{
+  orders: [
+    {
+      uuid: '89d4b612-5e6a-4154-94f3-120d03f4e891',
+      amount: null,
+      currency_amount: 10,
+      state: 'pending_execution',
+      btc_fee: 0,
+      currency_fee: 0,
+      updated_at: '2015-11-02T11:36:41.000Z',
+      created_at: '2015-11-02T11:36:41.000Z',
+      currency: 'EUR',
+      comment: null,
+      type: 'MarketOrder',
+      traded_btc: 0,
+      traded_currency: 0,
+      direction: 'buy',
+      price: null,
+      account_operations: []
+    }
+  ]
+}
 ```
