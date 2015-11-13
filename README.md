@@ -317,14 +317,14 @@ Read the latest executed trades.
 
 ##### Parameters
 
-| name  | description                                 | required | type    | default | example    |
-|-------|---------------------------------------------|----------|---------|---------|------------|
-| since | The timestamp of the oldest trade to fetch. | false    | Integer | null    | 1447420700 |
+| name  | description                                 | required | type    | default    | example      |
+|-------|---------------------------------------------|----------|---------|------------|--------------|
+| since | The timestamp of the oldest trade to fetch. | false    | Integer | 1 week ago | `1389094259` |
 
 ##### Example
 
 ```bash
-$ curl "https://paymium.com/api/v1/data/eur/trades"
+$ curl "https://paymium.com/api/v1/data/eur/trades?since=1389094259"
 ```
 
 ```json
