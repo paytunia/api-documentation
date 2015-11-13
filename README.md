@@ -315,6 +315,12 @@ Read the latest executed trades.
 |--------|-------------------------|---------------|
 | GET    | /api/v1/data/eur/trades | not required  |
 
+##### Parameters
+
+| name  | description                                 | required | type    | default | example    |
+|-------|---------------------------------------------|----------|---------|---------|------------|
+| since | The timestamp of the oldest trade to fetch. | false    | Integer | null    | 1447420700 |
+
 ##### Example
 
 ```bash
