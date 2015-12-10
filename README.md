@@ -1287,13 +1287,14 @@ Each type may have additional properties as described below.
 
 ### Payment states
 
-| Name           | Description                                                                        |
-|----------------|------------------------------------------------------------------------------------|
-| pending_payment| Waiting for payment                                                                |
-| processing     | The correct amount has been received, waiting for a Bitcoin network confirmation   |
-| paid           | Payment completed, the requested amount has been credited to the merchant account  |
-| error          | An error has occurred, the merchant must get in touch with the support             |
-| expired        | Payment expired, no Bitcoins were received                                         |
+| Name           | Description                                                                        				       |
+|----------------|---------------------------------------------------------------------------------------------------------------------|
+| pending_payment| Waiting for payment                                                                                                 |
+| processing     | The correct amount has been received, waiting for a Bitcoin network confirmation                                    |
+| paid           | Payment completed, the requested amount has been credited to the merchant account  				       |
+| error          | An error has occurred, the merchant must get in touch with the support             				       |
+| btc_forwarded  | Due to an incorrect paid, the received funds could not be converted and have been credited directly to the merchant |
+| expired        | Payment expired, no Bitcoins were received                                                                          |
 
 ### Account operation properties
 
