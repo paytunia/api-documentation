@@ -269,7 +269,7 @@ Read the list of countries, we currently serve the residents of countries for wh
 ##### Example
 
 ```bash
-$ curl "https://paymium.com/api/v1/countries
+$ curl https://paymium.com/api/v1/countries
 ```
 
 ```json
@@ -312,7 +312,7 @@ Read the latest ticker data.
 ##### Example
 
 ```bash
-$ curl "https://paymium.com/api/v1/data/eur/ticker
+$ curl https://paymium.com/api/v1/data/eur/ticker
 ```
 
 ```json
