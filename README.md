@@ -31,7 +31,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Token authentication](#token-authentication)
 
 * [**Public data**](#public-data)
-  * [Available countries](#available-countries)
+  * [Countries](#countries)
   * [Ticker](#ticker)
   * [Latest trades](#latest-trades)
   * [Market depth](#market-depth)
@@ -254,11 +254,11 @@ After refreshing the access token, the previous tokens (access and refresh) are 
 
 Public data (ticker, asks, bids, trades) can be accessed without registering an application.
 
-### Available countries
+### Countries
 
 ##### Description
 
-Read the list of countries we currently serve.
+Read the list of countries, we currently serve the residents of countries for which the `accepted` flag is set to `true`.
 
 ##### Endpoint
 
@@ -276,6 +276,7 @@ $ curl "https://paymium.com/api/v1/countries
 [
   {
     "id": 76,
+    "accepted": true,
     "iso_alpha2": "FR",
     "iso_alpha3": "FRA",
     "iso_numeric": 250,
@@ -285,6 +286,7 @@ $ curl "https://paymium.com/api/v1/countries
   },
   {
     "id": 157,
+    "accepted": true,
     "iso_alpha2": "NL",
     "iso_alpha3": "NLD",
     "iso_numeric": 528,
