@@ -31,6 +31,7 @@ _* Authenticating users is only available to developers that have a fully verifi
   * [Token authentication](#token-authentication)
 
 * [**Public data**](#public-data)
+  * [Available countries](#available-countries)
   * [Ticker](#ticker)
   * [Latest trades](#latest-trades)
   * [Market depth](#market-depth)
@@ -253,6 +254,47 @@ After refreshing the access token, the previous tokens (access and refresh) are 
 
 Public data (ticker, asks, bids, trades) can be accessed without registering an application.
 
+### Available countries
+
+##### Description
+
+Read the list of countries we currently serve.
+
+##### Endpoint
+
+| method | path                    | authorization |
+|--------|-------------------------|---------------|
+| GET    | /api/v1/countries 	   | not required  |
+
+##### Example
+
+```bash
+$ curl "https://paymium.com/api/v1/countries
+```
+
+```json
+[
+  {
+    "id": 76,
+    "iso_alpha2": "FR",
+    "iso_alpha3": "FRA",
+    "iso_numeric": 250,
+    "name_en": "France",
+    "name_fr": "France",
+    "telephone_code": 33
+  },
+  {
+    "id": 157,
+    "iso_alpha2": "NL",
+    "iso_alpha3": "NLD",
+    "iso_numeric": 528,
+    "name_en": "Netherlands",
+    "name_fr": "Pays-Bas",
+    "telephone_code": 31
+  }
+]
+```
+
 ### Ticker
 
 ##### Description
@@ -268,7 +310,7 @@ Read the latest ticker data.
 ##### Example
 
 ```bash
-$ curl "https://paymium.com/api/v1/data/eur/ticker"
+$ curl "https://paymium.com/api/v1/data/eur/ticker
 ```
 
 ```json
