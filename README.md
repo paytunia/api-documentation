@@ -1131,6 +1131,10 @@ The merchant platform can then :
 
 To display the payment request to the user, the `https://paymium.com/invoice/{UUID}` can be used, this is used by the e-commerce framework plugins.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Paymium/api-documentation/master/display-invoice.png" />
+</p>
+
 Once the payment request is displayed, the customer has 15 minutes to send the appropriate amount.
 
 Paymium notifies the merchant of the completion of his payment via the associated callback (for which an URL may be provided when creating the payment request), once one Bitcoin confirmation for the payment is received the funds are credited to the merchant's account, a callback notification is then made.
