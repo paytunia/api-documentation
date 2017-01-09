@@ -1142,9 +1142,9 @@ Paymium notifies the merchant of the completion of his payment via the associate
 
 ##### Endpoint
 
-| method | path |
-|--------|------|
-| POST   | /api/v1/merchant/create_payment |
+| method | path                            | authorization            |
+|--------|---------------------------------|--------------------------|
+| POST   | /api/v1/merchant/create_payment | oauth2 (scope: merchant) |
 
 
 ##### Parameters
