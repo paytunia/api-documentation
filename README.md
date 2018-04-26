@@ -158,7 +158,7 @@ $ curl "https://paymium.com/api/v1/user"               \
 ```
 
  * The **API key** is the token that is displayed when listing your currently active tokens,
- * The **API signature** is a HMAC-SHA256 hash of the nonce concatenated with the full URL and body of the HTTP request, encoded using your API secret key,
+ * The **API signature** is the hexdigest of the HMAC-SHA256 hash of the nonce concatenated with the full URL and body of the HTTP request, encoded using your API secret key,
  * The **nonce** is a positive integer number that must increase with every request you make
 
 ### OAuth2 authentication
