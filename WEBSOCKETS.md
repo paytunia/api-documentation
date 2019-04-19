@@ -155,7 +155,7 @@ Example:
 
 ### Subscribing
 
-You must connect your socket.io client to `paymium.com/user`, setting the path
+You must connect your socket.io client to `https://www.paymium.com/user`, setting the path
 option to `/ws/socket.io`.
 
 You must emit a `channel` event with the user channel id. This channel id is
@@ -167,7 +167,7 @@ When new data is available, a `stream` event is triggered.
 ```javascript
 var io = require('socket.io-client');
 
-var socket = io.connect('paymium.com/user', {
+var socket = io.connect('https://www.paymium.com/user', {
   path: '/ws/socket.io'
 });
 
