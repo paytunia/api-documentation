@@ -1,4 +1,4 @@
-## WebScoket
+## WebSocket
 
 This is an example of how to connect to the Bitcoin-Central WebSocket with node.js .
 
