@@ -1,4 +1,4 @@
-![Paymium logo](https://raw.githubusercontent.com/Paymium/api-documentation/master/logo.png)
+![Paymium logo](https://raw.githubusercontent.com/Paymium/old-api-documentation/master/logo.png)
 
 
 **NEW: Our sandbox environment is now available, visit [sandbox.paymium.com](https://sandbox.paymium.com) (you may have to add a security exception for the SSL certificate to validate).**
